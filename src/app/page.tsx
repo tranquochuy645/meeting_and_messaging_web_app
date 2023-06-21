@@ -13,8 +13,9 @@ connectToDb(
 )
 const callLogin = async (data: any) => {
   "use server"
-  console.log(data)
-}
+  console.log(data.get('username') as string)
+  console.log(data.get('password') as string)
+ }
 export default function Home() {
   return (
     <main>
