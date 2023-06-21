@@ -1,23 +1,20 @@
-// import Image from 'next/image'
-// import styles from './page.module.css'
-
-
-import {getDb,connectToDb} from '../../lib/mongodb'
+import styles from './page.module.css'
+import { getDb, connectToDb } from '../../lib/mongodb'
+let db;
 connectToDb(
-  err=>{
-    if(err){
+  err => {
+    if (err) {
       console.log(err);
-    }else{
-      let db=getDb();
-      console.log(db);
+    } else {
+      db = getDb();
+      console.log("Connected to database");
     }
   }
-
 )
 export default function Home() {
   return (
     <main>
-    HI MOM
+      HI MOM
     </main>
   )
 }
