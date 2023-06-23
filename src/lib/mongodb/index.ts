@@ -9,7 +9,7 @@ if (!mongo_uri || !db_name) {
 }
 
 let db: Db | null | undefined;
-// this should be called only once befor starting the application
+// this should be called only once before starting the application
 // or when connection is failed
 
 export const connectToDb = (callback?: (err?: Error) => void): void => {
