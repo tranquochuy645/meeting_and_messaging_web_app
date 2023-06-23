@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "test": "bash runtest.sh",
+    "install":"cd frontend && npm i && cd ../backend && npm i",
     "build": "cd frontend && tsc && npm run build && cd ../backend && bash build.sh",
     "start": "cd prod && npm run start",
     "acp": " git add . && git commit -m 'acp' && git push"
