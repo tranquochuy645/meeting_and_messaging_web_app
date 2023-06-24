@@ -1,14 +1,19 @@
-import { useState } from 'react'
+import { lazy, useState, Suspense } from 'react'
 import './App.css'
 import AuthForm from './components/AuthForm/AuthForm'
-import Home from './components/Home/Home'
+
+const Home = lazy(
+  () => import('./components/Home/Home')
+)
+
+
 
 function App() {
   const [token, setToken] = useState<string>(
     sessionStorage.getItem('token') || ""
   )
 
-  const loginHanlder = (token: string) => {
+  const loginHandler = (token: string) => {
     console.log(token);
     setToken(token);
 
@@ -16,10 +21,16 @@ function App() {
   return (
     <>
       {
-        token ?
+        token ? 
+        <Suspense fallback=
+        {
+          <p>Loading ...</p>
+        }
+        >
           <Home token={token} />
+        </Suspense>
           :
-          <AuthForm onLogin={loginHanlder} />
+        <AuthForm onLogin={loginHandler} />
 
       }
     </>
