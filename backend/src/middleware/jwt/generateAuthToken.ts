@@ -1,17 +1,15 @@
-    import jwt from 'jsonwebtoken';
-    export const generateAuthToken = (user: any): string => {
-        // Generate and return an authentication token based on the user's information
-        const secretKey = process.env.JWT_KEY
-        if (!secretKey) {
-            throw new Error("NO JWT KEY")
-        }
-        const tokenPayload = {
+import jwt from 'jsonwebtoken';
+import conf from '../../config';
+
+export const generateAuthToken = (user: any): string => {
+    // Generate and return an authentication token based on the user's information
+    const secretKey = conf.jwt_key;
+    const tokenPayload = {
         userId: user.id,
         username: user.username,
-        };
-    
-        const token = jwt.sign(tokenPayload, secretKey, { expiresIn: '1h' });
-    
-        return token;
     };
-    
+
+    const token = jwt.sign(tokenPayload, secretKey, { expiresIn: '1h' });
+
+    return token;
+};

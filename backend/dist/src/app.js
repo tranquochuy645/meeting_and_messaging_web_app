@@ -7,5 +7,5 @@ const express_1 = __importDefault(require("express"));
 const api_1 = __importDefault(require("./api"));
 const app = (0, express_1.default)();
 app.use(express_1.default.static('public'));
-app.use('/api', api_1.default);
+app.use('/api', express_1.default.json(), api_1.default);
 exports.default = app;

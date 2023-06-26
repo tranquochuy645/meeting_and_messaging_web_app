@@ -3,6 +3,9 @@
 # Change directory to the target folder
 cd tests
 
+# Run API tests
+newman run postman_test.json
+
 # Find all JavaScript files in the current folder
 js_files=$(find . -type f -name "*.js")
 
@@ -36,3 +39,4 @@ done
 # Display the results
 echo "Success count: $success_count"
 echo "Error count: $error_count"
+

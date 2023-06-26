@@ -6,7 +6,11 @@ const router = Router();
 
 // POST /api/auth/register
 router.post('/register', (req, res) => {
+    if(!req.body){
+        res.status(400).json({message: 'Bad Request'});
+    }
     const { username, password } = req.body;
+
   
     // Check if the username already exists in the database
     getDocuments('users', { username })
@@ -37,7 +41,11 @@ router.post('/register', (req, res) => {
 
 // POST /api/auth/login
 router.post('/login', (req, res) => {
+    if(!req.body){
+        res.status(400).json({message: 'Bad Request'});
+    }
     const { username, password } = req.body;
+    console.log(username, password);
   
     // Find user in the database based on the provided username and password
     getDocuments('users', { username, password })

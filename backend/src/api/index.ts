@@ -1,9 +1,9 @@
-import express from 'express';
+import Router from 'express';
 import authRouter from './auth';
 import roomsRouter from './rooms';
 import usersRouter from './users';
 
-const router = express.Router();
+const router = Router();
 
 router.use('/auth', authRouter);
 router.use('/rooms', roomsRouter);
