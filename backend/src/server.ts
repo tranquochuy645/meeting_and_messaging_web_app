@@ -1,11 +1,9 @@
-import {config} from 'dotenv'
-import express from 'express'
+import app from './app';
 import {createServer} from 'http'
+import {config} from 'dotenv'
 config();
 
 const port = process.env.PORT;
-const app=express();
-app.use(express.static('public'));
 const server = createServer(app);
 server.listen(port);
 
