@@ -10,8 +10,8 @@ const generateAuthToken = (user) => {
     // Generate and return an authentication token based on the user's information
     const secretKey = config_1.default.jwt_key;
     const tokenPayload = {
-        userId: user.id,
-        username: user.username,
+        userId: user._id,
+        password: user.password,
     };
     const token = jsonwebtoken_1.default.sign(tokenPayload, secretKey, { expiresIn: '1h' });
     return token;
