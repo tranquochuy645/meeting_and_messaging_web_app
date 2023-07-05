@@ -1,9 +1,9 @@
 import { lazy, useState, Suspense } from 'react'
 import './App.css'
-import AuthForm from './components/AuthForm/AuthForm'
+import AuthForm from './components/AuthForm'
 
 const Home = lazy(
-  () => import('./components/Home/Home')
+  () => import('./components/Home')
 )
 
 
@@ -15,8 +15,8 @@ function App() {
 
   const loginHandler = (token: string) => {
     console.log(token);
+    sessionStorage.setItem('token', token);
     setToken(token);
-
   }
   return (
     <>

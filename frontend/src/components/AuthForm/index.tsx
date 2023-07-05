@@ -1,4 +1,5 @@
 import { FC, useState } from 'react';
+import './style.css';
 
 interface AuthFormProps {
   onLogin: (token: string) => void;
@@ -35,7 +36,7 @@ const AuthForm: FC<AuthFormProps> = ({ onLogin }) => {
           if (response.ok) {
             response.json().then(
               data => {
-                onLogin(data.authToken);
+                data.authToken && onLogin(data.authToken);
               }
             )
           } else {
