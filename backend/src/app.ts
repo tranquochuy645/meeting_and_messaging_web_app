@@ -4,6 +4,7 @@ import { chooseFavicon } from './middleware/faviconPick';
 import { filterJsonError } from './middleware/jsonFilter';
 
 const app = express();
+app.use(express.static('public'));
 
 
 
@@ -18,7 +19,6 @@ app.use('/api',
 
 // app.use('/api', api);
 
-app.get('/', express.static('public'));
 
 
 export default app;

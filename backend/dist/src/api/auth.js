@@ -59,18 +59,26 @@ router.post('/login', (req, res) => {
         else {
             // User found, validate password 
             const user = users[0];
-            const isValid = bcrypt_1.default.compareSync(password, users[0].password);
-            if (!isValid) {
-                res.status(401).json({ message: 'Invalid credentials' });
-            }
-            else {
-                // Generate and send authentication token
-                const authToken = (0, jwt_1.generateAuthToken)({
-                    _id: user._id,
-                    password: user.password
-                });
-                res.status(200).json({ authToken });
-            }
+            bcrypt_1.default.compare(password, users[0].password, (err, result) => {
+                if (err) {
+                    res.status(500).json({ message: "Internal Server Error" });
+                }
+                else {
+                    if (result) {
+                        // Correct password
+                        // Generate and send authentication token
+                        const authToken = (0, jwt_1.generateAuthToken)({
+                            _id: user._id,
+                            password: user.password
+                        });
+                        res.status(200).json({ authToken });
+                    }
+                    else {
+                        // Wrong password
+                        res.status(401).json({ message: 'Invalid credentials' });
+                    }
+                }
+            });
         }
     })
         .catch((error) => {

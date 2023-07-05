@@ -1,29 +1,83 @@
-import { FC,FormEvent, useState } from 'react';
+import { FC, useState } from 'react';
 
 interface AuthFormProps {
-    onLogin: (token:string) => void;
-  }
-const AuthForm:FC<AuthFormProps> = ({onLogin}) => {
+  onLogin: (token: string) => void;
+}
+const AuthForm: FC<AuthFormProps> = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
 
   const handleToggle = () => {
     setIsLogin(prevState => !prevState);
   };
 
-  const handleSubmit= (event:FormEvent) => {
+  const handleSubmit = (event: any) => {
     event.preventDefault();
     // Handle login or register form submission
-    // You can add your logic here to handle the form submission
-    // For demonstration purposes, we'll just log the form type
     if (isLogin) {
-      console.log('Login form submitted');
+      const username = event.target.logUsername.value;
+      const password = event.target.logPassword.value;
+      fetch(
+        '/api/auth/login',
+        {
+          method: 'POST',
+          headers: {
+            "content-type": "application/json"
+          },
+          body: JSON.stringify(
+            {
+              "username": username,
+              "password": password
+            }
+          )
+        }
+      ).then(
+        response => {
+          if (response.ok) {
+            response.json().then(
+              data => {
+                onLogin(data.authToken);
+              }
+            )
+          } else {
+            response.json().then(
+              data => {
+                data.message && alert(data.message);
+              }
+            )
+          }
+        }
+      )
     } else {
-      console.log('Register form submitted');
+      const username = event.target.regUsername.value;
+      const password = event.target.regPassword.value;
+      const passwordCheck = event.target.reRegPassword.value;
+      if (password !== passwordCheck) {
+        return alert("Passwords do not match");
+      }
+      fetch(
+        '/api/auth/register',
+        {
+          method: 'POST',
+          headers: {
+            "content-type": "application/json"
+          },
+          body: JSON.stringify(
+            {
+              "username": username,
+              "password": password
+            }
+          )
+        }
+      ).then(
+        response => {
+          response.json().then(
+            data => {
+              data.message && alert(data.message);
+            }
+          )
+        }
+      )
     }
-    console.log(event);
-    
-
-    onLogin("abcsssssss");
   };
 
   return (
@@ -32,23 +86,23 @@ const AuthForm:FC<AuthFormProps> = ({onLogin}) => {
       <form onSubmit={handleSubmit}>
         {/* Render login or register fields based on the current state */}
         {isLogin ? (
-          <div>
-            <label htmlFor="login-email">Email:</label>
-            <input type="email" id="login-email" required />
+          <div >
+            <label htmlFor="logUsername">Username:</label>
+            <input type="text" name="logUsername" required />
             <br />
-            <label htmlFor="login-password">Password:</label>
-            <input type="password" id="login-password" required />
+            <label htmlFor="logPassword">Password:</label>
+            <input type="password" name="logPassword" required />
           </div>
         ) : (
           <div>
-            <label htmlFor="register-name">Name:</label>
-            <input type="text" id="register-name" required />
+            <label htmlFor="regUsername">Username:</label>
+            <input type="text" name="regUsername" required />
             <br />
-            <label htmlFor="register-email">Email:</label>
-            <input type="email" id="register-email" required />
+            <label htmlFor="regPassword">Password:</label>
+            <input type="password" id="regPassword" required />
             <br />
-            <label htmlFor="register-password">Password:</label>
-            <input type="password" id="register-password" required />
+            <label htmlFor="reRegPassword">Password check:</label>
+            <input type="password" id="reRegPassword" required />
           </div>
         )}
         <button type="submit">{isLogin ? 'Login' : 'Register'}</button>

@@ -17,7 +17,7 @@ const chooseFavicon: RequestHandler = (req, res, next) => {
     }
 
     // Set the favicon middleware using the determined favicon path
-    const faviconFilePath = path.join(__dirname, '..', 'public', 'favicon_io', faviconPath);
+    const faviconFilePath = path.join(__dirname, '..','..','..','public', 'favicon_io', faviconPath);
     favicon(faviconFilePath)(req, res, next);
 };
 export {
