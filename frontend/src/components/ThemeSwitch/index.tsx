@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './style.css'
 const darkTheme = {
     text: "#000",
@@ -12,20 +12,21 @@ const ThemeSwitch = () => {
     const [isLightMode, setIsLightMode] = useState(sessionStorage.getItem('theme') === "light");
 
     const handleToggle = () => {
+        setIsLightMode(!isLightMode);
+    };
+    useEffect(() => {
         if (isLightMode) {
-            setIsLightMode(false);
-            sessionStorage.setItem('theme', 'dark');
-            document.querySelector('.switcher-label')?.classList.add('active');
-            document.documentElement.style.setProperty("--text-color", darkTheme.text);
-            document.documentElement.style.setProperty("--background-color", darkTheme.bg);
-        } else {
-            setIsLightMode(true);
             sessionStorage.setItem('theme', 'light');
             document.querySelector('.switcher-label')?.classList.remove('active');
             document.documentElement.style.setProperty("--text-color", lightTheme.text);
             document.documentElement.style.setProperty("--background-color", lightTheme.bg);
+        } else {
+            sessionStorage.setItem('theme', 'dark');
+            document.querySelector('.switcher-label')?.classList.add('active');
+            document.documentElement.style.setProperty("--text-color", darkTheme.text);
+            document.documentElement.style.setProperty("--background-color", darkTheme.bg);
         }
-    };
+    }, [isLightMode])
 
     return (
         <div className='theme-switch-container'>
