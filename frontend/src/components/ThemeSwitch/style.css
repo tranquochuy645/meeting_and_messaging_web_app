@@ -1,0 +1,63 @@
+.theme-switch-container{
+    position: relative;
+}
+/*input checkbox*/
+input[type='checkbox'] {
+    opacity: 0;
+    display: none;
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/*move toggler when input is checked*/
+/* input[type='checkbox']:checked ~ .switcher-label .switcher-toggler {
+    left: 60%;
+} */
+
+/*label*/
+.switcher-label {
+    cursor: pointer;
+    --cont-height: 30px;
+    --cont-width: 50px;
+    height: var(--cont-height);
+    width: var(--cont-width);
+    border-radius: var(--cont-height);
+    background-color: rgb(68, 68, 68);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0px 10px;
+    position: relative;
+}
+
+/*toggler*/
+
+.switcher-toggler {
+    background-color: rgb(255, 255, 255);
+    width: calc(var(--cont-height) - 6px);
+    height: calc(var(--cont-height) - 6px);
+    z-index: 1;
+    border-radius: 50%;
+    display: block;
+    position: absolute;
+    left: 7px;
+    top: 3px;
+    transition: all 0.4s ease;
+}
+
+.switcher-label.active .switcher-toggler {
+    left: 55%;
+}
+
+/*sun and moon images*/
+.fa-moon {
+    font-size: calc(var(--cont-height) - 10px);
+    color: dodgerblue;
+}
+
+.fa-sun {
+    font-size: calc(var(--cont-height) - 10px);
+    color: rgb(255, 251, 0);
+}

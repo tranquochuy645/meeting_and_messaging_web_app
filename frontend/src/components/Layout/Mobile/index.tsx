@@ -1,4 +1,5 @@
 import { ReactNode, FC } from 'react';
+import './style.css';
 
 interface LayoutProps {
     children: ReactNode;

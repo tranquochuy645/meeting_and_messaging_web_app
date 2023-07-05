@@ -1,7 +1,9 @@
 import { FC, useState, useEffect } from 'react';
 import './style.css';
 import jsonData from './fakedata.json';
-import Layout from '../Layout';
+import PendingFigure from '../PendingFigure';
+import Layout from '../Layout/Desktop';
+
 interface HomeProps {
     token: string;
 }
@@ -36,29 +38,7 @@ const Home: FC<HomeProps> = ({ token }) => {
     return (
         <Layout>
             <div className="message-app">
-                {!data ? (
-                    // Render skeleton UI while loading
-                    <div className="skeleton">
-                        <div className="friends-list">
-                            Loading...
-                        </div>
-
-                        <div className="start-conversation">
-                            <h2>Start a New Conversation</h2>
-                            Loading...
-                        </div>
-
-                        <div className="message-list">
-                            Loading...
-                        </div>
-
-                        {/* Skeleton UI for message input */}
-                        <div className="message-input">
-                            <input type="text" placeholder="Type your message..." disabled />
-                            <button disabled>Send</button>
-                        </div>
-                    </div>
-                ) : (
+                {!data ? <PendingFigure size={300}/> : (
                     // Render actual content once data is fetched
                     <section className="main">
                         <div className="friends-list">
