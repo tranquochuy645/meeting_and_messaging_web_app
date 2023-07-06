@@ -5,28 +5,32 @@ import './style.css';
 
 interface LayoutProps {
     children: ReactNode;
+    _id: string;
 }
 
-const Layout: FC<LayoutProps> = ({ children }) => {
+
+const Layout: FC<LayoutProps> = ({ children, _id }) => {
     const handleLogout = () => {
         sessionStorage.removeItem('token');
         window.location.reload();
     }
+
     return (
         <>
             <header>
-                <UserCard isOnline={true} name="Nguyen Van A" profilePicture="" />
+
+                {_id && <UserCard userId={_id} />}
                 <div className='flex'>
                     <ThemeSwitch />
                     <button id="logout-btn" onClick={handleLogout}>Logout</button>
                 </div>
             </header>
             <main className='flex'>{children}</main>
-            <footer>
-                {/* <p>© 2023 Messaging App. All rights reserved.</p> */}
-            </footer>
+            <footer style={{ display: "none" }}>
+                <p>© 2023 Messaging App. All rights reserved.</p>
+            </footer >
         </>
     );
 };
 
-export default Layout;
+export default Layout

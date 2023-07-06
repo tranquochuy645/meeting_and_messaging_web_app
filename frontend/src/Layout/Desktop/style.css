@@ -1,6 +1,6 @@
 header {
     width: 100%;
-    height: 10vh;
+    height: 10%;
     min-height: 80px;
     display: flex;
     justify-content: space-between;
@@ -26,4 +26,7 @@ header {
 
 main {
     justify-content: space-between;
+    height: 90%;
+    width: 100%;
+    box-sizing: border-box;
 }

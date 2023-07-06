@@ -1,46 +1,38 @@
-import React, { useState } from 'react';
+import { ChangeEvent, MouseEventHandler, useState } from 'react';
+import './style.css';
+import conversation from '../../dataModels/conversationData.json'
 
-interface Message {
-  id: number;
-  content: string;
-  sender: string;
-}
-
-const ChatBox: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+const ChatBox = () => {
   const [inputValue, setInputValue] = useState('');
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
+    console.log("typing ...");
   };
-
-  const handleSendMessage = () => {
-    if (inputValue.trim() === '') {
-      return;
-    }
-
-    const newMessage: Message = {
-      id: messages.length + 1,
-      content: inputValue,
-      sender: 'User',
-    };
-
-    setMessages([...messages, newMessage]);
-    setInputValue('');
-  };
-
+  const handleSendMessage: MouseEventHandler = () => {
+    console.log(inputValue);
+  }
   return (
-    <div>
-      <div>
-        {messages.map((message) => (
-          <div key={message.id}>
-            <strong>{message.sender}:</strong> {message.content}
-          </div>
-        ))}
+    <div className="chat-box">
+      <div className="message-container">
+        {
+          conversation.messages.map(
+            (message) => (
+              <p>{message.content}</p>
+            )
+          )
+        }
       </div>
-      <div>
-        <input type="text" value={inputValue} onChange={handleInputChange} />
-        <button onClick={handleSendMessage}>Send</button>
+      <div className="input-container flex">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          className="input-field"
+        />
+        <button onClick={handleSendMessage} className="send-button">
+          Send
+        </button>
       </div>
     </div>
   );

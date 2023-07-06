@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { getDocuments, insertDocument } from '../controllers/mongodb';
 import { generateAuthToken } from '../middleware/jwt';
 import { handleRegPassword } from '../middleware/hanldeRegPassword';
+import { generateProfileImage } from '../lib/generateProfileImage';
 import bcrypt from 'bcrypt';
 
 const router = Router();
@@ -18,13 +19,21 @@ router.post(
     }
     const { username, password } = req.body;
 
-
     // Check if the username already exists in the database
     getDocuments('users', { username })
-      .then((users) => {
+      .then(
+        (users) => {
         if (users.length === 0) {
           // Username is available, register the new user
-          const newUser = { username, password };
+          const newDefaultProfileImage = generateProfileImage(username.charAt(0));
+          const newUser = {
+            username,
+            password,
+            fullname: username,
+            avatar: newDefaultProfileImage,
+            conversations: [globalThis.globalChatId],
+            createdAt: new Date
+          };
           insertDocument('users', newUser)
             .then(() => {
               // User registered successfully
@@ -83,7 +92,11 @@ router.post(
                       password: user.password
                     }
                   );
-                  res.status(200).json({ authToken });
+                  res.status(200).json(
+                    {
+                      authToken,
+                    }
+                  );
                 } else {
                   // Wrong password
                   res.status(401).json({ message: 'Invalid credentials' });

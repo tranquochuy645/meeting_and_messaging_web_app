@@ -1,7 +1,7 @@
 import { lazy, useState, Suspense } from 'react'
 import AuthPage from './AuthPage'
 import PendingFigure from './components/PendingFigure'
-const Home = lazy(
+const Main = lazy(
   () => import('./Main')
 )
 import '@fortawesome/fontawesome-free/css/all.css';
@@ -11,9 +11,7 @@ function App() {
   const [token, setToken] = useState<string>(
     sessionStorage.getItem('token') || ""
   )
-
   const loginHandler = (token: string) => {
-    console.log(token);
     sessionStorage.setItem('token', token);
     setToken(token);
   }
@@ -26,7 +24,7 @@ function App() {
               <PendingFigure size={200} />
             }
           >
-            <Home token={token} />
+            <Main token={token} />
           </Suspense>
           :
           <AuthPage onLogin={loginHandler} />

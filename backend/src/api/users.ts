@@ -1,15 +1,76 @@
-import {Router} from 'express';
-
+import { Router } from 'express';
+import { verifyToken } from '../middleware/jwt';
+import { getDocuments } from '../controllers/mongodb';
+import { ObjectId } from 'mongodb';
 const router = Router();
-
+interface User {
+  _id: string;
+  username: string;
+  fullname: string;
+  avatar: string;
+  friends: string[];
+  conversations: string[];
+  createdAt: string;
+}
 // GET /api/users
-router.get('/', (req, res) => {
-  // Get all users logic here
+router.get('/', verifyToken, (req, res) => {
+  const oid = new ObjectId(req.headers.userId as string);
+  getDocuments('users', { "_id": oid })
+    .then(
+      (data) => {
+        switch (data.length) {
+          case 1:
+            delete data[0].password;
+            res.status(200).json(data[0]);
+            break;
+          case 0:
+            res.status(404).json({ message: 'User not found' });
+            break;
+          default:
+            res.status(500).json({ message: 'Internal Server Error' });
+            break;
+        }
+      }
+    )
 });
 
 // GET /api/users/:id
 router.get('/:id', (req, res) => {
-  // Get user by ID logic here
+  let oid;
+  try {
+    oid = new ObjectId(req.params.id as string);
+  } catch (err) {
+    return res.status(400).json(
+      { message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer" }
+    );
+  }
+
+  getDocuments('users', { "_id": oid })
+    .then(
+      (data) => {
+        switch (data.length) {
+          case 1:
+            let dataToSend
+            try {
+              dataToSend = {
+                fullname: data[0].fullname,
+                avatar: data[0].avatar,
+                isOnline: false
+              }
+              res.status(200).json(dataToSend);
+            } catch (err) {
+              res.status(500).json({ message: 'Internal Server Error' });
+            }
+            break;
+          case 0:
+            res.status(404).json({ message: 'User not found' });
+            break;
+          default:
+            res.status(500).json({ message: 'Internal Server Error' });
+            break;
+        }
+      }
+    )
 });
 
 // POST /api/users

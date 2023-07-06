@@ -9,7 +9,7 @@
   padding: 7px;
   box-sizing: border-box;
   border-radius: 5px;
-  box-shadow: 0 2px 4px rgb(0, 0, 0);
+  box-shadow: 0 2px 4px var(--text-color);
 }
 
 .profile-picture {

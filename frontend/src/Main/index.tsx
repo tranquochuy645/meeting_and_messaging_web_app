@@ -1,45 +1,64 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useMemo } from 'react';
 import './style.css';
-import jsonData from './fakedata.json';
+// import jsonData from './fakedata.json';
 // import PendingFigure from '../components/PendingFigure';
 import Layout from '../Layout/Desktop';
-import FriendList from '../components/FriendList';
+import AsideLeft from '../components/AsideLeft';
 import ChatBox from '../components/ChatBox';
 
 interface MainProps {
     token: string;
 }
+const getProfile = (token: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+        fetch('/api/users/', {
+            method: 'GET',
+            headers: {
+                'content-type': 'application/json',
+                Authorization: 'Bearer ' + token,
+            },
+        })
+            .then((response) => {
+                if (response.ok) {
+                    response.json().then((data) => {
+                        resolve(data);
+                    });
+                } else {
+                    reject(new Error('Failed to fetch user profile'));
+                }
+            })
+            .catch((error) => {
+                reject(error);
+            });
+    });
+};
 
 const Main: FC<MainProps> = ({ token }) => {
-    const [data, setData] = useState<any>(null);
-
-    const fetchData = (token: string): Promise<any> => {
-        console.log(token);
-        return new Promise((resolve) => {
-            // Simulating an asynchronous API call
-            setTimeout(() => {
-                // Replace this with your actual API call
-                // Once the data is fetched, resolve the promise
-                resolve(jsonData);
-            }, 2000);
-        });
-    };
-
-    useEffect(() => {
-        if (!data) {
-            fetchData(token)
-                .then((responseData) => {
-                    setData(responseData);
-                })
-                .catch((error) => {
-                    console.log('Error:', error);
-                });
+    const [profileData, setProfileData] = useState(
+        {
+            _id: "",
+            conversations: [
+            ],
         }
-    }, [token]);
+    );
+    useMemo(
+        () => {
+            if (token) {
+                getProfile(
+                    token,
+                ).then(
+                    (data: any) => {
+                        setProfileData(data);
+                        console.log(data);
+                    }
+                );
+            }
+        }, [token]
+    )
 
     return (
-        <Layout>
-            <FriendList />
+        <Layout _id={profileData._id}>
+            <AsideLeft conversations={profileData.conversations} />
             <ChatBox />
         </Layout>
     );
