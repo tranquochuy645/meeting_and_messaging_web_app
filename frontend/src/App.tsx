@@ -1,8 +1,8 @@
 import { lazy, useState, Suspense } from 'react'
-import AuthForm from './components/AuthForm'
+import AuthPage from './AuthPage'
 import PendingFigure from './components/PendingFigure'
 const Home = lazy(
-  () => import('./components/Home')
+  () => import('./Main')
 )
 import '@fortawesome/fontawesome-free/css/all.css';
 
@@ -29,7 +29,7 @@ function App() {
             <Home token={token} />
           </Suspense>
           :
-          <AuthForm onLogin={loginHandler} />
+          <AuthPage onLogin={loginHandler} />
 
       }
     </>

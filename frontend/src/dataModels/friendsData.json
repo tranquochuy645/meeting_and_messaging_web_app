@@ -1,0 +1,21 @@
+[
+    {
+      "id": 1,
+      "name": "John",
+      "profilePicture": "https://example.com/john.jpg",
+      "isOnline": true
+    },
+    {
+      "id": 2,
+      "name": "Jane",
+      "profilePicture": "https://example.com/jane.jpg",
+      "isOnline": false
+    },
+    {
+      "id": 3,
+      "name": "Bob",
+      "profilePicture": "https://example.com/bob.jpg",
+      "isOnline": true
+    }
+  ]
+  
