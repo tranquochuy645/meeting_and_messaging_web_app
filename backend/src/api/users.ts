@@ -8,8 +8,7 @@ interface User {
   username: string;
   fullname: string;
   avatar: string;
-  friends: string[];
-  conversations: string[];
+  rooms: string[];
   createdAt: string;
 }
 // GET /api/users

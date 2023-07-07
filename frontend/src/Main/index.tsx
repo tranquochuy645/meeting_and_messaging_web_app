@@ -1,65 +1,58 @@
-import { FC, useState, useMemo } from 'react';
+import { FC, useState, useEffect } from 'react';
 import './style.css';
-// import jsonData from './fakedata.json';
-// import PendingFigure from '../components/PendingFigure';
 import Layout from '../Layout/Desktop';
-import AsideLeft from '../components/AsideLeft';
+import SideBar from '../components/SideBar';
 import ChatBox from '../components/ChatBox';
 
 interface MainProps {
     token: string;
 }
+export interface ProfileData {
+    fullname: string;
+    avatar: string;
+    isOnline: boolean;
+    rooms: string[];
+}
 const getProfile = (token: string): Promise<any> => {
-    return new Promise((resolve, reject) => {
-        fetch('/api/users/', {
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json',
-                Authorization: 'Bearer ' + token,
-            },
-        })
-            .then((response) => {
-                if (response.ok) {
-                    response.json().then((data) => {
-                        resolve(data);
-                    });
-                } else {
-                    reject(new Error('Failed to fetch user profile'));
-                }
-            })
-            .catch((error) => {
-                reject(error);
-            });
-    });
+    return fetch('/api/users/', {
+        method: 'GET',
+        headers: {
+            'content-type': 'application/json',
+            Authorization: 'Bearer ' + token,
+        },
+    })
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Failed to fetch user profile');
+            }
+        });
 };
 
 const Main: FC<MainProps> = ({ token }) => {
-    const [profileData, setProfileData] = useState(
-        {
-            _id: "",
-            rooms: [
-            ],
+    const [profileData, setProfileData] = useState<ProfileData | null>(null);
+    const [currentRoom,setCurrentRoom] = useState<string>("")
+    useEffect(() => {
+        if (token) {
+            getProfile(token)
+                .then((data: any) => {
+                    setProfileData(data);
+                    setCurrentRoom(data.rooms[0])
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         }
-    );
-    useMemo(
-        () => {
-            if (token) {
-                getProfile(
-                    token,
-                ).then(
-                    (data: any) => {
-                        setProfileData(data);
-                        // console.log(data);
-                    }
-                );
-            }
-        }, [token]
-    )
+    }, [token]);
+
+
+
 
     return (
-        <Layout _id={profileData._id}>
-            <AsideLeft rooms={profileData.rooms} token={token} />
-            <ChatBox />
+        <Layout userData={profileData}>
+            <SideBar token={token} />
+            <ChatBox room={currentRoom}/>
         </Layout>
     );
 };

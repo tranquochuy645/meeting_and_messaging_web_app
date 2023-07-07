@@ -1,15 +1,15 @@
 import { ReactNode, FC } from 'react';
-import UserCard from '../../components/UserCard';
+import Card from '../../components/Card';
 import ThemeSwitch from '../../components/ThemeSwitch';
 import './style.css';
-
+import { ProfileData } from '../../Main';
 interface LayoutProps {
     children: ReactNode;
-    _id: string;
+    userData: ProfileData | null;
 }
 
 
-const Layout: FC<LayoutProps> = ({ children, _id }) => {
+const Layout: FC<LayoutProps> = ({ children, userData }) => {
     const handleLogout = () => {
         sessionStorage.removeItem('token');
         window.location.reload();
@@ -19,7 +19,7 @@ const Layout: FC<LayoutProps> = ({ children, _id }) => {
         <>
             <header>
 
-                {_id && <UserCard userId={_id} />}
+                {userData && <Card cardData={[userData]} />}
                 <div className='flex'>
                     <ThemeSwitch />
                     <button id="logout-btn" onClick={handleLogout}>Logout</button>

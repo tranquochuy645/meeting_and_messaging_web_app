@@ -38,7 +38,6 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
             response.json().then(
               data => {
                 data.authToken && onLogin(data.authToken);
-                console.log(data.authToken);
               }
             )
           } else {
