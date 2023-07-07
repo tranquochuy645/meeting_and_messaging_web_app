@@ -1,13 +1,13 @@
 import { FC, useState } from 'react';
 import './style.css';
+import { handleInputPassword } from './e2eEncrypt';
 
 interface AuthPageProps {
-  onLogin: (token:string) => void;
+  onLogin: (token: string) => void;
 }
 
 const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
-
   const handleToggle = () => {
     setIsLogin(prevState => !prevState);
   };
@@ -18,37 +18,37 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
     if (isLogin) {
       const username = event.target.logUsername.value;
       const password = event.target.logPassword.value;
-      fetch(
-        '/api/auth/login',
-        {
-          method: 'POST',
-          headers: {
-            "content-type": "application/json"
-          },
-          body: JSON.stringify(
-            {
-              "username": username,
-              "password": password
-            }
-          )
-        }
-      ).then(
-        response => {
+      let hashedPassword
+      try{
+        hashedPassword=handleInputPassword(password,false);
+      }catch(e){
+        alert(e);
+        return
+      }
+      fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          password: hashedPassword, // Use the hash value instead of the original password
+        }),
+      })
+        .then((response) => {
           if (response.ok) {
-            response.json().then(
-              data => {
-                data.authToken && onLogin(data.authToken);
-              }
-            )
+            response.json().then((data) => {
+              data.authToken && onLogin(data.authToken);
+            });
           } else {
-            response.json().then(
-              data => {
-                data.message && alert(data.message);
-              }
-            )
+            response.json().then((data) => {
+              data.message && alert(data.message);
+            });
           }
-        }
-      )
+        })
+        .catch((error) => {
+          alert( error);
+        });
     } else {
       const username = event.target.regUsername.value;
       const password = event.target.regPassword.value;
@@ -56,29 +56,31 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
       if (password !== passwordCheck) {
         return alert("Passwords do not match");
       }
-      fetch(
-        '/api/auth/register',
-        {
-          method: 'POST',
-          headers: {
-            "content-type": "application/json"
-          },
-          body: JSON.stringify(
-            {
-              "username": username,
-              "password": password
-            }
-          )
-        }
-      ).then(
-        response => {
-          response.json().then(
-            data => {
-              data.message && alert(data.message);
-            }
-          )
-        }
-      )
+      let hashedPassword
+      try{
+        hashedPassword=handleInputPassword(password);
+      }catch(e){
+        alert(e);
+        return
+      }
+      fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          password: hashedPassword,
+        }),
+      })
+        .then((response) => {
+          response.json().then((data) => {
+            data.message && alert(data.message);
+          });
+        })
+        .catch((error) => {
+          alert(error);
+        });
     }
   };
 
