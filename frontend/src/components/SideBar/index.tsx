@@ -4,7 +4,7 @@ import './style.css';
 
 interface SideBarProps {
     token: string;
-
+    onRoomChange: (roomId: string) => void;
 }
 
 const getRoomsInfo = (token: string): Promise<any> => {
@@ -31,7 +31,7 @@ const getRoomsInfo = (token: string): Promise<any> => {
     });
 };
 
-const SideBar: FC<SideBarProps> = ({ token }) => {
+const SideBar: FC<SideBarProps> = ({ token, onRoomChange }) => {
     const [roomsInfo, setRoomsInfo] = useState<Array<any> | null>(null);
 
     useEffect(() => {
@@ -53,7 +53,7 @@ const SideBar: FC<SideBarProps> = ({ token }) => {
                     {
                         roomsInfo.map(
                             (room: any) => (
-                                <div key={room._id} >
+                                <div key={room._id} onClick={() => onRoomChange(room._id)}>
                                     <Card
                                         cardData={room.participants}
                                     />

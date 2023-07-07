@@ -32,7 +32,10 @@ const getProfile = (token: string): Promise<any> => {
 
 const Main: FC<MainProps> = ({ token }) => {
     const [profileData, setProfileData] = useState<ProfileData | null>(null);
-    const [currentRoom,setCurrentRoom] = useState<string>("")
+    const [currentRoom, setCurrentRoom] = useState<string>("")
+    const handleRoomChange = (roomId: string) => {
+        setCurrentRoom(roomId);
+    }
     useEffect(() => {
         if (token) {
             getProfile(token)
@@ -51,8 +54,8 @@ const Main: FC<MainProps> = ({ token }) => {
 
     return (
         <Layout userData={profileData}>
-            <SideBar token={token} />
-            <ChatBox room={currentRoom}/>
+            <SideBar token={token} onRoomChange={handleRoomChange} />
+            <ChatBox room={currentRoom} />
         </Layout>
     );
 };
