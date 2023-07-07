@@ -7,23 +7,26 @@ const verifyToken = (req: any, res: any, next: any) => {
     try {
         type = req.headers.authorization.split(' ')[0];
     } catch (err) {
-        return res.status(400).json({ error: 'Bad Request' });
+        return res.status(400).json({ message: 'Bad Request' });
     }
     if (type != "Bearer") {
-        return res.status(401).json({ error: 'Invalid type' });
+        return res.status(401).json({ message: 'Invalid type' });
     }
     const token = req.headers.authorization.split(' ')[1];
     if (!token) {
         // No token provided
-        // console.log("token missing");
-        return res.status(401).json({ error: 'Access denied, token missing' });
+        return res.status(401).json({ message: 'Access denied, token missing' });
     };
     try {
-        const { userId } = jwt.verify(token, secretKey) as JwtPayload;
-        req.headers.userId = userId
+        const { userId, fullname } = jwt.verify(token, secretKey) as JwtPayload;
+        if (!userId || !fullname) {
+            throw new Error();
+        }
+        req.headers.userId = userId;
+        req.headers.fullname = fullname;
         next();
     } catch (error) {
-        return res.status(401).json({ error });
+        return res.status(401).json({ message:"Invalid Token" });
     }
 
 }

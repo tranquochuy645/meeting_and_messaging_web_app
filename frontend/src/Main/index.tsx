@@ -37,7 +37,7 @@ const Main: FC<MainProps> = ({ token }) => {
     const [profileData, setProfileData] = useState(
         {
             _id: "",
-            conversations: [
+            rooms: [
             ],
         }
     );
@@ -49,7 +49,7 @@ const Main: FC<MainProps> = ({ token }) => {
                 ).then(
                     (data: any) => {
                         setProfileData(data);
-                        console.log(data);
+                        // console.log(data);
                     }
                 );
             }
@@ -58,7 +58,7 @@ const Main: FC<MainProps> = ({ token }) => {
 
     return (
         <Layout _id={profileData._id}>
-            <AsideLeft conversations={profileData.conversations} />
+            <AsideLeft rooms={profileData.rooms} token={token} />
             <ChatBox />
         </Layout>
     );

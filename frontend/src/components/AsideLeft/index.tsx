@@ -1,32 +1,86 @@
 // import UserCard from '../UserCard'; import './style.css';
 import { FC, useEffect } from 'react';
 interface AsideLeftProps {
-    conversations: any
+    rooms: any;
+    token: string;
 }
-const AsideLeft: FC<AsideLeftProps> = ({ conversations }) => {
+const AsideLeft: FC<AsideLeftProps> = ({ rooms, token }) => {
     useEffect(() => {
-        conversations.length > 0
-            && conversations.forEach(
-                (conversation: any) => {
-                    console.log(conversation)
+        rooms && rooms.length && rooms.length > 0
+            && rooms.forEach(
+                (room: string) => {
+                    fetch(`/api/rooms/${room}`, {
+                        method: 'GET',
+                        headers: {
+                            'content-type': 'application/json',
+                            Authorization: 'Bearer ' + token,
+                        },
+                    })
+                        .then((response) => {
+                            if (response.ok) {
+                                // response.json().then((data) => {
+
+                                // });
+                            } else {
+                                throw new Error('Failed to fetch room');
+                            }
+                        })
+                        .catch((error) => {
+                            throw error
+                        });
                 }
             );
-    }, [conversations])
+    }, [rooms])
 
     return (
         <div id='asideLeft'>
-            {conversations.length > 0 ? (
+            {rooms.length > 0 ? (
                 <div>
-                    {
-                        conversations.map(
-                            () => (
-                                <p>?????????????</p>
-                            )
+                    {/* {
+                        rooms.map(
+                            (room: any) => {
+                                switch (room.type) {
+                                    case "global":
+                                        return (
+                                            <h2>#World Channel</h2>
+                                        )
+                                    case "group":
+                                        return (
+                                            <h2>{
+                                                room.participants.map(
+                                                    (participant: any) => {
+                                                        return (
+                                                            <>
+                                                                #{participant}
+                                                            </>
+                                                        )
+                                                    }
+                                                )
+                                            }</h2>
+                                        )
+                                    case "direct":
+                                        return (
+                                            <h2>????</h2>
+                                        )
+                                    default:
+                                        return null
+
+                                }
+                                if (room.type == "global") {
+                                    return (
+                                        <h2>#World Channel</h2>
+                                    )
+                                } else {
+                                    return (
+                                        room.patici
+                                    )
+                                }
+                            }
                         )
-                    }
+                    } */}
                 </div>
             ) : (
-                <p>No conversations to display</p>
+                <p>No rooms to display</p>
             )}
         </div>
     );

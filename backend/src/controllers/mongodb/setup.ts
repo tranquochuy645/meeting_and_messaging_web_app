@@ -1,7 +1,7 @@
 import { Db } from 'mongodb';
 import globalChatModel from './globalChatModel.json';
 
-const collectionNames = ['users', 'conversations', 'media'];
+const collectionNames = ['users', 'rooms', 'media'];
 
 const setup = (db: Db) => {
     // Loop over the collection names
@@ -17,7 +17,7 @@ const setup = (db: Db) => {
                         .then(
                             (collection) => {
                                 console.log('Collection created successfully:', collection.collectionName);
-                                if (collectionName === "conversations") {
+                                if (collectionName === "rooms") {
                                     collection.insertOne(globalChatModel)
                                         .then((insertedData) => {
                                             globalThis.globalChatId = insertedData.insertedId; // Access insertedId
@@ -32,7 +32,7 @@ const setup = (db: Db) => {
                         .catch((err) => {
                             console.error('Failed to create collection:', collectionName, err);
                         });
-                } else if (collectionName === "conversations") {
+                } else if (collectionName === "rooms") {
                     db.collection(collectionName)
                         .find(
                             { type: "global" }

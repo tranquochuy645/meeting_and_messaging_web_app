@@ -15,12 +15,20 @@ interface User {
 // GET /api/users
 router.get('/', verifyToken, (req, res) => {
   const oid = new ObjectId(req.headers.userId as string);
-  getDocuments('users', { "_id": oid })
+  getDocuments(
+    'users',
+    { "_id": oid },
+    {
+      projection:
+      {
+        password: 0
+      }
+    }
+  )
     .then(
       (data) => {
         switch (data.length) {
           case 1:
-            delete data[0].password;
             res.status(200).json(data[0]);
             break;
           case 0:
@@ -45,22 +53,23 @@ router.get('/:id', (req, res) => {
     );
   }
 
-  getDocuments('users', { "_id": oid })
+  getDocuments(
+    'users',
+    { "_id": oid },
+    {
+      projection:
+      {
+        fullname: 1,
+        avatar: 1,
+        isOnline: 1,
+      }
+    }
+  )
     .then(
       (data) => {
         switch (data.length) {
           case 1:
-            let dataToSend
-            try {
-              dataToSend = {
-                fullname: data[0].fullname,
-                avatar: data[0].avatar,
-                isOnline: false
-              }
-              res.status(200).json(dataToSend);
-            } catch (err) {
-              res.status(500).json({ message: 'Internal Server Error' });
-            }
+            res.status(200).json(data[0]);
             break;
           case 0:
             res.status(404).json({ message: 'User not found' });

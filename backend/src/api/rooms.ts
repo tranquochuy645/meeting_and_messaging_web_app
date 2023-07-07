@@ -1,11 +1,22 @@
 import { Router } from 'express';
 import { ObjectId } from 'mongodb';
 import { getDocuments } from '../controllers/mongodb';
+import { verifyToken } from '../middleware/jwt';
+import { getRoomIds, getRoomsInfo } from '../lib/extractingRooms';
 const router = Router();
 
-// GET /api/rooms
-router.get('/', (req, res) => {
-  // Get all rooms logic here
+// GET /api/rooms/ 
+// This endpoint returns list of rooms'info that the user has access to
+router.get('/', verifyToken, async (req, res) => {
+  try {
+    const userId = req.headers.userId as string;
+    const roomIds = await getRoomIds(userId);
+    const roomsInfo = await getRoomsInfo(roomIds);
+    res.status(200).json(roomsInfo);
+  } catch (error) {
+    console.error('Error retrieving data:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 // GET /api/rooms/:id
@@ -18,7 +29,7 @@ router.get('/:id', (req, res) => {
       message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer",
     });
   }
-  getDocuments('conversations', { "_id": oid })
+  getDocuments('rooms', { "_id": oid })
     .then((data) => {
       switch (data.length) {
         case 1:
@@ -27,6 +38,7 @@ router.get('/:id', (req, res) => {
             const messagesLimit = 30; // Limit the number of messages to retrieve
             const latestMessages = data[0].messages.slice(-messagesLimit); // Get the latest messages based on the limit
             dataToSend = {
+              type: data[0].type,
               participants: data[0].participants,
               messages: latestMessages,
             };
@@ -36,7 +48,7 @@ router.get('/:id', (req, res) => {
           }
           break;
         case 0:
-          res.status(404).json({ message: 'Conversation not found' });
+          res.status(404).json({ message: 'Room not found' });
           break;
         default:
           res.status(500).json({ message: 'Internal Server Error' });

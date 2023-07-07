@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import conf from '../../config';
 interface userPayload{
     _id: any;
+    fullname: string;
     password: string;
 }
 export const generateAuthToken = (user: userPayload): string => {
@@ -10,6 +11,7 @@ export const generateAuthToken = (user: userPayload): string => {
     const secretKey = conf.jwt_key;
     const tokenPayload = {
         userId: user._id,
+        fullname: user.fullname,
         password: user.password,
     };
 
