@@ -1,5 +1,3 @@
-import { SHA256 } from 'crypto-js';
-
 // Weak password function
 const isWeakPassword = (password: string) => {
     const minLength = 8; // Minimum password length requirement
@@ -16,13 +14,6 @@ const isWeakPassword = (password: string) => {
     );
 };
 
-const handleInputPassword = (inputPassword: string, check: boolean = true) => {
-    if (check && isWeakPassword(inputPassword)) {
-        throw new Error('Weak password. Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number.');
-    }
 
-    // Hash the password using SHA-256
-    return SHA256(inputPassword).toString();
-};
 
-export { handleInputPassword };
+export { isWeakPassword };

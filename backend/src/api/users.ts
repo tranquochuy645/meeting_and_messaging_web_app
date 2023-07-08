@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { verifyToken } from '../middleware/jwt';
+import { verifyToken } from '../middleware/express/jwt';
 import { getDocuments } from '../controllers/mongodb';
 import { ObjectId } from 'mongodb';
 const router = Router();

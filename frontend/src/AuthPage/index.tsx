@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import './style.css';
-import { handleInputPassword } from './e2eEncrypt';
+import { isWeakPassword } from './e2eEncrypt';
 
 interface AuthPageProps {
   onLogin: (token: string) => void;
@@ -18,13 +18,7 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
     if (isLogin) {
       const username = event.target.logUsername.value;
       const password = event.target.logPassword.value;
-      let hashedPassword
-      try{
-        hashedPassword=handleInputPassword(password,false);
-      }catch(e){
-        alert(e);
-        return
-      }
+
       fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -32,13 +26,13 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
         },
         body: JSON.stringify({
           username: username,
-          password: hashedPassword, // Use the hash value instead of the original password
+          password: password,
         }),
       })
         .then((response) => {
           if (response.ok) {
             response.json().then((data) => {
-              data.authToken && onLogin(data.authToken);
+              data.access_token && onLogin(data.access_token);
             });
           } else {
             response.json().then((data) => {
@@ -47,22 +41,19 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
           }
         })
         .catch((error) => {
-          alert( error);
+          alert(error);
         });
     } else {
       const username = event.target.regUsername.value;
       const password = event.target.regPassword.value;
       const passwordCheck = event.target.reRegPassword.value;
-      if (password !== passwordCheck) {
+      if (password != passwordCheck) {
         return alert("Passwords do not match");
       }
-      let hashedPassword
-      try{
-        hashedPassword=handleInputPassword(password);
-      }catch(e){
-        alert(e);
-        return
+      if (isWeakPassword(password)) {
+        return alert("weak password")
       }
+
       fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -70,7 +61,7 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
         },
         body: JSON.stringify({
           username: username,
-          password: hashedPassword,
+          password: password,
         }),
       })
         .then((response) => {

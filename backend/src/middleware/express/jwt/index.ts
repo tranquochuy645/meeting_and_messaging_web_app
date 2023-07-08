@@ -1,5 +1,5 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import conf from '../../config';
+import conf from '../../../config';
 
 const verifyToken = (req: any, res: any, next: any) => {
     const secretKey = conf.jwt_key;

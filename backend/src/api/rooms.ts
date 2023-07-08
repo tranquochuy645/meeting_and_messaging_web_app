@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { ObjectId } from 'mongodb';
 import { getDocuments } from '../controllers/mongodb';
-import { verifyToken } from '../middleware/jwt';
+import { verifyToken } from '../middleware/express/jwt';
 import { extractRooms } from '../lib/extractRooms';
 const router = Router();
 

@@ -3,7 +3,6 @@ import './style.css';
 import Layout from '../Layout/Desktop';
 import SideBar from '../components/SideBar';
 import ChatBox from '../components/ChatBox';
-
 interface MainProps {
     token: string;
 }

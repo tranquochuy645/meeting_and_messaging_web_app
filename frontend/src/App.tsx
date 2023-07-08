@@ -1,10 +1,12 @@
-import { lazy, useState, Suspense } from 'react'
+import { lazy, useState, Suspense, useEffect } from 'react'
 import AuthPage from './AuthPage'
 import PendingFigure from './components/PendingFigure'
+import { getSocket } from './SocketController'
 const Main = lazy(
   () => import('./Main')
 )
 import '@fortawesome/fontawesome-free/css/all.css';
+// import { getSocket } from './SocketController';
 
 
 function App() {
@@ -15,6 +17,16 @@ function App() {
     sessionStorage.setItem('token', token);
     setToken(token);
   }
+  useEffect(() => {
+    if (token) {
+      try {
+        const socket = getSocket(token);
+        socket.emit("message", "hello");
+      } catch (e) {
+        console.error(e);
+       }
+    }
+  }, [token])
   return (
     <>
       {

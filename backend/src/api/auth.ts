@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { getDocuments, insertDocument } from '../controllers/mongodb';
-import { generateAuthToken } from '../middleware/jwt';
+import { generateAuthToken } from '../lib/generateAuthToken';
 import { generateProfileImage } from '../lib/generateProfileImage';
-import { hashPassword } from '../middleware/hashPassword';
+import { handleRegPassword } from '../middleware/express/handleRegPassword';
 import bcrypt from 'bcrypt';
 const router = Router();
 
 // POST /api/auth/register
-router.post('/register', hashPassword, (req, res) => {
+router.post('/register', handleRegPassword, (req, res) => {
 
 
   if (Object.keys(req.body).length === 0) {
@@ -79,13 +79,13 @@ router.post('/login', (req, res) => {
             if (result) {
               // Correct password
               // Generate and send authentication token
-              const authToken = generateAuthToken(
+              const access_token = generateAuthToken(
                 {
                   _id: user._id,
                   fullname: user.fullname
                 }
               );
-              return res.status(200).json({ authToken });
+              return res.status(200).json({ access_token });
             }
             // Wrong password
             return res.status(401).json({ message: 'Invalid credentials' });
