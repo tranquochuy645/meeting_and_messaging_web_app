@@ -1,17 +1,18 @@
 import { FC, ChangeEvent, MouseEventHandler, useState, useEffect } from 'react';
 import './style.css';
 import { getSocket } from '../../SocketController';
+import { ProfileData } from '../../Main';
 interface Message {
-  avatar?: string;
   sender: string;
   content: string;
+  avatar?: string;
 }
 export interface Participant {
   _id: string;
   fullname: string;
   avatar: string;
   isOnline: boolean;
-  socketId: string | undefined | null;
+  socketId: string[];
 }
 
 export interface ChatRoom {
@@ -23,8 +24,7 @@ interface ChatBoxProps {
   // onMessageEmit: (message: Message) => void;
   token: string;
   room: ChatRoom;
-  thisUserAvatar: string | undefined;
-  thisUserId: string | undefined;
+  profile: ProfileData |null;
 }
 
 const getMessages = (roomId: string, token: string): Promise<any> => {
@@ -43,9 +43,11 @@ const getMessages = (roomId: string, token: string): Promise<any> => {
       }
     });
 };
-let targetIds: Array<string | null | undefined>;
+let targetIds: Array<any>;
 let socket: any;
-const ChatBox: FC<ChatBoxProps> = ({ room, token, thisUserAvatar, thisUserId }) => {
+
+
+const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [messages, setMessages] = useState<Message[] | null>(null);
 
@@ -60,6 +62,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, thisUserAvatar, thisUserId }) 
       targetIds = room.participants
         .map((participant) => participant.socketId) // Create an array of socketIds
         .filter((socketId) => socketId !== null && socketId !== undefined);
+      targetIds = targetIds.flat();
       // The resulting targetIds array will not contain null or undefined values
 
       getMessages(room._id, token)
@@ -86,18 +89,6 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, thisUserAvatar, thisUserId }) 
   const handleSendMessage: MouseEventHandler<HTMLButtonElement> = () => {
     if (inputValue.trim() !== '') {
       socket?.emit("msg", [targetIds, inputValue]);
-      setMessages((prevMessages) => {
-        const newMessage: Message = {
-          avatar: thisUserAvatar || "",
-          sender: thisUserId || "",
-          content: inputValue.trim()
-        };
-        if (prevMessages !== null) {
-          return [...prevMessages, newMessage];
-        } else {
-          return [newMessage];
-        }
-      });
       setInputValue('');
     }
   };
@@ -123,16 +114,19 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, thisUserAvatar, thisUserId }) 
         {
           Array.isArray(messages) &&
           messages.map((message: Message, index: number) => {
-            if (!message.avatar) {
+            let avatarSRC: string;
+            if (message.sender && message.sender == profile?._id) {
+              avatarSRC = profile.avatar
+            } else {
               const sender = room.participants.find(
                 (participant) => participant._id === message.sender
               );
-              message.avatar = sender ? sender.avatar : "";
+              avatarSRC = sender ? sender.avatar : "";
             }
             return (
               <div key={message.sender + index}>
-                {message.avatar && (
-                  <img className="inchat-avatar" src={message.avatar} alt="Sender Avatar" />
+                {avatarSRC && (
+                  <img className="inchat-avatar" src={avatarSRC} alt="Sender Avatar" />
                 )}
                 <span>{message.content}</span>
               </div>

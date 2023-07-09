@@ -51,7 +51,7 @@ const SideBar: FC<SideBarProps> = ({ token, onRoomChange, onUpdateStatus }) => {
                                     return {
                                         ...participant,
                                         isOnline: true,
-                                        socketId: senderSocketId
+                                        socketId: [senderSocketId]
                                     };
                                 }
                                 return participant;
@@ -93,12 +93,13 @@ const SideBar: FC<SideBarProps> = ({ token, onRoomChange, onUpdateStatus }) => {
                             )
                         )
                     );
-                    console.log(targetIds+"Sdfsdfhsiudfsiudfhsu");
+                    targetIds = targetIds.flat()
+                    console.log(targetIds + "Sdfsdfhsiudfsiudfhsu");
                     // The resulting targetIds array will not contain null or undefined values
                     socket = getSocket(token);
                     socket.on("onl", handleStatusUpdate);
                     //announce other sockets in the room that I'm online
-                    socket.emit("onl", [targetIds]);
+                    socket.emit("onl", targetIds);
                 })
                 .catch((error) => {
                     console.log(error);

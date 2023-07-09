@@ -1,7 +1,7 @@
 import { getDb } from './index';
 import { Db } from 'mongodb'
 
-export const updateDocument = async (collectionName: string, filter: object, update: object): Promise<number> => {
+export const updateDocument = async (collectionName: string, filter: object, update: object, opts: object = {}): Promise<number> => {
     try {
         const db: Db | null | undefined = getDb();
 
@@ -11,7 +11,7 @@ export const updateDocument = async (collectionName: string, filter: object, upd
 
         const collection = db.collection(collectionName);
 
-        const result = await collection.updateOne(filter, { $set: update });
+        const result = await collection.updateOne(filter, update, opts);
 
         return result.modifiedCount || 0;
     } catch (error) {

@@ -65,9 +65,8 @@ const Main: FC<MainProps> = ({ token }) => {
             {
                 roomsInfo.length > 0
                 && <ChatBox
+                    profile={profileData}
                     token={token}
-                    thisUserId={profileData?._id}
-                    thisUserAvatar={profileData?.avatar}
                     room={roomsInfo[currentRoomIndex]} />
             }
         </Layout>

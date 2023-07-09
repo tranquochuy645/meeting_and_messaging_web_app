@@ -1,4 +1,4 @@
-import { Db, ObjectId } from 'mongodb';
+import { Db } from 'mongodb';
 import globalChatModel from './globalChatModel.json';
 
 const collectionNames = ['users', 'rooms', 'media'];
@@ -49,7 +49,13 @@ const updateGlobalRoomUsersList = async (db: Db, collectionName: string) => {
     console.error('Failed to update global room users list:', collectionName, err);
   }
 };
-
+const clearSocketIds = (db: Db) => {
+  db.collection("users").updateMany({}, { $set: { isOnline: false, socketId: [] } })
+    .then(
+      result => {
+        console.log("clear socket ids: " + result.modifiedCount);
+      })
+}
 const setup = async (db: Db) => {
   try {
     for (const collectionName of collectionNames) {
@@ -65,6 +71,7 @@ const setup = async (db: Db) => {
   } catch (err) {
     console.error('Failed to check collection:', err);
   }
+  clearSocketIds(db);
 };
 
 export { setup };

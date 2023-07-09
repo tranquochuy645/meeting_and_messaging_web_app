@@ -21,13 +21,13 @@ const setupSocketIO = (server: HTTPServer) => {
 
       // Handle custom events
       socket.on("msg", (message) => {
-        console.log("Received message:", message);
-        socket.to(message[0]).emit("msg", [userId, message[1]]);
+        console.log("msg:", message);
+        io.to([...message[0],socket.id]).emit("msg", [userId, message[1]]);
       });
 
       socket.on("onl", (message) => {
-        console.log("Received message:", message);
-        socket.to(message[0]).emit("onl", [userId, socket.id]);
+        console.log("onl:", message);
+        io.to([...message,socket.id]).emit("onl", [userId, socket.id]);
       });
 
       socket.on("disconnect", async () => {

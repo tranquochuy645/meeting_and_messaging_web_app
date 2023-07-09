@@ -4,16 +4,36 @@ import { ObjectId } from "mongodb";
 const onlineCheck = async (userId: string, socketId: string, online: boolean) => {
     try {
         const oid = new ObjectId(userId);
-        // console.log(oid);
-        const result = await updateDocument(
-            "users",
-            { "_id": oid },
-            {
-                isOnline: online,
-                socketId: socketId,
-                lastUpdate: new Date()
-            }
-        );
+        let result;
+        if (online) {
+            result = await updateDocument(
+                "users",
+                { "_id": oid },
+                {
+                    $set: {
+                        isOnline: online,
+                        lastUpdate: new Date()
+                    },
+                    $push: {
+                        socketId: socketId,
+                    }
+                }
+            );
+        } else {
+            result = await updateDocument(
+                "users",
+                { "_id": oid },
+                {
+                    $set: {
+                        isOnline: online,
+                        lastUpdate: new Date()
+                    },
+                    $pull: {
+                        socketId: socketId,
+                    }
+                }
+            );
+        }
         if (!result) {
             throw new Error("User not found");
         }
