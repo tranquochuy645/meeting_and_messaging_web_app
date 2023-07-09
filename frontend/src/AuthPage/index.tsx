@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import './style.css';
-import { isWeakPassword } from './e2eEncrypt';
+import { isWeakPassword } from './e2eEncrypt/isWeakPassword';
 
 interface AuthPageProps {
   onLogin: (token: string) => void;
@@ -53,6 +53,7 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
       if (isWeakPassword(password)) {
         return alert("weak password")
       }
+
 
       fetch('/api/auth/register', {
         method: 'POST',
