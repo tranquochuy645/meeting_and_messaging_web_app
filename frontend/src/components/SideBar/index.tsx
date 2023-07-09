@@ -4,7 +4,7 @@ import './style.css';
 
 interface SideBarProps {
     token: string;
-    onRoomChange: (roomId: string) => void;
+    onRoomChange: (roomInfo: any) => void;
 }
 
 const getRoomsInfo = (token: string): Promise<any> => {
@@ -50,22 +50,18 @@ const SideBar: FC<SideBarProps> = ({ token, onRoomChange }) => {
         <div id='SideBar'>
             {roomsInfo && roomsInfo.length > 0 ? (
                 <div>
-                    {
-                        roomsInfo.map(
-                            (room: any) => (
-                                <div key={room._id} onClick={() => onRoomChange(room._id)}>
-                                    <Card
-                                        cardData={room.participants}
-                                    />
-                                </div>
-
-                            ))}
+                    {roomsInfo.map((room: any) => (
+                        <div key={room._id} onClick={() => onRoomChange(room)}>
+                            <Card cardData={room.participants} />
+                        </div>
+                    ))}
                 </div>
             ) : (
                 <p>No rooms to display</p>
             )}
         </div>
     );
+
 };
 
 export default SideBar;

@@ -12,6 +12,9 @@ export interface ProfileData {
     isOnline: boolean;
     rooms: string[];
 }
+
+
+  
 const getProfile = (token: string): Promise<any> => {
     return fetch('/api/users/', {
         method: 'GET',
@@ -31,16 +34,16 @@ const getProfile = (token: string): Promise<any> => {
 
 const Main: FC<MainProps> = ({ token }) => {
     const [profileData, setProfileData] = useState<ProfileData | null>(null);
-    const [currentRoom, setCurrentRoom] = useState<string>("")
-    const handleRoomChange = (roomId: string) => {
-        setCurrentRoom(roomId);
+    const [currentRoom, setCurrentRoom] = useState<any>(null)
+    const handleRoomChange = (room: any) => {
+        console.log(room);
+        setCurrentRoom(room);
     }
     useEffect(() => {
         if (token) {
             getProfile(token)
                 .then((data: any) => {
                     setProfileData(data);
-                    setCurrentRoom(data.rooms[0])
                 })
                 .catch((error) => {
                     console.error(error);
@@ -54,7 +57,7 @@ const Main: FC<MainProps> = ({ token }) => {
     return (
         <Layout userData={profileData}>
             <SideBar token={token} onRoomChange={handleRoomChange} />
-            <ChatBox room={currentRoom} />
+            <ChatBox token={token} room={currentRoom} />
         </Layout>
     );
 };
