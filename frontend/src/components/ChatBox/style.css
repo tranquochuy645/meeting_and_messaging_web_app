@@ -4,6 +4,12 @@
     display: flex;
     flex-direction: column;
 }
+.inchat-avatar{
+    margin-right: 30px;
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+}
 
 .input-container {
     width: 60%;

@@ -2,7 +2,6 @@ import socketIO from "socket.io";
 import { Server as HTTPServer } from "http";
 import { verifyTokenViaSocketIO } from "../../middleware/socketIO/jwt";
 import { onlineCheck } from "../../lib/onlineCheck";
-
 const setupSocketIO = (server: HTTPServer) => {
   const io = new socketIO.Server(server);
   io.use(verifyTokenViaSocketIO);
@@ -16,19 +15,25 @@ const setupSocketIO = (server: HTTPServer) => {
         socket.disconnect();
         return;
       }
-      
-      await onlineCheck(userId,socket.id, true);
+
+      await onlineCheck(userId, socket.id, true);
       console.log("A user connected");
 
       // Handle custom events
-      socket.on("message", (message) => {
+      socket.on("msg", (message) => {
         console.log("Received message:", message);
+        socket.to(message[0]).emit("msg", [userId, message[1]]);
+      });
+
+      socket.on("onl", (message) => {
+        console.log("Received message:", message);
+        socket.to(message[0]).emit("onl", [userId, socket.id]);
       });
 
       socket.on("disconnect", async () => {
         console.log("A user disconnected");
         try {
-          await onlineCheck(userId,socket.id, false);
+          await onlineCheck(userId, socket.id, false);
         } catch (error) {
           console.error(error);
         }

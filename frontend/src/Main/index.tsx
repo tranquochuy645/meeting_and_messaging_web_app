@@ -7,6 +7,7 @@ interface MainProps {
     token: string;
 }
 export interface ProfileData {
+    _id: string;
     fullname: string;
     avatar: string;
     isOnline: boolean;
@@ -14,7 +15,7 @@ export interface ProfileData {
 }
 
 
-  
+
 const getProfile = (token: string): Promise<any> => {
     return fetch('/api/users/', {
         method: 'GET',
@@ -34,11 +35,15 @@ const getProfile = (token: string): Promise<any> => {
 
 const Main: FC<MainProps> = ({ token }) => {
     const [profileData, setProfileData] = useState<ProfileData | null>(null);
-    const [currentRoom, setCurrentRoom] = useState<any>(null)
-    const handleRoomChange = (room: any) => {
-        console.log(room);
-        setCurrentRoom(room);
+    const [roomsInfo, setRoomsInfo] = useState<any[]>([]);
+    const [currentRoomIndex, setCurrentRoomIndex] = useState<number>(0);
+    const handleRoomChange = (index: number) => {
+        setCurrentRoomIndex(index);
     }
+    const handleUpdate = (rooms: any) => {
+        setRoomsInfo(rooms);
+    }
+
     useEffect(() => {
         if (token) {
             getProfile(token)
@@ -56,8 +61,15 @@ const Main: FC<MainProps> = ({ token }) => {
 
     return (
         <Layout userData={profileData}>
-            <SideBar token={token} onRoomChange={handleRoomChange} />
-            <ChatBox token={token} room={currentRoom} />
+            <SideBar token={token} onRoomChange={handleRoomChange} onUpdateStatus={handleUpdate} />
+            {
+                roomsInfo.length > 0
+                && <ChatBox
+                    token={token}
+                    thisUserId={profileData?._id}
+                    thisUserAvatar={profileData?.avatar}
+                    room={roomsInfo[currentRoomIndex]} />
+            }
         </Layout>
     );
 };

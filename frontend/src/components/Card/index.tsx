@@ -1,10 +1,9 @@
 import { FC } from 'react';
 import './style.css';
 import PendingFigure from '../PendingFigure';
-import { ProfileData } from '../../Main';
 
 interface CardProps {
-    cardData: ProfileData[];
+    cardData: any[];
 }
 
 const Card: FC<CardProps> = ({ cardData }) => {

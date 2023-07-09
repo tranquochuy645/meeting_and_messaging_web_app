@@ -61,7 +61,8 @@ const extractRooms = async (userId: string): Promise<any> => {
                             projection: {
                                 fullname: 1,
                                 avatar: 1,
-                                isOnline: 1
+                                isOnline: 1,
+                                socketId: 1
                             }
                         }
                     );
