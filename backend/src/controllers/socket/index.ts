@@ -17,7 +17,7 @@ const setupSocketIO = (server: HTTPServer) => {
         return;
       }
       
-      await onlineCheck(userId, true);
+      await onlineCheck(userId,socket.id, true);
       console.log("A user connected");
 
       // Handle custom events
@@ -28,7 +28,7 @@ const setupSocketIO = (server: HTTPServer) => {
       socket.on("disconnect", async () => {
         console.log("A user disconnected");
         try {
-          await onlineCheck(userId, false);
+          await onlineCheck(userId,socket.id, false);
         } catch (error) {
           console.error(error);
         }

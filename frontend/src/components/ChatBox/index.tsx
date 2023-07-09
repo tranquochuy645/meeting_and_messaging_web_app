@@ -1,9 +1,21 @@
 import { FC, ChangeEvent, MouseEventHandler, useState } from 'react';
 import './style.css';
 // import conversation from '../../dataModels/conversationData.json'
-interface ChatBoxProps {
-  room: string
+interface Participant {
+  _id: string;
+  fullname: string;
+  avatar: string;
+  isOnline: boolean;
+  socket: string | undefined;
 }
+interface ChatRoom {
+  _id: string;
+  participants: Participant[];
+}
+interface ChatBoxProps {
+  room: ChatRoom
+}
+
 const ChatBox: FC<ChatBoxProps> = ({ room }) => {
   const [inputValue, setInputValue] = useState('');
   // console.log(room);
@@ -17,7 +29,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room }) => {
   return (
     <div className="chat-box">
       <div className="message-container">
-        {room}
+        {room._id}
       </div>
       <div className="input-container flex">
         <input

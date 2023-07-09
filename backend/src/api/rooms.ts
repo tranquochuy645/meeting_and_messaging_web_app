@@ -31,22 +31,15 @@ router.get(
         message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer",
       });
     }
-    getDocuments('rooms', { "_id": oid })
+    getDocuments('rooms', { "_id": oid }, { projection: { _id: 0, type: 1, participants: 1, messages: 1 } })
       .then((data) => {
         switch (data.length) {
           case 1:
-            let dataToSend;
-            try {
-              const messagesLimit = 30; // Limit the number of messages to retrieve
-              const latestMessages = data[0].messages.slice(-messagesLimit); // Get the latest messages based on the limit
-              dataToSend = {
-                type: data[0].type,
-                participants: data[0].participants,
-                messages: latestMessages,
-              };
-              res.status(200).json(dataToSend);
-            } catch (err) {
-              res.status(500).json({ message: 'Internal Server Error' });
+            if (data[0].participants.includes(req.headers.userId)) {
+              // User is a member of this room
+              res.status(200).json(data[0]);
+            } else {
+              res.status(403).json({ message: "Not a member of this room" })
             }
             break;
           case 0:

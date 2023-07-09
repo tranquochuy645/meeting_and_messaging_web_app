@@ -52,6 +52,7 @@ router.get('/:id', (req, res) => {
     );
   }
 
+
   getDocuments(
     'users',
     { "_id": oid },
@@ -61,6 +62,7 @@ router.get('/:id', (req, res) => {
         fullname: 1,
         avatar: 1,
         isOnline: 1,
+        socketId: 1
       }
     }
   )
@@ -80,6 +82,7 @@ router.get('/:id', (req, res) => {
       }
     )
 });
+
 
 // POST /api/users
 router.post('/', (req, res) => {
