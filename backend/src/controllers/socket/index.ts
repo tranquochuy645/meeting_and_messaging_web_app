@@ -20,18 +20,23 @@ const setupSocketIO = (server: HTTPServer) => {
       console.log("A user connected");
 
       // Handle custom events
-      socket.on("msg", (message) => {
-        console.log("msg:", message);
-        io.to([...message[0],socket.id]).emit("msg", [userId, message[1]]);
+      socket.on("msg", (msg) => {
+        console.log("msg:", msg);
+        io.to(msg[0]).emit("msg", [userId, msg[1], msg[2], msg[3]]);
       });
 
-      socket.on("onl", (message) => {
-        console.log("onl:", message);
-        io.to([...message,socket.id]).emit("onl", [userId, socket.id]);
+      let stateListeners: string[]=[];
+      socket.on("onl", (msg) => {
+        console.log("onl:", msg);
+        stateListeners = msg;
+        io.to(stateListeners).emit("onl", [userId, socket.id]);
       });
 
       socket.on("disconnect", async () => {
         console.log("A user disconnected");
+        stateListeners = stateListeners.filter(id => id != socket.id)
+        console.log("off:", stateListeners);
+        io.to(stateListeners).emit("off", [userId, socket.id]);
         try {
           await onlineCheck(userId, socket.id, false);
         } catch (error) {

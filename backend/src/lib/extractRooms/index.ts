@@ -44,9 +44,10 @@ const extractRooms = async (userId: string): Promise<any> => {
             roomsInfo.map(
                 async (room: any) => {
                     //Filter out the user calling this
-                    const participantIds = room.participants.filter(
-                        (participant: string) => participant != userId
-                    );
+                    const participantIds = room.participants
+                    // .filter(
+                    //     (participant: string) => participant != userId
+                    // );
                     //Get all the participants data of all rooms by ids
                     const participants = await getDocuments(
                         'users',

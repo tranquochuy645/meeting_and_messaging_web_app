@@ -61,7 +61,7 @@ const Main: FC<MainProps> = ({ token }) => {
 
     return (
         <Layout userData={profileData}>
-            <SideBar token={token} onRoomChange={handleRoomChange} onUpdateStatus={handleUpdate} />
+            <SideBar currentRoomIndex={currentRoomIndex} token={token} onRoomChange={handleRoomChange} onUpdateStatus={handleUpdate} />
             {
                 roomsInfo.length > 0
                 && <ChatBox

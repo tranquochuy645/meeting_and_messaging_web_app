@@ -6,7 +6,9 @@ interface Message {
   sender: string;
   content: string;
   avatar?: string;
+  timestamp: string;
 }
+
 export interface Participant {
   _id: string;
   fullname: string;
@@ -24,7 +26,7 @@ interface ChatBoxProps {
   // onMessageEmit: (message: Message) => void;
   token: string;
   room: ChatRoom;
-  profile: ProfileData |null;
+  profile: ProfileData | null;
 }
 
 const getMessages = (roomId: string, token: string): Promise<any> => {
@@ -88,23 +90,28 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
 
   const handleSendMessage: MouseEventHandler<HTMLButtonElement> = () => {
     if (inputValue.trim() !== '') {
-      socket?.emit("msg", [targetIds, inputValue]);
+      socket?.emit("msg", [targetIds, inputValue, new Date(), room._id]);
       setInputValue('');
     }
   };
 
 
   const handleReceiveMessage = (msg: string[]) => {
-    const sender = msg[0];
-    const content = msg[1];
-    // Update the messages state to include the received message
-    setMessages((prevMessages) => {
-      if (prevMessages !== null) {
-        return [...prevMessages, { sender, content }];
-      } else {
-        return [{ sender, content }];
-      }
-    });
+    if (msg[3] == room._id) {
+      const sender = msg[0];
+      const content = msg[1];
+      const timestamp = msg[2];
+      // Update the messages state to include the received message
+      setMessages((prevMessages) => {
+        if (prevMessages !== null) {
+          return [...prevMessages, { sender, content, timestamp }];
+        } else {
+          return [{ sender, content, timestamp }];
+        }
+      });
+    }else {
+      console.log("New message, room: "+msg[3]) // do something
+    }
   }
 
 
@@ -129,6 +136,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
                   <img className="inchat-avatar" src={avatarSRC} alt="Sender Avatar" />
                 )}
                 <span>{message.content}</span>
+                <span>{message.timestamp}</span>
               </div>
             );
           })
