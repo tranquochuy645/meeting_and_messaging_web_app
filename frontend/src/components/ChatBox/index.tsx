@@ -1,7 +1,8 @@
-import { FC, ChangeEvent, MouseEventHandler, useState, useEffect } from 'react';
+import { FC, ChangeEvent, MouseEventHandler, useState, useEffect, useMemo } from 'react';
 import './style.css';
 import { getSocket } from '../../SocketController';
 import { ProfileData } from '../../Main';
+
 interface Message {
   sender: string;
   content: string;
@@ -53,36 +54,6 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [messages, setMessages] = useState<Message[] | null>(null);
 
-  useEffect(() => {
-    try {
-      if (!token || !room) {
-        return;
-      }
-      if (!room._id) {
-        return
-      }
-      targetIds = room.participants
-        .map((participant) => participant.socketId) // Create an array of socketIds
-        .filter((socketId) => socketId !== null && socketId !== undefined);
-      targetIds = targetIds.flat();
-      // The resulting targetIds array will not contain null or undefined values
-
-      getMessages(room._id, token)
-        .then((data) => {
-          setMessages(data.messages as Message[]);
-        })
-        .catch((err) => {
-          throw err;
-        });
-    } catch (err) {
-      console.error(err);
-    }
-  }, [token, room]);
-  useEffect(() => {
-    socket = getSocket(token);
-    socket?.on("msg", handleReceiveMessage);
-  }, [token])
-
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
     console.log('typing ...');
@@ -94,7 +65,6 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       setInputValue('');
     }
   };
-
 
   const handleReceiveMessage = (msg: string[]) => {
     if (msg[3] == room._id) {
@@ -109,10 +79,49 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
           return [{ sender, content, timestamp }];
         }
       });
-    }else {
-      console.log("New message, room: "+msg[3]) // do something
+    } else {
+      console.log("New message, room: " + msg[3]) // do something
     }
   }
+  useMemo(
+    () => {
+      try {
+        if (!token || !room) {
+          return;
+        }
+        getMessages(room._id, token)
+          .then((data) => {
+            setMessages(data.messages as Message[]);
+          })
+          .catch((err) => {
+            throw err;
+          });
+      }
+      catch (err) {
+        console.error(err);
+      }
+    }, [token, room._id]
+  )
+  useMemo(() => {
+    socket = getSocket(token);
+    socket?.on("msg", handleReceiveMessage);
+  }, [token])
+
+  useEffect(() => {
+    try {
+      if (!room._id) {
+        return
+      }
+      targetIds = room.participants
+        .map((participant) => participant.socketId) // Create an array of socketIds
+        .filter((socketId) => socketId !== null && socketId !== undefined);
+      targetIds = targetIds.flat();
+      // The resulting targetIds array will not contain null or undefined values
+
+    } catch (err) {
+      console.error(err);
+    }
+  }, [room]);
 
 
   return (
