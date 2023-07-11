@@ -1,4 +1,4 @@
-import { FC, ChangeEvent, MouseEventHandler, useState, useEffect, useMemo } from 'react';
+import { FC, ChangeEvent, MouseEventHandler, useState, useEffect, useMemo, useRef } from 'react';
 import './style.css';
 import { getSocket } from '../../SocketController';
 import { ProfileData } from '../../Main';
@@ -53,7 +53,7 @@ let socket: any;
 const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [messages, setMessages] = useState<Message[] | null>(null);
-
+  const roomIdRef = useRef(room._id);
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
     console.log('typing ...');
@@ -67,7 +67,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   };
 
   const handleReceiveMessage = (msg: string[]) => {
-    if (msg[3] == room._id) {
+    if (msg[3] === roomIdRef.current) {
       const sender = msg[0];
       const content = msg[1];
       const timestamp = msg[2];
@@ -106,12 +106,15 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
     socket = getSocket(token);
     socket?.on("msg", handleReceiveMessage);
   }, [token])
-
+  useEffect(() => {
+    roomIdRef.current = room._id;
+  }, [room._id]);
   useEffect(() => {
     try {
       if (!room._id) {
         return
       }
+      console.log(room._id);
       targetIds = room.participants
         .map((participant) => participant.socketId) // Create an array of socketIds
         .filter((socketId) => socketId !== null && socketId !== undefined);

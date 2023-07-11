@@ -2,6 +2,7 @@ import socketIO from "socket.io";
 import { Server as HTTPServer } from "http";
 import { verifyTokenViaSocketIO } from "../../middleware/socketIO/jwt";
 import { onlineCheck } from "../../lib/onlineCheck";
+import { saveMessage } from "../../lib/saveMessage";
 const setupSocketIO = (server: HTTPServer) => {
   const io = new socketIO.Server(server);
   io.use(verifyTokenViaSocketIO);
@@ -23,6 +24,7 @@ const setupSocketIO = (server: HTTPServer) => {
       socket.on("msg", (msg) => {
         console.log("msg:", msg);
         io.to(msg[0]).emit("msg", [userId, msg[1], msg[2], msg[3]]);
+        saveMessage(userId, msg[1], msg[2], msg[3]);
       });
 
       let stateListeners: string[]=[];
@@ -30,6 +32,7 @@ const setupSocketIO = (server: HTTPServer) => {
         console.log("onl:", msg);
         stateListeners = msg;
         io.to(stateListeners).emit("onl", [userId, socket.id]);
+
       });
 
       socket.on("disconnect", async () => {
