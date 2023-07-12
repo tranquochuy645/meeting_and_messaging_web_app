@@ -117,7 +117,7 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
                 <input
                   type="password"
                   placeholder="Password"
-                  id="regPassword"
+                  name="regPassword"
                   required
                 />
               </div>
@@ -126,7 +126,7 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
                 <input
                   type="password"
                   placeholder="Repeat Password"
-                  id="reRegPassword"
+                  name="reRegPassword"
                   required
                 />
               </div>
