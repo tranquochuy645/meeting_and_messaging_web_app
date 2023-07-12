@@ -76,7 +76,7 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
   };
 
   return (
-    <body>
+    <div id="auth-page">
       <div className="wrapper">
         <h2>{isLogin ? "Login" : "Register"}</h2>
         <form onSubmit={handleSubmit}>
@@ -140,7 +140,7 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
           Switch to {isLogin ? "Register" : "Login"}
         </button>
       </div>
-    </body>
+    </div>
   );
 };
 
