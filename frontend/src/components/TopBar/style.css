@@ -1,0 +1,14 @@
+#profile {
+    border: solid blue;
+    display: flex;
+    width: 100%;
+}
+
+#profile_img {
+    width: 100px;
+    height: 100px;
+}
+
+#profile_info {
+    color: var(--text-color)
+}

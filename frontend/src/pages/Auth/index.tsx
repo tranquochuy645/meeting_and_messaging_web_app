@@ -6,7 +6,7 @@ interface AuthPageProps {
   onLogin: (token: string) => void;
 }
 
-const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
+const Auth: FC<AuthPageProps> = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const handleToggle = () => {
     setIsLogin((prevState) => !prevState);
@@ -144,4 +144,4 @@ const AuthPage: FC<AuthPageProps> = ({ onLogin }) => {
   );
 };
 
-export default AuthPage;
+export default Auth;

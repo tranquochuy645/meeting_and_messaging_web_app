@@ -1,7 +1,7 @@
-import { FC, ChangeEvent, MouseEventHandler, useState, useEffect, useMemo, useRef } from 'react';
+import { FC, ChangeEvent, MouseEventHandler, useState, useEffect, useRef } from 'react';
 import './style.css';
 import { getSocket } from '../../SocketController';
-import { ProfileData } from '../../Main';
+import { ProfileData } from '../../pages/Main';
 
 interface Message {
   sender: string;
@@ -83,7 +83,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       console.log("New message, room: " + msg[3]) // do something
     }
   }
-  useMemo(
+  useEffect(
     () => {
       try {
         if (!token || !room) {
@@ -102,7 +102,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       }
     }, [token, room._id]
   )
-  useMemo(() => {
+  useEffect(() => {
     socket = getSocket(token);
     socket?.on("msg", handleReceiveMessage);
   }, [token])
@@ -114,7 +114,6 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       if (!room._id) {
         return
       }
-      console.log(room._id);
       targetIds = room.participants
         .map((participant) => participant.socketId) // Create an array of socketIds
         .filter((socketId) => socketId !== null && socketId !== undefined);

@@ -1,9 +1,9 @@
 import { lazy, useState, Suspense, useEffect } from 'react'
-import AuthPage from './AuthPage'
+import Auth from './pages/Auth'
 import PendingFigure from './components/PendingFigure'
 import { getSocket } from './SocketController'
 const Main = lazy(
-  () => import('./Main')
+  () => import('./pages/Main')
 )
 import '@fortawesome/fontawesome-free/css/all.css';
 // import { getSocket } from './SocketController';
@@ -39,7 +39,7 @@ function App() {
             <Main token={token} />
           </Suspense>
           :
-          <AuthPage onLogin={loginHandler} />
+          <Auth onLogin={loginHandler} />
 
       }
     </>

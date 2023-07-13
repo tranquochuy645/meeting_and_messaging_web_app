@@ -1,10 +1,11 @@
-import { FC, useEffect, useState } from 'react';
-import Card from '../Card';
+import { FC, useEffect, useState, useMemo } from 'react';
+import Room from '../Room';
 import './style.css';
 import { getSocket } from '../../SocketController';
 import { ChatRoom } from '../ChatBox';
 
 interface SideBarProps {
+    userId: string;
     currentRoomIndex: number;
     token: string;
     onRoomChange: (index: number) => void;
@@ -34,13 +35,11 @@ const getRoomsInfo = (token: string): Promise<any> => {
             });
     });
 };
-let socket: any;
-let targetIds: Array<string>;
-const SideBar: FC<SideBarProps> = ({ currentRoomIndex, token, onRoomChange, onUpdateStatus }) => {
+
+const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChange, onUpdateStatus }) => {
     const [roomsInfo, setRoomsInfo] = useState<ChatRoom[]>([]);
     const handleOnlineUpdate = (msg: string[]) => {
         const [senderId, senderSocketId] = msg;
-
         setRoomsInfo(prevRoomsInfo => {
             if (!prevRoomsInfo) {
                 return prevRoomsInfo;
@@ -64,32 +63,39 @@ const SideBar: FC<SideBarProps> = ({ currentRoomIndex, token, onRoomChange, onUp
     };
     const handleOfflineUpdate = (msg: string[]) => {
         const [senderId, senderSocketId] = msg;
-      
+
         setRoomsInfo((prevRoomsInfo) => {
-          if (!prevRoomsInfo) {
-            return prevRoomsInfo;
-          }
-      
-          return prevRoomsInfo.map((room) => {
-            const updatedParticipants = room.participants.map((participant) => {
-              if (participant._id === senderId) {
-                const updatedSocketIds = participant.socketId.filter((socketId) => socketId !== senderSocketId);
-      
-                return {
-                  ...participant,
-                  isOnline: updatedSocketIds.length > 0, // Update the online status based on remaining socket IDs
-                  socketId: updatedSocketIds,
-                };
-              }
-      
-              return participant;
+            if (!prevRoomsInfo) {
+                return prevRoomsInfo;
+            }
+
+            return prevRoomsInfo.map((room) => {
+                const updatedParticipants = room.participants.map((participant) => {
+                    if (participant._id === senderId) {
+                        const updatedSocketIds = participant.socketId.filter((socketId) => socketId !== senderSocketId);
+
+                        return {
+                            ...participant,
+                            isOnline: updatedSocketIds.length > 0, // Update the online status based on remaining socket IDs
+                            socketId: updatedSocketIds,
+                        };
+                    }
+
+                    return participant;
+                });
+
+                return { ...room, participants: updatedParticipants };
             });
-      
-            return { ...room, participants: updatedParticipants };
-          });
         });
-      };
-      
+    };
+    const handleRoomClick = (index: number) => {
+        const rooms = document.querySelectorAll('.chat-room')
+        rooms?.forEach(
+            (room) => { room.classList?.remove('active') }
+        )
+        rooms[index]?.classList?.add('active')
+        onRoomChange(index);
+    }
 
     useEffect(
         () => {
@@ -104,7 +110,7 @@ const SideBar: FC<SideBarProps> = ({ currentRoomIndex, token, onRoomChange, onUp
             getRoomsInfo(token)
                 .then((data) => {
                     setRoomsInfo(data);
-                    targetIds = Array.from(
+                    const targetIds = Array.from(
                         new Set(
                             data.flatMap((obj: ChatRoom) =>
                                 obj.participants
@@ -115,7 +121,7 @@ const SideBar: FC<SideBarProps> = ({ currentRoomIndex, token, onRoomChange, onUp
                     );
 
                     // The resulting targetIds array will not contain null or undefined values
-                    socket = getSocket(token);
+                    const socket = getSocket(token);
                     socket.on("onl", handleOnlineUpdate);
                     socket.on("off", handleOfflineUpdate);
                     //announce other sockets in the room that I'm online
@@ -127,17 +133,22 @@ const SideBar: FC<SideBarProps> = ({ currentRoomIndex, token, onRoomChange, onUp
         }
     }, [token]);
 
+    const roomList = useMemo(() => {
+        return roomsInfo.map(
+            (room: ChatRoom, index: number) => (
+                <div className={`chat-room ${index == currentRoomIndex ? 'active' : ''}`}
+                    key={room._id}
+                    onClick={() => handleRoomClick(index)}>
+                    <Room userId={userId} roomData={room.participants} />
+                </div>
+            ))
+    }, [roomsInfo])
+
     return (
         <div id='SideBar'>
             {roomsInfo && roomsInfo.length > 0 ? (
                 <div>
-                    {roomsInfo.map((room: ChatRoom, index: number) => (
-                        <div className={`chat-room ${index == currentRoomIndex ? 'active' : ''}`}
-                            key={room._id}
-                            onClick={() => onRoomChange(index)}>
-                            <Card cardData={room.participants} />
-                        </div>
-                    ))}
+                    {roomList}
                 </div>
             ) : (
                 <p>No rooms to display</p>

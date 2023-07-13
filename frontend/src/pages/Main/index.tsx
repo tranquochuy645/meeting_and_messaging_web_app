@@ -1,8 +1,9 @@
 import { FC, useState, useEffect } from 'react';
 import './style.css';
-import Layout from '../Layout/Desktop';
-import SideBar from '../components/SideBar';
-import ChatBox from '../components/ChatBox';
+import SideBar from '../../components/SideBar';
+import ChatBox from '../../components/ChatBox';
+import TopBar from '../../components/TopBar';
+import PendingFigure from '../../components/PendingFigure';
 interface MainProps {
     token: string;
 }
@@ -44,6 +45,7 @@ const Main: FC<MainProps> = ({ token }) => {
         setRoomsInfo(rooms);
     }
 
+
     useEffect(() => {
         if (token) {
             getProfile(token)
@@ -60,16 +62,30 @@ const Main: FC<MainProps> = ({ token }) => {
 
 
     return (
-        <Layout userData={profileData}>
-            <SideBar currentRoomIndex={currentRoomIndex} token={token} onRoomChange={handleRoomChange} onUpdateStatus={handleUpdate} />
+        <>
+            <TopBar profileData={profileData} />
             {
-                roomsInfo.length > 0
-                && <ChatBox
-                    profile={profileData}
-                    token={token}
-                    room={roomsInfo[currentRoomIndex]} />
+                profileData ?
+                    (<main className='flex'>
+                        <SideBar userId={profileData._id}
+                            currentRoomIndex={currentRoomIndex}
+                            token={token} onRoomChange={handleRoomChange}
+                            onUpdateStatus={handleUpdate} />
+                        {
+                            roomsInfo.length > 0
+                            && <ChatBox
+                                profile={profileData}
+                                token={token}
+                                room={roomsInfo[currentRoomIndex]} />
+                        }
+                    </main>)
+                    :
+                    (<PendingFigure size={500} />)
             }
-        </Layout>
+            <footer style={{ display: "none" }}>
+                <p>© 2023 Messaging App. All rights reserved.</p>
+            </footer >
+        </>
     );
 };
 
