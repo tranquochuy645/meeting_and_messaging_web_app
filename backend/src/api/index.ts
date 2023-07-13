@@ -4,6 +4,8 @@ import RateLimit from 'express-rate-limit';
 import authRouter from './auth';
 import roomsRouter from './rooms';
 import usersRouter from './users';
+import searchRouter from './search';
+
 
 const router = Router();
 
@@ -25,5 +27,6 @@ const authLimiter = RateLimit({
 router.use('/auth', authLimiter, authRouter);
 router.use('/rooms', generalLimiter, roomsRouter);
 router.use('/users', generalLimiter, usersRouter);
+router.use('/search', generalLimiter, searchRouter);
 
 export default router;

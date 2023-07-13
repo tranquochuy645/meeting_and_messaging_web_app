@@ -3,14 +3,7 @@ import { verifyToken } from '../middleware/express/jwt';
 import { getDocuments } from '../controllers/mongodb';
 import { ObjectId } from 'mongodb';
 const router = Router();
-interface User {
-  _id: string;
-  username: string;
-  fullname: string;
-  avatar: string;
-  rooms: string[];
-  createdAt: string;
-}
+
 // GET /api/users
 router.get('/', verifyToken, (req, res) => {
   const oid = new ObjectId(req.headers.userId as string);

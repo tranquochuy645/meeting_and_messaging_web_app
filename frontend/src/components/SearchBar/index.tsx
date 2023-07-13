@@ -1,18 +1,26 @@
-import React, { useState, ChangeEvent, KeyboardEvent } from 'react';
+import { useRef, useState, useEffect, KeyboardEvent } from 'react';
 
-interface SearchBarProps {
-  token:string;
-}
-
-const SearchBar: React.FC<SearchBarProps> = ({token}) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
+const SearchBar = () => {
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   const handleSearch = () => {
-    console.log(token);
+    const searchTerm = searchInputRef.current?.value;
+    if (!searchTerm) {
+      return;
+    }
+
+    fetch(`/api/search/${searchTerm}`)
+      .then(response => {
+        if (response.ok) {
+          return response.json().then(
+            data => {
+              setSearchResults(data);
+            }
+          );
+        }
+        console.log(response.status);
+      });
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -21,16 +29,42 @@ const SearchBar: React.FC<SearchBarProps> = ({token}) => {
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target as Node)
+      ) {
+        setSearchResults([]);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
   return (
     <div>
       <input
         type="text"
         placeholder="Search for users..."
-        value={searchTerm}
-        onChange={handleInputChange}
+        ref={searchInputRef}
         onKeyPress={handleKeyPress}
       />
       <button onClick={handleSearch}>Search</button>
+
+      {searchResults.length > 0 && (
+        <div className="dropdown">
+          {searchResults.map(result => (
+            <div key={result._id}>
+              <img src={result.avatar} alt="Avatar" />
+              {result.fullname}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

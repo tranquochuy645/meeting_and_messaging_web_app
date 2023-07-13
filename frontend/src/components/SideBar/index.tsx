@@ -152,7 +152,7 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
 
     return (
         <div id='SideBar'>
-            <SearchBar token={token} />
+            <SearchBar/>
             {roomsInfo && roomsInfo.length > 0 ? (
                 <div>
                     {roomList}
