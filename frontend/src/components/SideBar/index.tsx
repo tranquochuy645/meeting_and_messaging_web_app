@@ -23,12 +23,17 @@ const getRoomsInfo = (token: string): Promise<any> => {
         })
             .then((response) => {
                 if (response.ok) {
-                    response.json().then((data) => {
-                        resolve(data);
+                    return response.json().then((data) => {
+                         resolve(data);
                     });
-                } else {
-                    throw new Error('Failed to fetch rooms information');
                 }
+                if (response.status == 401) {
+                    alert("Token expired");
+                    sessionStorage.removeItem('token');
+                    window.location.reload();
+                }
+                throw new Error('Failed to fetch rooms information');
+
             })
             .catch((error) => {
                 reject(error);

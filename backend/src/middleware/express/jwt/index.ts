@@ -19,16 +19,12 @@ const verifyToken = (req: any, res: any, next: any) => {
     };
     try {
         const { userId, fullname } = jwt.verify(token, secretKey) as JwtPayload;
-        if (!userId || !fullname) {
-            throw new Error();
-        }
         req.headers.userId = userId;
         req.headers.fullname = fullname;
         next();
-    } catch (error) {
-        return res.status(401).json({ message:"Invalid Token" });
+    } catch (error:any) {
+        return res.status(401).json({ message:error.message });
     }
-
 }
 
 export {

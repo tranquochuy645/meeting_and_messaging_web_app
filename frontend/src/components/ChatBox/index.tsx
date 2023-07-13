@@ -41,9 +41,13 @@ const getMessages = (roomId: string, token: string): Promise<any> => {
     .then((response) => {
       if (response.ok) {
         return response.json();
-      } else {
-        throw new Error('Failed to fetch messages');
       }
+      if (response.status == 401) {
+        alert("Token expired");
+        sessionStorage.removeItem('token');
+        window.location.reload();
+      }
+      throw new Error('Failed to fetch messages');
     });
 };
 let targetIds: Array<any>;
