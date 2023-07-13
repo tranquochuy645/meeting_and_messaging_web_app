@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, KeyboardEvent } from 'react';
-
+import './style.css';
 const SearchBar = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -46,7 +46,7 @@ const SearchBar = () => {
   }, []);
 
   return (
-    <div>
+    <div id="search">
       <input
         type="text"
         placeholder="Search for users..."
@@ -56,7 +56,7 @@ const SearchBar = () => {
       <button onClick={handleSearch}>Search</button>
 
       {searchResults.length > 0 && (
-        <div className="dropdown">
+        <div className="search_dropdown">
           {searchResults.map(result => (
             <div key={result._id}>
               <img src={result.avatar} alt="Avatar" />
