@@ -1,10 +1,10 @@
 import React, { useState, ChangeEvent, KeyboardEvent } from 'react';
 
 interface SearchBarProps {
-  onSearch: (searchTerm: string) => void;
+  token:string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+const SearchBar: React.FC<SearchBarProps> = ({token}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -12,7 +12,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   };
 
   const handleSearch = () => {
-    onSearch(searchTerm);
+    console.log(token);
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {

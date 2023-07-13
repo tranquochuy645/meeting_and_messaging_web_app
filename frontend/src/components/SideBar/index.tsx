@@ -25,7 +25,7 @@ const getRoomsInfo = (token: string): Promise<any> => {
             .then((response) => {
                 if (response.ok) {
                     return response.json().then((data) => {
-                         resolve(data);
+                        resolve(data);
                     });
                 }
                 if (response.status == 401) {
@@ -152,7 +152,7 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
 
     return (
         <div id='SideBar'>
-            <SearchBar onSearch={()=>{}}/>
+            <SearchBar token={token} />
             {roomsInfo && roomsInfo.length > 0 ? (
                 <div>
                     {roomList}
