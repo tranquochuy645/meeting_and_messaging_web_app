@@ -3,6 +3,7 @@ import Room from '../Room';
 import './style.css';
 import { getSocket } from '../../SocketController';
 import { ChatRoom } from '../ChatBox';
+import SearchBar from '../SearchBar';
 
 interface SideBarProps {
     userId: string;
@@ -151,6 +152,7 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
 
     return (
         <div id='SideBar'>
+            <SearchBar onSearch={()=>{}}/>
             {roomsInfo && roomsInfo.length > 0 ? (
                 <div>
                     {roomList}
