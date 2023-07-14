@@ -1,15 +1,27 @@
 import { Db } from 'mongodb';
-import globalChatModel from './globalChatModel.json';
+import roomSchema from './Schema/room.json';
+import userSchema from './Schema/user.json';
+import mediaSchema from './Schema/media.json';
 
+// Define the global chat room object
+const globalChat = {
+  type: "global",
+  participants: [],
+  messages: []
+};
+
+// Define the collection names and validators
 const collectionNames = ['users', 'rooms', 'media'];
+const validators = [userSchema, roomSchema, mediaSchema];
 
-const createCollection = async (db: Db, collectionName: string) => {
+// Function to create a collection with a validator
+const createCollection = async (db: Db, collectionName: string, validator: object) => {
   try {
-    const collection = await db.createCollection(collectionName);
+    const collection = await db.createCollection(collectionName, { validator });
     console.log('Collection created successfully:', collection.collectionName);
 
     if (collectionName === 'rooms') {
-      const insertedData = await collection.insertOne(globalChatModel);
+      const insertedData = await collection.insertOne(globalChat);
       globalThis.globalChatId = insertedData.insertedId;
       console.log('Created global chat room successfully');
     }
@@ -18,6 +30,7 @@ const createCollection = async (db: Db, collectionName: string) => {
   }
 };
 
+// Function to find or create the global chat room
 const findOrCreateGlobalChatRoom = async (db: Db, collectionName: string) => {
   try {
     const data = await db.collection(collectionName).find({ type: 'global' }).toArray();
@@ -25,7 +38,7 @@ const findOrCreateGlobalChatRoom = async (db: Db, collectionName: string) => {
     if (data.length > 0) {
       globalThis.globalChatId = data[0]._id;
     } else {
-      const insertedData = await db.collection(collectionName).insertOne(globalChatModel);
+      const insertedData = await db.collection(collectionName).insertOne(globalChat);
       globalThis.globalChatId = insertedData.insertedId;
       console.log('Created global chat room successfully');
     }
@@ -34,43 +47,34 @@ const findOrCreateGlobalChatRoom = async (db: Db, collectionName: string) => {
   }
 };
 
-const updateGlobalRoomUsersList = async (db: Db, collectionName: string) => {
-  try {
-    if (collectionName === 'rooms') {
-      // Retrieve all user IDs from the "users" collection
-      const usersCollection = db.collection('users');
-      const users = await usersCollection.find({}, { projection: { _id: 1 } }).toArray();
-      const userIds = users.map(user => user._id.toString());
-
-      // Update the global chat room with the array of user IDs
-      await db.collection(collectionName).updateOne({ type: 'global' }, { $set: { participants: userIds } });
-    }
-  } catch (err) {
-    console.error('Failed to update global room users list:', collectionName, err);
-  }
-};
+// Function to clear socket IDs and set isOnline to false for all users
 const clearSocketIds = (db: Db) => {
   db.collection("users").updateMany({}, { $set: { isOnline: false, socketId: [] } })
-    .then(
-      result => {
-        console.log("clear socket ids: " + result.modifiedCount);
-      })
-}
+    .then(result => {
+      console.log("Cleared socket IDs:", result.modifiedCount);
+    })
+    .catch(err => {
+      console.error('Failed to clear socket IDs:', err);
+    });
+};
+
+// Main setup function
 const setup = async (db: Db) => {
   try {
-    for (const collectionName of collectionNames) {
+    for (const [index, collectionName] of collectionNames.entries()) {
       const collectionInfo = await db.listCollections({ name: collectionName }).next();
 
       if (!collectionInfo) {
-        await createCollection(db, collectionName);
+        await createCollection(db, collectionName, validators[index]);
       } else if (collectionName === 'rooms') {
         await findOrCreateGlobalChatRoom(db, collectionName);
-        await updateGlobalRoomUsersList(db, collectionName);
       }
     }
   } catch (err) {
     console.error('Failed to check collection:', err);
   }
+
+  // Clear socket IDs and set isOnline to false for all users
   clearSocketIds(db);
 };
 

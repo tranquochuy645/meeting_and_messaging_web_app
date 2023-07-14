@@ -1,0 +1,36 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "_id",
+      "type",
+      "participants",
+      "messages"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "objectId"
+      },
+      "type": {
+        "enum": [
+          "global",
+          "direct",
+          "group"
+        ],
+        "description": "must be one of 'global', 'direct', or 'group'"
+      },
+      "participants": {
+        "bsonType": "array",
+        "description": "must be an array",
+        "items": {
+          "bsonType": "objectId",
+          "description": "must be a objectId"
+        }
+      },
+      "messages": {
+        "bsonType": "array",
+        "description": "must be an array"
+      }
+    }
+  }
+}

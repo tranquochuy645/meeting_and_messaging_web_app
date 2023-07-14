@@ -3,48 +3,49 @@ import { getDocuments, insertDocument } from '../controllers/mongodb';
 import { generateAuthToken } from '../lib/generateAuthToken';
 import { generateProfileImage } from '../lib/generateProfileImage';
 import { handleRegPassword } from '../middleware/express/handleRegPassword';
+import { updateGlobalRoomUsersList } from '../lib/updateGlobalRoomUsersList';
 import bcrypt from 'bcrypt';
 const router = Router();
 
 // POST /api/auth/register
-router.post('/register', handleRegPassword, (req, res) => {
+router.post('/register', handleRegPassword,
+  (req, res) => {
+    if (Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: 'Bad Request' });
+    }
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Credentials Missing' });
+    }
+    return getDocuments('users', { username })
+      .then((users) => {
+        if (users.length === 0) {
+          const newDefaultProfileImage = generateProfileImage(username.charAt(0));
+          const newUser = {
+            username,
+            password,
+            fullname: username,
+            avatar: newDefaultProfileImage,
+            rooms: [globalThis.globalChatId],
+            createdAt: new Date()
+          };
 
-
-  if (Object.keys(req.body).length === 0) {
-    return res.status(400).json({ message: 'Bad Request' });
-  }
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Credentials Missing' });
-  }
-  return getDocuments('users', { username })
-    .then((users) => {
-      if (users.length === 0) {
-        const newDefaultProfileImage = generateProfileImage(username.charAt(0));
-        const newUser = {
-          username,
-          password,
-          fullname: username,
-          avatar: newDefaultProfileImage,
-          rooms: [globalThis.globalChatId],
-          createdAt: new Date()
-        };
-
-        return insertDocument('users', newUser)
-          .then(() => {
-            return res.status(200).json({ message: 'Created account successfully' });
-          })
-          .catch((error) => {
-            throw error;
-          });
-      }
-      return res.status(409).json({ message: 'Username already exists' });
-    })
-    .catch((error) => {
-      console.error('Error retrieving user:', error);
-      return res.status(500).json({ message: 'Internal server error' });
-    });
-});
+          return insertDocument('users', newUser)
+            .then((result) => {
+              updateGlobalRoomUsersList(result.insertedId)
+              return res.status(200).json({ message: 'Created account successfully' });
+            })
+            .catch((error) => {
+              throw error;
+            });
+        }
+        return res.status(409).json({ message: 'Username already exists' });
+      })
+      .catch((error) => {
+        console.error('Error retrieving user:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      });
+  });
 
 
 // POST /api/auth/login

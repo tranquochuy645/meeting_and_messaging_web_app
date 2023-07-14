@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ObjectId } from 'mongodb';
-import { getDocuments } from '../controllers/mongodb';
+import { getDocuments, insertDocument } from '../controllers/mongodb';
 import { verifyToken } from '../middleware/express/jwt';
 import { extractRooms } from '../lib/extractRooms';
 const router = Router();
@@ -24,25 +24,24 @@ router.get(
   verifyToken,
   (req, res) => {
     let oid;
+    let Uoid;
     try {
       oid = new ObjectId(req.params.id as string);
+      Uoid = new ObjectId(req.headers.userId as string);
     } catch (err) {
       return res.status(400).json({
         message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer",
       });
     }
-    getDocuments('rooms', { "_id": oid }, { projection: { _id: 0, type: 1, participants: 1, messages: 1 } })
+    getDocuments('rooms', { "_id": oid, "participants": { $in: [Uoid] } }, { projection: { _id: 0, type: 1, participants: 1, messages: 1 } })
       .then((data) => {
         switch (data.length) {
           case 1:
-            if (data[0].participants.includes(req.headers.userId)) {
-              // User is a member of this room
-              res.status(200).json(data[0]);
-            } else {
-              res.status(403).json({ message: "Not a member of this room" })
-            }
+            // User is a member of this room
+            res.status(200).json(data[0]);
             break;
           case 0:
+            // Not found or not a member of this room
             res.status(404).json({ message: 'Room not found' });
             break;
           default:
@@ -55,8 +54,13 @@ router.get(
 
 
 // POST /api/rooms
-router.post('/', (req, res) => {
+router.post('/:userid', verifyToken, (req, res) => {
   // Create a new room logic here
+  // const creator_userId=req.headers.userId;
+  // const invited_userId=req.params.userid;
+  // const participants =[creator_userId, invited_userId];
+  // directChat.participants=participants;
+  // insertDocument('rooms',directChat)
 });
 
 // PUT /api/rooms/:id

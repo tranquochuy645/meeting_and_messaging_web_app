@@ -1,5 +1,5 @@
 import { MongoClient, Db, DbOptions, ObjectId } from 'mongodb';
-import { setup } from './setup';
+import { setup } from '../setup';
 let db: Db | null | undefined;
 
 declare global {
@@ -18,7 +18,6 @@ export const connectToDb = (
     MongoClient.connect(mongo_uri, opts)
         .then((client) => {
             db = client.db(db_name);
-
             if (db) {
                 callback && callback(undefined);
                 console.log("Connected to database");
