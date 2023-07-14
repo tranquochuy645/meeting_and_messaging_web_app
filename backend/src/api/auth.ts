@@ -27,7 +27,9 @@ router.post('/register', handleRegPassword,
             fullname: username,
             avatar: newDefaultProfileImage,
             rooms: [globalThis.globalChatId],
-            createdAt: new Date()
+            createdAt: new Date(),
+            isOnline: false,
+            socketId: []
           };
 
           return insertDocument('users', newUser)

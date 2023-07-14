@@ -94,6 +94,15 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
             });
         });
     };
+    const handlePing = () => {
+        // Received a ping from the server to resfresh room information
+        getRoomsInfo(token)
+            .then(
+                (data) => {
+                    setRoomsInfo(data);
+                }
+            )
+    };
     const handleRoomClick = (index: number) => {
         const rooms = document.querySelectorAll('.chat-room')
         rooms?.forEach(
@@ -130,6 +139,7 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
                     const socket = getSocket(token);
                     socket.on("onl", handleOnlineUpdate);
                     socket.on("off", handleOfflineUpdate);
+                    socket.on("ping", handlePing);
                     //announce other sockets in the room that I'm online
                     socket.emit("onl", targetIds);
                 })
@@ -152,7 +162,7 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
 
     return (
         <div id='SideBar'>
-            <SearchBar/>
+            <SearchBar />
             {roomsInfo && roomsInfo.length > 0 ? (
                 <div>
                     {roomList}

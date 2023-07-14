@@ -3,7 +3,60 @@ import { Server as HTTPServer } from "http";
 import { verifyTokenViaSocketIO } from "../../middleware/socketIO/jwt";
 import { onlineCheck } from "../../lib/onlineCheck";
 import { saveMessage } from "../../lib/saveMessage";
+import { createWatcher, getDocuments } from "../mongodb";
+import { ChangeStreamDocument } from "mongodb";
+
 const setupSocketIO = (server: HTTPServer) => {
+  const handleRoomsChange = async (change: ChangeStreamDocument) => {
+    try {
+      if (change.operationType == "update") {
+        const roomInfo = await getDocuments('rooms', change.documentKey, { projection: { participants: 1 } });
+        const participantIds = roomInfo[0].participants;
+        const participants = await getDocuments(
+          'users',
+          { _id: { $in: participantIds } },
+          { projection: { _id: 0, socketId: 1 } }
+        )
+        const socketIds = participants.map(
+          participant => {
+            return participant.socketId;
+          }
+        ).flat()
+        if (socketIds.length > 0) {
+          io.to(socketIds).emit('ping')
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  const pipeline = [
+    {
+      $match: {
+        $or: [
+          { 'updateDescription.updatedFields.participants': { $exists: true } },
+          {
+            $expr: {
+              $gt: [
+                {
+                  $size: {
+                    $filter: {
+                      input: { $objectToArray: '$updateDescription.updatedFields' },
+                      as: 'field',
+                      cond: { $regexMatch: { input: '$$field.k', regex: /^participants\.\d+$/ } }
+                    }
+                  }
+                },
+                0
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ];
+
+  createWatcher("rooms", pipeline, handleRoomsChange);
   const io = new socketIO.Server(server);
   io.use(verifyTokenViaSocketIO);
 
@@ -27,7 +80,7 @@ const setupSocketIO = (server: HTTPServer) => {
         saveMessage(userId, msg[1], msg[2], msg[3]);
       });
 
-      let stateListeners: string[]=[];
+      let stateListeners: string[] = [];
       socket.on("onl", (msg) => {
         console.log("onl:", msg);
         stateListeners = msg;
