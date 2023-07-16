@@ -9,11 +9,9 @@ export const insertDocument = async (
   try {
     const db: Db | undefined | null = getDb();
     if (!db) throw new Error("DB CONNECTION ERROR");
-
     const result = await db.collection(collectionName).insertOne(document, options);
     return result;
   } catch (error) {
-    console.error("Error inserting document:", error);
     throw error;
   }
 };
@@ -30,7 +28,6 @@ export const insertManyDocuments = async (
     const result = await db.collection(collectionName).insertMany(documents, options);
     return result;
   } catch (error) {
-    console.error("Error inserting documents:", error);
     throw error;
   }
 };
@@ -43,12 +40,10 @@ export const getDocuments = async (
   try {
     const db: Db | undefined | null = getDb();
     if (!db) throw new Error('DB CONNECTION ERROR');
-
     const collection = db.collection(collectionName);
-    const documents = await collection.find(filter, opts).toArray();
+    const documents = await collection.find(filter, opts)?.toArray();
     return documents;
   } catch (error) {
-    console.error('Error getting documents:', error);
     throw error;
   }
 };
@@ -67,7 +62,6 @@ export const updateDocument = async (
     const result = await collection.updateOne(filter, update, opts);
     return result.modifiedCount || 0;
   } catch (error) {
-    console.error('Error updating document:', error);
     throw error;
   }
 };
@@ -85,7 +79,6 @@ export const updateManyDocuments = async (
     const result = await collection.updateMany(filter, update, opts);
     return result.modifiedCount || 0;
   } catch (error) {
-    console.error('Error updating documents:', error);
     throw error;
   }
 };
@@ -104,7 +97,6 @@ export const deleteDocument = async (
     const result = await collection.deleteOne(filter, opts);
     return result.deletedCount || 0;
   } catch (error) {
-    console.error('Error deleting document:', error);
     throw error;
   }
 };

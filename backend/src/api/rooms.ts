@@ -23,17 +23,17 @@ router.get(
   '/:id',
   verifyToken,
   (req, res) => {
-    let oid;
-    let Uoid;
+    let Roid; //Room oid
+    let Uoid; //User oid
     try {
-      oid = new ObjectId(req.params.id as string);
+      Roid = new ObjectId(req.params.id as string);
       Uoid = new ObjectId(req.headers.userId as string);
     } catch (err) {
       return res.status(400).json({
         message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer",
       });
     }
-    getDocuments('rooms', { "_id": oid, "participants": { $in: [Uoid] } }, { projection: { _id: 0, type: 1, participants: 1, messages: 1 } })
+    getDocuments('rooms', { "_id": Roid, "participants": { $in: [Uoid] } }, { projection: { _id: 0, type: 1, participants: 1, messages: 1 } })
       .then((data) => {
         switch (data.length) {
           case 1:
@@ -77,11 +77,21 @@ router.post('/', verifyToken, async (req, res) => {
       messages: []
     }
     const insertedRoom = await insertDocument("rooms", newRoom);
-    const result = await updateManyDocuments("users",
+    // return modified count
+    const updateCreatorInvitationList = await updateDocument(
+      "users",
+      { _id: creator_userOId },
+      { $push: { rooms: insertedRoom.insertedId } }
+    );
+    if (!updateCreatorInvitationList) {
+      throw new Error("Error updating creator rooms list")
+    }
+    // return modified count
+    const updateUsersInvitationList = await updateManyDocuments("users",
       { _id: { $in: oIdList } },
       { $push: { invitations: insertedRoom.insertedId } }
     );
-    if (result == oIdList.length) {
+    if (updateUsersInvitationList == oIdList.length) {
       return res.status(200).json({ message: "Created Room Successfully" });
     }
     return res.status(500).json({ message: 'Internal Server Error' });
@@ -96,10 +106,10 @@ router.put('/:id',
   verifyToken,
   async (req, res) => {
     // Update room by ID logic here
-    let oid;
+    let Roid;
     let Uoid;
     try {
-      oid = new ObjectId(req.params.id as string); // room oid
+      Roid = new ObjectId(req.params.id as string); // room oid
       Uoid = new ObjectId(req.headers.userId as string); // user oid
     } catch (err) {
       return res.status(400).json({
@@ -107,7 +117,7 @@ router.put('/:id',
       });
     }
     try {
-      const result = await getDocuments('rooms', { _id: oid, "invited": { $in: [Uoid] } }, { projection: { _id: 0, invited: 1 } })
+      const result = await getDocuments('rooms', { _id: Roid, "invited": { $in: [Uoid] } }, { projection: { _id: 0, invited: 1 } })
       if (result.length == 0) {
         // Not found or not a member of this room
         return res.status(403).json({ message: 'Not invited' });
@@ -115,31 +125,31 @@ router.put('/:id',
       const updateUserInvitations = await updateDocument(
         "users",
         { _id: Uoid },
-        { $pull: { invitations: oid } }
+        { $pull: { invitations: Roid } }
       )
       if (!updateUserInvitations) {
         throw new Error("Couldn't update invitations list")
       }
       const updateRoomInvitedList = await updateDocument(
         "rooms",
-        { _id: oid },
+        { _id: Roid },
         { $pull: { invited: Uoid } }
       )
       if (!updateRoomInvitedList) {
         throw new Error("Couldn't update invited list")
       }
-      if (req.body.accept) {
+      if (req.body.accept == true) {
         const updateUserRoomsList = await updateDocument(
           "users",
           { _id: Uoid },
-          { $push: { rooms: oid } }
+          { $push: { rooms: Roid } }
         )
         if (!updateUserRoomsList) {
           throw new Error("Couldn't update rooms list")
         }
         const updateParticipantsList = await updateDocument(
           "rooms",
-          { _id: oid },
+          { _id: Roid },
           { $push: { participants: Uoid } }
         )
         if (!updateParticipantsList) {
