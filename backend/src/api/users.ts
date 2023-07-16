@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { verifyToken } from '../middleware/express/jwt';
-import { getDocuments } from '../controllers/mongodb';
+import { getDocuments, updateDocument } from '../controllers/mongodb';
 import { ObjectId } from 'mongodb';
 const router = Router();
 
@@ -76,16 +76,38 @@ router.get('/:id', (req, res) => {
     )
 });
 
+interface UserUpdateOptions {
+  password?: string;
+  fullname?: string;
+  avatar?: string;
+}
 
-// POST /api/users
-router.post('/', (req, res) => {
-  // Create a new user logic here
+// PUT /api/users/
+router.put('/', verifyToken, async (req, res) => {
+  try {
+    const oid = new ObjectId(req.headers.userId as string);
+    // Extract the update data from req.body
+    const updateData: UserUpdateOptions = req.body;
+    const allowedFields: string[] = ['password', 'fullname', 'avatar'];
+    const updateFields = Object.keys(updateData);
+    const invalidFields = updateFields.filter(
+      (field) => !allowedFields.includes(field)
+    );
+    if (updateFields.length == 0 || invalidFields.length > 0) {
+      return res.status(400).json({ message: 'Invalid update fields', invalidFields });
+    }
+
+    // Update the user document by ID with the specified fields
+    const result = await updateDocument('users', { _id: oid }, { $set: updateData });
+    if (result > 0) {
+      return res.status(200).json({ message: 'User updated successfully' });
+    }
+    res.status(404).json({ message: 'User not found' });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
-// PUT /api/users/:id
-router.put('/:id', (req, res) => {
-  // Update user by ID logic here
-});
 
 // DELETE /api/users/:id
 router.delete('/:id', (req, res) => {
