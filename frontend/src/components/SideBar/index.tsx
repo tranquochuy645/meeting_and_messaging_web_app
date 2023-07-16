@@ -3,8 +3,7 @@ import Room from '../Room';
 import './style.css';
 import { getSocket } from '../../SocketController';
 import { ChatRoom } from '../ChatBox';
-import SearchBar from '../SearchBar';
-
+import FeaturesBox from '../FeaturesBox';
 interface SideBarProps {
     userId: string;
     currentRoomIndex: number;
@@ -19,7 +18,7 @@ const getRoomsInfo = (token: string): Promise<any> => {
             method: 'GET',
             headers: {
                 'content-type': 'application/json',
-                Authorization: 'Bearer ' + token,
+                'authorization': 'Bearer ' + token,
             },
         })
             .then((response) => {
@@ -94,11 +93,13 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
             });
         });
     };
-    const handlePing = () => {
+    const handleRoomRefresh = () => {
+        console.log("triggered");
         // Received a ping from the server to resfresh room information
         getRoomsInfo(token)
             .then(
                 (data) => {
+                    console.log(data);
                     setRoomsInfo(data);
                 }
             )
@@ -139,7 +140,7 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
                     const socket = getSocket(token);
                     socket.on("onl", handleOnlineUpdate);
                     socket.on("off", handleOfflineUpdate);
-                    socket.on("ping", handlePing);
+                    socket.on("room", handleRoomRefresh);
                     //announce other sockets in the room that I'm online
                     socket.emit("onl", targetIds);
                 })
@@ -162,7 +163,7 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
 
     return (
         <div id='SideBar'>
-            <SearchBar />
+            <FeaturesBox token={token} />
             {roomsInfo && roomsInfo.length > 0 ? (
                 <div>
                     {roomList}

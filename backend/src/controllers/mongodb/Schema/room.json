@@ -14,22 +14,38 @@
       "type": {
         "enum": [
           "global",
-          "direct",
-          "group"
-        ],
-        "description": "must be one of 'global', 'direct', or 'group'"
+          "default"
+        ]
       },
       "participants": {
         "bsonType": "array",
         "description": "must be an array",
         "items": {
-          "bsonType": "objectId",
-          "description": "must be a objectId"
+          "bsonType": [
+            "objectId",
+            "null"
+          ]
+        }
+      },
+      "invited": {
+        "bsonType": "array",
+        "description": "must be an array",
+        "items": {
+          "bsonType": [
+            "objectId",
+            "null"
+          ]
         }
       },
       "messages": {
         "bsonType": "array",
-        "description": "must be an array"
+        "description": "must be an array",
+        "items": {
+          "bsonType": [
+            "object",
+            "null"
+          ]
+        }
       }
     }
   }

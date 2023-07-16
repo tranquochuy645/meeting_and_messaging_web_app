@@ -71,6 +71,25 @@ export const updateDocument = async (
     throw error;
   }
 };
+export const updateManyDocuments = async (
+  collectionName: string,
+  filter: object,
+  update: object,
+  opts: object = {}
+): Promise<number> => {
+  try {
+    const db: Db | undefined | null = getDb();
+    if (!db) throw new Error('DB CONNECTION ERROR');
+
+    const collection = db.collection(collectionName);
+    const result = await collection.updateMany(filter, update, opts);
+    return result.modifiedCount || 0;
+  } catch (error) {
+    console.error('Error updating documents:', error);
+    throw error;
+  }
+};
+
 
 export const deleteDocument = async (
   collectionName: string,

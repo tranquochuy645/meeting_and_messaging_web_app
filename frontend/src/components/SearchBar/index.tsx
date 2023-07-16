@@ -1,6 +1,9 @@
-import { useRef, useState, useEffect, KeyboardEvent } from 'react';
+import { FC, useRef, useState, useEffect, KeyboardEvent } from 'react';
 import './style.css';
-const SearchBar = () => {
+interface SearchBarProps {
+  onChoose: (user: object) => void;
+}
+const SearchBar: FC<SearchBarProps> = ({ onChoose }) => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
 
@@ -28,16 +31,14 @@ const SearchBar = () => {
       handleSearch();
     }
   };
-  const handleCreateNewConversation=(id:string)=>{
-    console.log(id);
-  }
+
   const handleClickOutside = (event: MouseEvent) => {
     if (
       searchInputRef.current &&
       !searchInputRef.current.contains(event.target as Node)
     ) {
       setSearchResults([]);
-      searchInputRef.current.value="";
+      searchInputRef.current.value = "";
     }
   };
   useEffect(() => {
@@ -60,7 +61,12 @@ const SearchBar = () => {
       {searchResults.length > 0 && (
         <div className="search_dropdown">
           {searchResults.map(result => (
-            <div key={result._id} onClick={() => { handleCreateNewConversation(result._id) }}>
+            <div
+              key={result._id}
+              onClick={
+                () => {
+                  onChoose({ _id: result._id, fullname: result.fullname })
+                }}>
               <img src={result.avatar} alt="Avatar" />
               {result.fullname}
             </div>

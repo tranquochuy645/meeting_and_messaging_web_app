@@ -3,7 +3,7 @@ import { getDocuments, insertDocument } from '../controllers/mongodb';
 import { generateAuthToken } from '../lib/generateAuthToken';
 import { generateProfileImage } from '../lib/generateProfileImage';
 import { handleRegPassword } from '../middleware/express/handleRegPassword';
-import { updateGlobalRoomUsersList } from '../lib/updateGlobalRoomUsersList';
+import { updateGlobalRoomInvitedList } from '../lib/updateGlobalRoomInvitedList';
 import bcrypt from 'bcrypt';
 const router = Router();
 
@@ -26,15 +26,16 @@ router.post('/register', handleRegPassword,
             password,
             fullname: username,
             avatar: newDefaultProfileImage,
-            rooms: [globalThis.globalChatId],
+            rooms: [],
             createdAt: new Date(),
             isOnline: false,
-            socketId: []
+            socketId: [],
+            invitations:[globalThis.globalChatId]
           };
 
           return insertDocument('users', newUser)
             .then((result) => {
-              updateGlobalRoomUsersList(result.insertedId)
+              updateGlobalRoomInvitedList(result.insertedId)
               return res.status(200).json({ message: 'Created account successfully' });
             })
             .catch((error) => {

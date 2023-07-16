@@ -13,11 +13,12 @@ export interface ProfileData {
     avatar: string;
     isOnline: boolean;
     rooms: string[];
+    invitations: string[];
 }
 
 
 
-const getProfile = (token: string): Promise<any> => {
+export const getProfile = (token: string): Promise<any> => {
     return fetch('/api/users/', {
         method: 'GET',
         headers: {
@@ -63,11 +64,13 @@ const Main: FC<MainProps> = ({ token }) => {
     }, [token]);
 
 
-
-
     return (
         <>
-            <TopBar profileData={profileData} />
+            {
+                profileData ?
+                    <TopBar token={token} profileData={profileData} />
+                    :
+                    <PendingFigure size={100} />}
             {
                 profileData ?
                     (<main className='flex'>

@@ -7,56 +7,6 @@ import { createWatcher, getDocuments } from "../mongodb";
 import { ChangeStreamDocument } from "mongodb";
 
 const setupSocketIO = (server: HTTPServer) => {
-  const handleRoomsChange = async (change: ChangeStreamDocument) => {
-    try {
-      if (change.operationType == "update") {
-        const roomInfo = await getDocuments('rooms', change.documentKey, { projection: { participants: 1 } });
-        const participantIds = roomInfo[0].participants;
-        const participants = await getDocuments(
-          'users',
-          { _id: { $in: participantIds } },
-          { projection: { _id: 0, socketId: 1 } }
-        )
-        const socketIds = participants.map(
-          participant => {
-            return participant.socketId;
-          }
-        ).flat()
-        if (socketIds.length > 0) {
-          io.to(socketIds).emit('ping')
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-  const pipeline = [
-    {
-      $match: {
-        $or: [
-          { 'updateDescription.updatedFields.participants': { $exists: true } },
-          {
-            $expr: {
-              $gt: [
-                {
-                  $size: {
-                    $filter: {
-                      input: { $objectToArray: '$updateDescription.updatedFields' },
-                      as: 'field',
-                      cond: { $regexMatch: { input: '$$field.k', regex: /^participants\.\d+$/ } }
-                    }
-                  }
-                },
-                0
-              ]
-            }
-          }
-        ]
-      }
-    }
-  ];
-
-  createWatcher("rooms", pipeline, handleRoomsChange);
   const io = new socketIO.Server(server);
   io.use(verifyTokenViaSocketIO);
 
@@ -105,6 +55,73 @@ const setupSocketIO = (server: HTTPServer) => {
       socket.disconnect();
     }
   });
+
+  const handleRoomsChange = async (change: ChangeStreamDocument) => {
+    try {
+      if (change.operationType == "update") {
+        const regex = /^participants(?:\.\d+)?$/;
+        const updatedFields = change.updateDescription.updatedFields || {};
+        if (!Object.keys(updatedFields).some(key => regex.test(key))) {
+          // not changes in participants
+          return;
+        }
+        const roomInfo = await getDocuments('rooms', change.documentKey, { projection: { _id: 0, participants: 1 } });
+        const participantIds = roomInfo[0].participants;
+        const participants = await getDocuments(
+          'users',
+          { _id: { $in: participantIds } },
+          { projection: { _id: 0, socketId: 1 } }
+        )
+        const socketIds = participants.map(
+          participant => {
+            return participant.socketId;
+          }
+        ).flat()
+        if (socketIds.length > 0) {
+          console.log(socketIds);
+          io.to(socketIds).emit('room')
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  const pipeline_1 = [
+    {
+      $match: {
+        'updateDescription.updatedFields': { $exists: true }
+      }
+    }
+  ];
+
+  createWatcher("rooms", pipeline_1, handleRoomsChange);
+
+  const handleInvitationsChange = async (change: ChangeStreamDocument) => {
+    try {
+      if (change.operationType == "update") {
+        const regex = /^invitations(?:\.\d+)?$/;
+        const updatedFields = change.updateDescription.updatedFields || {};
+        if (!Object.keys(updatedFields).some(key => regex.test(key))) {
+          // not changes in invitations
+          return;
+        }
+        const result = await getDocuments("users", change.documentKey, { projection: { socketId: 1 } })
+        if (result.length == 0) { return }
+        const socketIds = result[0].socketId;
+        if (socketIds.length == 0) { return }
+        io.to(socketIds).emit('inv')
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  const pipeline_2 = [{
+    $match: {
+      'updateDescription.updatedFields': { $exists: true }
+    }
+  }]
+
+  createWatcher("users", pipeline_2, handleInvitationsChange);
 };
 
 export { setupSocketIO };

@@ -8,7 +8,10 @@
          "fullname",
          "avatar",
          "rooms",
-         "createdAt"
+         "createdAt",
+         "isOnline",
+         "socketId",
+         "invitations"
       ],
       "properties": {
          "_id": {
@@ -34,7 +37,7 @@
             "bsonType": "array",
             "description": "must be an array and is required",
             "items": {
-               "bsonType": "objectId"
+               "bsonType": ["objectId","null"]
             }
          },
          "createdAt": {
@@ -45,17 +48,28 @@
             "bsonType": "bool",
             "description": "must be a boolean and is required"
          },
-         "lastUpdate": {
-            "bsonType": "date",
-            "description": "must be a date and is required"
-         },
          "socketId": {
             "bsonType": "array",
             "description": "must be an array and is required",
             "items": {
-               "bsonType": "string",
-               "description": "must be a string"
+               "bsonType": [
+                  "string",
+                  "null"
+               ]
             }
+         },
+         "invitations": {
+            "bsonType": "array",
+            "description": "must be an array and is required",
+            "items": {
+               "bsonType": [
+                  "objectId",
+                  "null"
+               ]
+            }
+         },
+         "lastUpdate": {
+            "bsonType": "date"
          }
       }
    }

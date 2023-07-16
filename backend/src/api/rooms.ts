@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ObjectId } from 'mongodb';
-import { getDocuments, insertDocument } from '../controllers/mongodb';
+import { getDocuments, insertDocument, updateDocument, updateManyDocuments } from '../controllers/mongodb';
 import { verifyToken } from '../middleware/express/jwt';
 import { extractRooms } from '../lib/extractRooms';
 const router = Router();
@@ -54,19 +54,105 @@ router.get(
 
 
 // POST /api/rooms
-router.post('/:userid', verifyToken, (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   // Create a new room logic here
-  // const creator_userId=req.headers.userId;
-  // const invited_userId=req.params.userid;
-  // const participants =[creator_userId, invited_userId];
-  // directChat.participants=participants;
-  // insertDocument('rooms',directChat)
+  try {
+    const creator_userId = req.headers.userId as string;
+    if (!ObjectId.isValid(creator_userId)) {
+      throw new Error("Invalid id")
+    }
+    const creator_userOId = new ObjectId(creator_userId)
+    const oIdList = req.body.invited.map(
+      (id: string) => {
+        if (ObjectId.isValid(id)) {
+          return new ObjectId(id)
+        }
+        throw new Error("Invalid id")
+      }
+    )
+    const newRoom = {
+      type: "default",
+      invited: oIdList,
+      participants: [creator_userOId],
+      messages: []
+    }
+    const insertedRoom = await insertDocument("rooms", newRoom);
+    const result = await updateManyDocuments("users",
+      { _id: { $in: oIdList } },
+      { $push: { invitations: insertedRoom.insertedId } }
+    );
+    if (result == oIdList.length) {
+      return res.status(200).json({ message: "Created Room Successfully" });
+    }
+    return res.status(500).json({ message: 'Internal Server Error' });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: 'Bad Request' });
+  }
 });
 
 // PUT /api/rooms/:id
-router.put('/:id', (req, res) => {
-  // Update room by ID logic here
-});
+router.put('/:id',
+  verifyToken,
+  async (req, res) => {
+    // Update room by ID logic here
+    let oid;
+    let Uoid;
+    try {
+      oid = new ObjectId(req.params.id as string); // room oid
+      Uoid = new ObjectId(req.headers.userId as string); // user oid
+    } catch (err) {
+      return res.status(400).json({
+        message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer",
+      });
+    }
+    try {
+      const result = await getDocuments('rooms', { _id: oid, "invited": { $in: [Uoid] } }, { projection: { _id: 0, invited: 1 } })
+      if (result.length == 0) {
+        // Not found or not a member of this room
+        return res.status(403).json({ message: 'Not invited' });
+      }
+      const updateUserInvitations = await updateDocument(
+        "users",
+        { _id: Uoid },
+        { $pull: { invitations: oid } }
+      )
+      if (!updateUserInvitations) {
+        throw new Error("Couldn't update invitations list")
+      }
+      const updateRoomInvitedList = await updateDocument(
+        "rooms",
+        { _id: oid },
+        { $pull: { invited: Uoid } }
+      )
+      if (!updateRoomInvitedList) {
+        throw new Error("Couldn't update invited list")
+      }
+      if (req.body.accept) {
+        const updateUserRoomsList = await updateDocument(
+          "users",
+          { _id: Uoid },
+          { $push: { rooms: oid } }
+        )
+        if (!updateUserRoomsList) {
+          throw new Error("Couldn't update rooms list")
+        }
+        const updateParticipantsList = await updateDocument(
+          "rooms",
+          { _id: oid },
+          { $push: { participants: Uoid } }
+        )
+        if (!updateParticipantsList) {
+          throw new Error("Couldn't update participants list")
+        }
+      }
+      res.status(200).json({ message: "ok" });
+
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+
+  });
 
 // DELETE /api/rooms/:id
 router.delete('/:id', (req, res) => {
