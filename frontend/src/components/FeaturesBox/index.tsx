@@ -28,7 +28,7 @@ const FeaturesBox: FC<FeaturesBoxProps> = ({ token }) => {
         }
         const userIdsList = usersList.map(user => user._id);
         try {
-            const result = await fetch(
+            const response = await fetch(
                 "/api/rooms",
                 {
                     method: 'POST',
@@ -41,7 +41,12 @@ const FeaturesBox: FC<FeaturesBoxProps> = ({ token }) => {
                     })
                 }
             )
-            console.log(result);
+            if (response.ok) {
+                setUsersList([]);
+                setShowSearchBar(false);
+            } else {
+                alert("deo biet sao bug luon")
+            }
         } catch (error) {
             console.error(error);
         }
@@ -51,7 +56,7 @@ const FeaturesBox: FC<FeaturesBoxProps> = ({ token }) => {
         <div id="featuresBox">
             {
                 showSearchBar && <>
-                    <SearchBar onChoose={handleChooseUser} />{
+                    <SearchBar token={token} onChoose={handleChooseUser} />{
                         usersList.length > 0 && (
                             <>
                                 <div id="chosenList" className='flex'>{usersList.map(

@@ -1,9 +1,10 @@
 import { FC, useRef, useState, useEffect, KeyboardEvent } from 'react';
 import './style.css';
 interface SearchBarProps {
+  token: string;
   onChoose: (user: object) => void;
 }
-const SearchBar: FC<SearchBarProps> = ({ onChoose }) => {
+const SearchBar: FC<SearchBarProps> = ({ token, onChoose }) => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
 
@@ -13,7 +14,15 @@ const SearchBar: FC<SearchBarProps> = ({ onChoose }) => {
       return;
     }
 
-    fetch(`/api/search/${searchTerm}`)
+    fetch(
+      `/api/search/${searchTerm}`,
+      {
+        headers: {
+          'content-type': 'application/json',
+          'authorization': 'Bearer ' + token
+        }
+      }
+    )
       .then(response => {
         if (response.ok) {
           return response.json().then(
