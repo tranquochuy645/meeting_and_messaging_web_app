@@ -9,7 +9,7 @@ router.get('/', verifyToken, (req, res) => {
   const oid = new ObjectId(req.headers.userId as string);
   getDocuments(
     'users',
-    { "_id": oid },
+    { _id: oid },
     {
       projection:
       {
@@ -77,6 +77,7 @@ router.get('/:id', (req, res) => {
 });
 
 interface UserUpdateOptions {
+  [key: string]: string | undefined;
   password?: string;
   fullname?: string;
   avatar?: string;
@@ -88,10 +89,12 @@ router.put('/', verifyToken, async (req, res) => {
     const oid = new ObjectId(req.headers.userId as string);
     // Extract the update data from req.body
     const updateData: UserUpdateOptions = req.body;
+    console.log(req.body);
     const allowedFields: string[] = ['password', 'fullname', 'avatar'];
     const updateFields = Object.keys(updateData);
     const invalidFields = updateFields.filter(
-      (field) => !allowedFields.includes(field)
+      //only accept valid field and string data type
+      (field) => !allowedFields.includes(field) || typeof updateData[field] !== 'string'
     );
     if (updateFields.length == 0 || invalidFields.length > 0) {
       return res.status(400).json({ message: 'Invalid update fields', invalidFields });
