@@ -17,6 +17,10 @@
     bottom: 10%;
     align-self: center;
 }
+.message-container{
+    height: 70%;
+    overflow-y: scroll;
+}
 
 .input-field {
     width: 60%;

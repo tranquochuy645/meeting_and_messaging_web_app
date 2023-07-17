@@ -4,7 +4,7 @@ import { verifyTokenViaSocketIO } from "../../middleware/socketIO/jwt";
 import { onlineCheck } from "../../lib/onlineCheck";
 import { saveMessage } from "../../lib/saveMessage";
 import { createWatcher, getDocuments } from "../mongodb";
-import { ChangeStreamDocument } from "mongodb";
+import { ChangeStreamDocument, ObjectId } from "mongodb";
 
 const setupSocketIO = (server: HTTPServer) => {
   const io = new socketIO.Server(server);
@@ -19,36 +19,61 @@ const setupSocketIO = (server: HTTPServer) => {
         socket.disconnect();
         return;
       }
-
-      await onlineCheck(userId, socket.id, true);
       console.log("A user connected");
 
-      // Handle custom events
-      socket.on("msg", (msg) => {
-        console.log("msg:", msg);
-        io.to(msg[0]).emit("msg", [userId, msg[1], msg[2], msg[3]]);
-        saveMessage(userId, msg[1], msg[2], msg[3]);
-      });
-
-      let stateListeners: string[] = [];
-      socket.on("onl", (msg) => {
-        console.log("onl:", msg);
-        stateListeners = msg;
-        io.to(stateListeners).emit("onl", [userId, socket.id]);
-
-      });
-
-      socket.on("disconnect", async () => {
-        console.log("A user disconnected");
-        stateListeners = stateListeners.filter(id => id != socket.id)
-        console.log("off:", stateListeners);
-        io.to(stateListeners).emit("off", [userId, socket.id]);
-        try {
-          await onlineCheck(userId, socket.id, false);
-        } catch (error) {
-          console.error(error);
+      const user = await getDocuments("users",
+        { _id: new ObjectId(userId) },
+        { projection: { _id: 0, rooms: 1 } }
+      )
+      if (user.length > 0) {
+        const rooms: string[] = user[0].rooms.map(
+          (room: ObjectId) => room.toString()
+        );
+        rooms.forEach(
+          (room: string) => {
+            socket.join(room)
+          }
+        )
+        if (!io.sockets.adapter.rooms.get(userId)?.size) {
+          // if this socket is the first socket of the user
+          await onlineCheck(userId, true);
+          //Send online signal to all rooms of the user
+          rooms.forEach(
+            room => socket.to(room).emit("onl", userId)
+          )
         }
-      });
+        socket.join(userId);
+        // Handle message event
+        socket.on("msg", (msg) => {
+          //msg: [room id, content, date]
+          console.log("msg:", msg);
+          io.to(msg[0]).emit("msg", [userId, msg[0], msg[1], msg[2]]);
+          saveMessage(userId, msg[0], msg[1], msg[2]);
+        });
+
+        // Handle call event
+        socket.on("call", (msg) => {
+          //msg: [room id, date]
+          console.log("call:", msg);
+          io.to(msg[0]).emit("call", [userId, msg[1]]);
+        });
+
+
+        socket.on("disconnect", async () => {
+          // If the user has other socket connected,return
+          if (io.sockets.adapter.rooms.get(userId)?.size) return
+          // All sockets of the user have been disconnected
+          // Send offline signal to all rooms of the user
+          rooms.forEach(
+            room => io.to(room).emit("off", userId)
+          )
+          try {
+            await onlineCheck(userId, false);
+          } catch (error) {
+            console.error(error);
+          }
+        });
+      }
     } catch (error) {
       console.error(error);
       socket.emit("error", { message: "Internal Server Error" });

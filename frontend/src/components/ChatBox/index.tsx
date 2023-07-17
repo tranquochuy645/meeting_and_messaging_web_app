@@ -50,7 +50,6 @@ const getMessages = (roomId: string, token: string): Promise<any> => {
       throw new Error('Failed to fetch messages');
     });
 };
-let targetIds: Array<any>;
 let socket: any;
 
 
@@ -65,16 +64,26 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
 
   const handleSendMessage: MouseEventHandler<HTMLButtonElement> = () => {
     if (inputValue.trim() !== '') {
-      socket?.emit("msg", [targetIds, inputValue, new Date(), room._id]);
+      socket?.emit("msg", [room._id, inputValue, new Date()]);
       setInputValue('');
     }
   };
 
+
   const handleReceiveMessage = (msg: string[]) => {
-    if (msg[3] === roomIdRef.current) {
+    //msg: [sender, content, date, room id]
+    if (msg[1] === roomIdRef.current) {
       const sender = msg[0];
-      const content = msg[1];
-      const timestamp = msg[2];
+      if (
+        //check if sender is participant of the room
+        sender !== profile?._id
+        && !room.participants.some(
+          (participant) => participant._id === sender)
+      ) {
+        return
+      }
+      const content = msg[2];
+      const timestamp = msg[3];
       // Update the messages state to include the received message
       setMessages((prevMessages) => {
         if (prevMessages !== null) {
@@ -84,8 +93,16 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
         }
       });
     } else {
-      console.log("New message, room: " + msg[3]) // do something
+      console.log("New message, room: " + msg[1]) // do something
     }
+  }
+  const handleMakeCall = () => {
+    socket?.emit("call", [ room._id, new Date()]);
+  }
+  const handleReceiveCall = (msg: string[]) => {
+    //msg: [sender, date, room id]
+    console.log("Receive call");
+    console.log(msg);
   }
   useEffect(
     () => {
@@ -109,29 +126,15 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   useEffect(() => {
     socket = getSocket(token);
     socket?.on("msg", handleReceiveMessage);
+    socket?.on("call", handleReceiveCall);
   }, [token])
   useEffect(() => {
     roomIdRef.current = room._id;
   }, [room._id]);
-  useEffect(() => {
-    try {
-      if (!room._id) {
-        return
-      }
-      targetIds = room.participants
-        .map((participant) => participant.socketId) // Create an array of socketIds
-        .filter((socketId) => socketId !== null && socketId !== undefined);
-      targetIds = targetIds.flat();
-      // The resulting targetIds array will not contain null or undefined values
-
-    } catch (err) {
-      console.error(err);
-    }
-  }, [room]);
-
 
   return (
     <div className="chat-box">
+      <button onClick={handleMakeCall}>Make call</button>
       <div className="message-container">
         {
           Array.isArray(messages) &&

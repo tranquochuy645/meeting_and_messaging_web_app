@@ -10,7 +10,6 @@
          "rooms",
          "createdAt",
          "isOnline",
-         "socketId",
          "invitations"
       ],
       "properties": {
@@ -47,16 +46,6 @@
          "isOnline": {
             "bsonType": "bool",
             "description": "must be a boolean and is required"
-         },
-         "socketId": {
-            "bsonType": "array",
-            "description": "must be an array and is required",
-            "items": {
-               "bsonType": [
-                  "string",
-                  "null"
-               ]
-            }
          },
          "invitations": {
             "bsonType": "array",

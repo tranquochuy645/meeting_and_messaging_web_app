@@ -1,6 +1,6 @@
 import { updateDocument } from "../../controllers/mongodb"
 import { ObjectId } from "mongodb"
-export const saveMessage = async (sender: string, content: string, timestamp: string, roomId: string) => {
+export const saveMessage = async (sender: string, roomId: string, content: string, timestamp: string) => {
     const data = {
         sender: new ObjectId(sender),
         content,

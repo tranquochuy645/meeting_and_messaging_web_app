@@ -27,7 +27,6 @@ router.post('/register', handleRegPassword, async (req, res) => {
         fullname: username,
         avatar: newDefaultProfileImage,
         isOnline: false,
-        socketId: [],
         invitations: [globalThis.globalChatId],
         rooms: [],
         createdAt: new Date(),

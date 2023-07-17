@@ -1,4 +1,4 @@
-import { FC, useEffect, useState, useMemo } from 'react';
+import { FC, useEffect, useState, useMemo, useRef } from 'react';
 import Room from '../Room';
 import './style.css';
 import { getSocket } from '../../SocketController';
@@ -43,8 +43,13 @@ const getRoomsInfo = (token: string): Promise<any> => {
 
 const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChange, onUpdateStatus }) => {
     const [roomsInfo, setRoomsInfo] = useState<ChatRoom[]>([]);
-    const handleOnlineUpdate = (msg: string[]) => {
-        const [senderId, senderSocketId] = msg;
+    const preventDuplicateRenderRef = useRef("")
+    const handleOnlineUpdate = (msg: string) => {
+        const senderId = msg;
+        if ("onl" + senderId == preventDuplicateRenderRef.current) {
+            return
+        }
+        preventDuplicateRenderRef.current = "onl" + senderId;
         setRoomsInfo(prevRoomsInfo => {
             if (!prevRoomsInfo) {
                 return prevRoomsInfo;
@@ -56,7 +61,6 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
                         return {
                             ...participant,
                             isOnline: true,
-                            socketId: participant.socketId.includes(senderSocketId) ? participant.socketId : [...participant.socketId, senderSocketId]
                         };
                     }
                     return participant;
@@ -66,28 +70,31 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
             });
         });
     };
-    const handleOfflineUpdate = (msg: string[]) => {
-        const [senderId, senderSocketId] = msg;
-
+    const handleOfflineUpdate = (msg: string) => {
+        const senderId = msg;
+        if ("off" + senderId == preventDuplicateRenderRef.current) {
+            return
+        }
+        preventDuplicateRenderRef.current = "off" + senderId;
         setRoomsInfo((prevRoomsInfo) => {
             if (!prevRoomsInfo) {
                 return prevRoomsInfo;
             }
 
             return prevRoomsInfo.map((room) => {
-                const updatedParticipants = room.participants.map((participant) => {
-                    if (participant._id === senderId) {
-                        const updatedSocketIds = participant.socketId.filter((socketId) => socketId !== senderSocketId);
+                const updatedParticipants = room.participants
+                    .map(
+                        (participant) => {
+                            if (participant._id === senderId) {
 
-                        return {
-                            ...participant,
-                            isOnline: updatedSocketIds.length > 0, // Update the online status based on remaining socket IDs
-                            socketId: updatedSocketIds,
-                        };
-                    }
+                                return {
+                                    ...participant,
+                                    isOnline: false, // Update the online status based on remaining socket IDs
+                                };
+                            }
 
-                    return participant;
-                });
+                            return participant;
+                        });
 
                 return { ...room, participants: updatedParticipants };
             });
@@ -126,23 +133,11 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
             getRoomsInfo(token)
                 .then((data) => {
                     setRoomsInfo(data);
-                    const targetIds = Array.from(
-                        new Set(
-                            data.flatMap((obj: ChatRoom) =>
-                                obj.participants
-                                    .filter((participant) => participant.isOnline)
-                                    .flatMap((participant) => participant.socketId)
-                            )
-                        )
-                    );
 
-                    // The resulting targetIds array will not contain null or undefined values
                     const socket = getSocket(token);
                     socket.on("onl", handleOnlineUpdate);
                     socket.on("off", handleOfflineUpdate);
                     socket.on("room", handleRoomRefresh);
-                    //announce other sockets in the room that I'm online
-                    socket.emit("onl", targetIds);
                 })
                 .catch((error) => {
                     console.log(error);
