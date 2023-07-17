@@ -4,6 +4,7 @@ import './style.css';
 import { getSocket } from '../../SocketController';
 import { ChatRoom } from '../ChatBox';
 import FeaturesBox from '../FeaturesBox';
+import { useNavigate } from 'react-router-dom';
 interface SideBarProps {
     userId: string;
     currentRoomIndex: number;
@@ -30,7 +31,6 @@ const getRoomsInfo = (token: string): Promise<any> => {
                 if (response.status == 401) {
                     alert("Token expired");
                     sessionStorage.removeItem('token');
-                    window.location.reload();
                 }
                 throw new Error('Failed to fetch rooms information');
 
@@ -44,6 +44,7 @@ const getRoomsInfo = (token: string): Promise<any> => {
 const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChange, onUpdateStatus }) => {
     const [roomsInfo, setRoomsInfo] = useState<ChatRoom[]>([]);
     const preventDuplicateRenderRef = useRef("")
+    const navigate = useNavigate();
     const handleOnlineUpdate = (msg: string) => {
         const senderId = msg;
         if ("onl" + senderId == preventDuplicateRenderRef.current) {
@@ -109,7 +110,9 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
                     console.log(data);
                     setRoomsInfo(data);
                 }
-            )
+            ).catch(() => {
+                navigate("/auth");
+            })
     };
     const handleRoomClick = (index: number) => {
         const rooms = document.querySelectorAll('.chat-room')
@@ -133,14 +136,13 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
             getRoomsInfo(token)
                 .then((data) => {
                     setRoomsInfo(data);
-
                     const socket = getSocket(token);
                     socket.on("onl", handleOnlineUpdate);
                     socket.on("off", handleOfflineUpdate);
                     socket.on("room", handleRoomRefresh);
                 })
-                .catch((error) => {
-                    console.log(error);
+                .catch(() => {
+                    navigate("/auth");
                 });
         }
     }, [token]);

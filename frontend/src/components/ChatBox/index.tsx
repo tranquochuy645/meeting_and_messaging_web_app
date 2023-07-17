@@ -2,7 +2,7 @@ import { FC, ChangeEvent, MouseEventHandler, useState, useEffect, useRef } from 
 import './style.css';
 import { getSocket } from '../../SocketController';
 import { ProfileData } from '../../pages/Main';
-
+import { useNavigate } from 'react-router-dom';
 interface Message {
   sender: string;
   content: string;
@@ -45,7 +45,6 @@ const getMessages = (roomId: string, token: string): Promise<any> => {
       if (response.status == 401) {
         alert("Token expired");
         sessionStorage.removeItem('token');
-        window.location.reload();
       }
       throw new Error('Failed to fetch messages');
     });
@@ -57,6 +56,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [messages, setMessages] = useState<Message[] | null>(null);
   const roomIdRef = useRef(room._id);
+  const navigate = useNavigate();
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
     console.log('typing ...');
@@ -97,12 +97,15 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
     }
   }
   const handleMakeCall = () => {
-    socket?.emit("call", [ room._id, new Date()]);
+    socket?.emit("call", [room._id, new Date()]);
   }
   const handleReceiveCall = (msg: string[]) => {
     //msg: [sender, date, room id]
     console.log("Receive call");
     console.log(msg);
+    // Open a new tab and pass the message to it
+    const url = `${window.location.origin}/call/${msg[0]}`;
+    window.open(url, "_blank");
   }
   useEffect(
     () => {
@@ -114,9 +117,10 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
           .then((data) => {
             setMessages(data.messages as Message[]);
           })
-          .catch((err) => {
-            throw err;
-          });
+          .catch(
+            () => {
+              navigate("/auth");
+            });
       }
       catch (err) {
         console.error(err);
@@ -124,9 +128,11 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
     }, [token, room._id]
   )
   useEffect(() => {
-    socket = getSocket(token);
-    socket?.on("msg", handleReceiveMessage);
-    socket?.on("call", handleReceiveCall);
+    if (token) {
+      socket = getSocket(token);
+      socket?.on("msg", handleReceiveMessage);
+      socket?.on("call", handleReceiveCall);
+    }
   }, [token])
   useEffect(() => {
     roomIdRef.current = room._id;
@@ -149,7 +155,8 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
               avatarSRC = sender ? sender.avatar : "";
             }
             return (
-              <div key={message.sender + index}>
+              <div key={index}
+                className={`message ${message.sender == profile?._id ? 'own' : ''}`}>
                 {avatarSRC && (
                   <img className="inchat-avatar" src={avatarSRC} alt="Sender Avatar" />
                 )}

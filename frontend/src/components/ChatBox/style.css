@@ -37,3 +37,10 @@
     border-radius: 4px;
     cursor: pointer;
 }
+
+.message{
+    border: solid black;
+}
+.own{
+    margin-left: 50%;
+}

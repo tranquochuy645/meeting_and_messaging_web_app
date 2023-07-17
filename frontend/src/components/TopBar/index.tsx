@@ -3,6 +3,7 @@ import { getProfile, ProfileData } from "../../pages/Main";
 import { getSocket } from "../../SocketController";
 import PendingFigure from "../PendingFigure";
 import ThemeSwitch from "../ThemeSwitch";
+import { useNavigate } from "react-router-dom";
 import './style.css';
 
 interface TopBarProps {
@@ -15,23 +16,29 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
   const [showInvitation, setShowInvitation] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fullnameInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
-  const handleNewInvitation = () => {
+  const refreshProfile = () => {
     getProfile(token)
       .then((data) => setData(data))
-      .catch((error) => console.error(error));
+      .catch(
+        (error) => {
+          console.error(error)
+          navigate("/auth")
+        }
+      );
   };
 
   useEffect(() => {
     if (token) {
       const socket = getSocket(token);
-      socket.on("inv", handleNewInvitation);
+      socket.on("inv", refreshProfile);
     }
   }, [token]);
 
   const handleLogout = () => {
     sessionStorage.removeItem('token');
-    window.location.reload();
+    navigate("/auth");
   };
 
   const handleAcceptInvitation = async (invitationId: string) => {
@@ -99,7 +106,7 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
         })
       });
       if (response.ok) {
-        window.location.reload()
+        refreshProfile()
       }
     } catch (error) {
       console.error(error);
@@ -154,7 +161,7 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
               });
 
               if (response.ok) {
-                window.location.reload();
+                refreshProfile();
               }
             } catch (error) {
               console.error(error);

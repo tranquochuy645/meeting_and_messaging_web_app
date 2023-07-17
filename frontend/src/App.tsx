@@ -1,49 +1,52 @@
-import { lazy, useState, Suspense, useEffect } from 'react'
-import Auth from './pages/Auth'
-import PendingFigure from './components/PendingFigure'
-import { getSocket } from './SocketController'
-const Main = lazy(
-  () => import('./pages/Main')
-)
-import '@fortawesome/fontawesome-free/css/all.css';
-// import { getSocket } from './SocketController';
+import { lazy, useState, Suspense, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import PendingFigure from './components/PendingFigure';
+const Auth = lazy(() => import('./pages/Auth'));
+const Main = lazy(() => import('./pages/Main'));
+const Call = lazy(() => import('./pages/Call'));
 
+import '@fortawesome/fontawesome-free/css/all.css';
 
 function App() {
-  const [token, setToken] = useState<string>(
-    sessionStorage.getItem('token') || ""
-  )
+  const [token, setToken] = useState<string>(sessionStorage.getItem('token') || '');
+  const navigate = useNavigate();
   const loginHandler = (token: string) => {
     sessionStorage.setItem('token', token);
     setToken(token);
-  }
+    navigate('/');
+  };
   useEffect(() => {
-    if (token) {
-      try {
-        const socket = getSocket(token);
-        socket.emit("message", "hello");
-      } catch (e) {
-        console.error(e);
-       }
+    if (!token) {
+      // Redirect to the auth page if no token is available
+      navigate("/auth")
     }
-  }, [token])
+  }, [token]);
+
   return (
-    <>
-      {
-        token ?
-          <Suspense fallback=
-            {
-              <PendingFigure size={200} />
-            }
-          >
+    <Routes>
+      <Route path="/"
+        element={
+          <Suspense fallback={<PendingFigure size={500} />}>
             <Main token={token} />
           </Suspense>
-          :
-          <Auth onLogin={loginHandler} />
-
-      }
-    </>
-  )
+        }
+      />
+      <Route path="/auth"
+        element={
+          <Suspense fallback={<PendingFigure size={500} />}>
+            <Auth onLogin={loginHandler} />
+          </Suspense>
+        }
+      />
+      <Route path="/call/:roomId"
+        element={
+          <Suspense fallback={<PendingFigure size={500} />}>
+            <Call token={token} />
+          </Suspense>
+        }
+      />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
