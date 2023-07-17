@@ -2,6 +2,7 @@ import { FC, useEffect, useState, useMemo, useRef } from 'react';
 import Room from '../Room';
 import './style.css';
 import { getSocket } from '../../SocketController';
+import { Socket } from 'socket.io-client';
 import { ChatRoom } from '../ChatBox';
 import FeaturesBox from '../FeaturesBox';
 import { useNavigate } from 'react-router-dom';
@@ -44,6 +45,7 @@ const getRoomsInfo = (token: string): Promise<any> => {
 const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChange, onUpdateStatus }) => {
     const [roomsInfo, setRoomsInfo] = useState<ChatRoom[]>([]);
     const preventDuplicateRenderRef = useRef("")
+    const socketRef= useRef<Socket |null>(null);
     const navigate = useNavigate();
     const handleOnlineUpdate = (msg: string) => {
         const senderId = msg;
@@ -140,10 +142,14 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
                     socket.on("onl", handleOnlineUpdate);
                     socket.on("off", handleOfflineUpdate);
                     socket.on("room", handleRoomRefresh);
+                    socketRef.current=socket;
                 })
                 .catch(() => {
                     navigate("/auth");
                 });
+        }
+        return ()=>{
+            socketRef.current?.disconnect();
         }
     }, [token]);
 

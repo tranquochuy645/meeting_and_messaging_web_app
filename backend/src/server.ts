@@ -1,7 +1,7 @@
 import app from './app';
 import { createServer } from 'http'
 import { connectToDb } from './controllers/mongodb';
-import { setupSocketIO } from './controllers/socket';
+import { setupSocketIO} from './controllers/socket';
 import conf from './config';
 
 const dbOpts = {}
@@ -17,7 +17,7 @@ connectToDb(
         if (err) throw err
         // Only start server after db is connected
         const server = createServer(app);
-        setupSocketIO(server)
+        setupSocketIO(server);
         server.listen(port);     
     }
 )

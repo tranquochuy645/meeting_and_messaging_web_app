@@ -41,7 +41,7 @@ function App() {
       <Route path="/call/:roomId"
         element={
           <Suspense fallback={<PendingFigure size={500} />}>
-            <Call token={token} />
+            <Call/>
           </Suspense>
         }
       />

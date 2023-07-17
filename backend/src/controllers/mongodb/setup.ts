@@ -48,13 +48,13 @@ const findOrCreateGlobalChatRoom = async (db: Db, collectionName: string) => {
 };
 
 // Function to clear socket IDs and set isOnline to false for all users
-const clearSocketIds = (db: Db) => {
-  db.collection("users").updateMany({}, { $set: { isOnline: false, socketId: [] } })
+const resetOnlineState = (db: Db) => {
+  db.collection("users").updateMany({}, { $set: { isOnline: false } })
     .then(result => {
-      console.log("Cleared socket IDs:", result.modifiedCount);
+      console.log("Reset online state: ", result.modifiedCount);
     })
     .catch(err => {
-      console.error('Failed to clear socket IDs:', err);
+      console.error('Failed to reset online state:', err);
     });
 };
 
@@ -74,8 +74,7 @@ const setup = async (db: Db) => {
     console.error('Failed to check collection:', err);
   }
 
-  // Clear socket IDs and set isOnline to false for all users
-  clearSocketIds(db);
+  resetOnlineState(db);
 };
 
 export { setup };

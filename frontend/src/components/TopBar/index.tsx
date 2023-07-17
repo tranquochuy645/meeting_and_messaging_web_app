@@ -1,6 +1,7 @@
 import { FC, memo, useState, useEffect, useRef } from "react";
 import { getProfile, ProfileData } from "../../pages/Main";
 import { getSocket } from "../../SocketController";
+import { Socket } from "socket.io-client";
 import PendingFigure from "../PendingFigure";
 import ThemeSwitch from "../ThemeSwitch";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +17,7 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
   const [showInvitation, setShowInvitation] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fullnameInputRef = useRef<HTMLInputElement>(null);
+  const socketRef = useRef<Socket | null>(null);
   const navigate = useNavigate();
 
   const refreshProfile = () => {
@@ -33,6 +35,10 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
     if (token) {
       const socket = getSocket(token);
       socket.on("inv", refreshProfile);
+      socketRef.current = socket
+    }
+    return () => {
+      socketRef.current?.disconnect();
     }
   }, [token]);
 

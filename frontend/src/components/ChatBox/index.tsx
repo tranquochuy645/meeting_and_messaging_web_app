@@ -100,13 +100,40 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
     socket?.emit("call", [room._id, new Date()]);
   }
   const handleReceiveCall = (msg: string[]) => {
-    //msg: [sender, date, room id]
+    // msg: [sender id, UUID, date]
     console.log("Receive call");
     console.log(msg);
-    // Open a new tab and pass the message to it
-    const url = `${window.location.origin}/call/${msg[0]}`;
-    window.open(url, "_blank");
-  }
+    // /call/:roomId/:token
+    const url = `/call/${msg[1]}?token=${token}`;
+    if(msg[0]==profile?._id){
+      // it's the call this user made
+      return window.open(url)
+    }
+
+    // Show a notification
+    if (Notification.permission === "granted") {
+      const notification = new Notification("Incoming Call", {
+        body: "You have an incoming call. Do you want to join?",
+        icon: "path/to/notification-icon.png",
+        requireInteraction: true,
+      });
+
+      // Handle user's response to the notification
+      notification.addEventListener("click", () => {
+        // Open a new tab and pass the UUID to it
+        window.open(url);
+      });
+    } else if (Notification.permission !== "denied") {
+      // Request permission to show notifications
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          // Show the notification after permission is granted
+          handleReceiveCall(msg);
+        }
+      });
+    }
+  };
+
   useEffect(
     () => {
       try {
