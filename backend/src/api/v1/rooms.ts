@@ -68,11 +68,11 @@ router.post('/', verifyToken, async (req, res) => {
     if (!insertedRoom) {
       throw new Error("Deo biet sao bug luon");
     }
-    const updateCreatorInvitationList = await usersCRUD.updateUser(
+    const updateCreatorRoomsList = await usersCRUD.joinRoom(
       creator_userId,
-      { $push: { rooms: insertedRoom.insertedId } }
+      insertedRoom.insertedId.toString()
     );
-    if (!updateCreatorInvitationList) {
+    if (!updateCreatorRoomsList) {
       throw new Error("Error updating creator rooms list")
     }
     // return modified count
@@ -83,7 +83,7 @@ router.post('/', verifyToken, async (req, res) => {
     if (updateUsersInvitationList == oIdList.length) {
       return res.status(200).json({ message: "Created Room Successfully" });
     }
-    return res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ message: 'Internal Server Error' });
   } catch (err) {
     console.error(err);
     res.status(400).json({ message: 'Bad Request' });

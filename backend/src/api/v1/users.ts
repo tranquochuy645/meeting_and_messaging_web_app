@@ -48,7 +48,7 @@ router.put('/', verifyToken, async (req, res) => {
   try {
     // Extract the update data from req.body
     const updateData: UserUpdateOptions = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     const allowedFields: string[] = ['password', 'fullname', 'avatar'];
     const updateFields = Object.keys(updateData);
     const invalidFields = updateFields.filter(

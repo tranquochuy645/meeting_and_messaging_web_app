@@ -41,13 +41,14 @@ const setupSocketIO = (server: HTTPServer) => {
           socket.disconnect();
           return;
         }
+        socket.join(userId);
 
         const user = await usersCRUD.getRooms(userId)
 
         const rooms: string[] = user?.rooms.map(
           (room: ObjectId) => room.toString()
         );
-        rooms.length>0 && rooms.forEach(
+        rooms.length > 0 && rooms.forEach(
           (room: string) => {
             socket.join(room)
           }
@@ -60,7 +61,6 @@ const setupSocketIO = (server: HTTPServer) => {
             room => socket.to(room).emit("onl", userId)
           )
         }
-        socket.join(userId);
         // Handle message event
         socket.on("msg", (msg) => {
           //msg: [room id, content, date]
@@ -107,14 +107,31 @@ const setupSocketIO = (server: HTTPServer) => {
     try {
       if (change.operationType == "update") {
         const regex = /^participants(?:\.\d+)?$/;
+        const joinEventRegex = /^participants\.\d+$/;
         const updatedFields = change.updateDescription.updatedFields || {};
         if (!Object.keys(updatedFields).some(key => regex.test(key))) {
           // not changes in participants
           return;
         }
-        const roomId = change.documentKey.toString();
-        io.to(roomId).emit('room')
+        const roomId = change.documentKey._id.toString();
+        const joinedPal = Object.keys(updatedFields).find(key => joinEventRegex.test(key))
+        if (joinedPal) {
+          // if it matches the join regex then a new user joined the room
+          const user = updatedFields[joinedPal]?.toString()
+          io.sockets.adapter.rooms.get(user)?.forEach(
+            // get all the socket ids of that user
+            socketId => {
+              //join those sockets to the room
+              io.sockets.sockets.get(socketId)?.join(roomId)
+            })
+        }
+        // if it doesn't match the join regex then a user left the room
 
+        // TODO: when a user left a room in database,
+        // must force the user to leave the socket.io room
+        
+        // send a signal for users to refresh
+        io.to(roomId).emit('room')
       }
     } catch (error) {
       console.error(error);
@@ -139,7 +156,7 @@ const setupSocketIO = (server: HTTPServer) => {
           // not changes in invitations
           return;
         }
-        const userId = change.documentKey.toString();
+        const userId = change.documentKey._id.toString();
         io.to(userId).emit('inv')
       }
     } catch (error) {

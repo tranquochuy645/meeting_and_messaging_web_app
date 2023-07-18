@@ -104,7 +104,6 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
         });
     };
     const handleRoomRefresh = () => {
-        console.log("triggered roomrefresh");
         // Received a ping from the server to resfresh room information
         getRoomsInfo(token)
             .then(
