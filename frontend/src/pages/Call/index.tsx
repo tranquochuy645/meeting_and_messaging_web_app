@@ -25,11 +25,11 @@ const Call: FC = () => {
     const localVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
     const localDescriptionRef = useRef<any>(null);
     const initialize = async () => {
-        localStreamRef.current = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        localStreamRef.current = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         if (localVideoPlayerRef.current) {
             localVideoPlayerRef.current.srcObject = localStreamRef.current;
         } else {
-            throw new Error("cc")
+            throw new Error("Can not get user media")
         }
     }
     const createPeerConnection = async (peerId: string) => {
@@ -38,7 +38,7 @@ const Call: FC = () => {
         if (remoteVideoPlayerRef.current) {
             remoteVideoPlayerRef.current.srcObject = remoteStreamRef.current;
         } else {
-            throw new Error("cc")
+            throw new Error("41")
         }
 
         localStreamRef.current?.getTracks()
@@ -96,16 +96,15 @@ const Call: FC = () => {
             return;
         }
         console.log('render');
-        initialize();
-        // Register event listeners
-        const socket = getSocket(token, true);
-        socket.on('new_peer', handleNewPeer);
-        socket.on('offer', handleOffer);
-        socket.on('answer', handleAnswer);
-        socket.on('ice_candidate', handleIceCandidate);
-        socketRef.current = socket;
-
-
+        initialize().then(() => {
+            // Register event listeners
+            const socket = getSocket(token, true);
+            socket.on('new_peer', handleNewPeer);
+            socket.on('offer', handleOffer);
+            socket.on('answer', handleAnswer);
+            socket.on('ice_candidate', handleIceCandidate);
+            socketRef.current = socket;
+        })
         return () => {
             // Clean up resources on unmount
             if (socketRef.current) {
