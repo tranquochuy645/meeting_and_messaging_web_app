@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { users as usersCRUD, rooms as roomsCRUD } from '../../controllers/mongodb';
+import { DbController as CTR} from '../../server';
 import { generateAuthToken } from '../../lib/generateAuthToken';
 import { generateProfileImage } from '../../lib/generateProfileImage';
-import { handleRegPassword } from '../../middleware/express/handleRegPassword';
+import { handleRegPassword } from '../../middlewares/express/handleRegPassword';
 import bcrypt from 'bcrypt';
 const router = Router();
 
@@ -16,7 +16,7 @@ router.post('/register', handleRegPassword, async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({ message: 'Credentials Missing' });
     }
-    const isAvailableUserName = await usersCRUD.checkAvailableUserName(username);
+    const isAvailableUserName = await CTR.users.checkAvailableUserName(username);
     if (isAvailableUserName) {
       const newDefaultProfileImage = generateProfileImage(username.charAt(0));
       const newUser = {
@@ -30,11 +30,11 @@ router.post('/register', handleRegPassword, async (req, res) => {
         createdAt: new Date(),
       };
 
-      const result = await usersCRUD.createUser(newUser);
+      const result = await CTR.users.createUser(newUser);
       if (!result) {
         throw new Error(`Error creating user`);
       }
-      await roomsCRUD.pushToInvitedList(result.insertedId.toString(), globalThis.globalChatId.toString());
+      await CTR.rooms.pushToInvitedList(result.insertedId.toString(), globalThis.globalChatId.toString());
       return res.status(200).json({ message: 'Created account successfully' });
     }
     return res.status(409).json({ message: 'Username already exists' });
@@ -55,7 +55,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Credentials Missing' });
     }
 
-    const user = await usersCRUD.getPassword(username)
+    const user = await CTR.users.getPassword(username)
 
     if (!user) {
       return res.status(404).json({ message: 'User Not Found' });

@@ -1,13 +1,6 @@
-import { Collection, ObjectId } from "mongodb";
-
-class RoomsController {
-    private _collection: Collection | null;
-    constructor() {
-        this._collection = null;
-    }
-    set ref(ref: Collection) {
-        this._collection = ref;
-    }
+import { ObjectId } from "mongodb";
+import { CollectionReference } from "./generic";
+export class RoomsController extends CollectionReference {
     public createRoom(newRoom: any) {
         return this._collection?.insertOne(newRoom);
     }
@@ -104,12 +97,22 @@ class RoomsController {
             throw err
         }
     }
-    public saveMessage(roomId: string, message: any) {
-        return this._collection?.updateOne(
-            { _id: new ObjectId(roomId) },
-            { $push: { messages: message } }
-        )
+    public async saveMessage(sender: string, roomId: string, content: string, timestamp: string) {
+        try {
+            const data = {
+                sender: new ObjectId(sender),
+                content,
+                timestamp
+            }
+            const result = await this._collection?.updateOne(
+                { _id: new ObjectId(roomId) },
+                { $push: { messages: data } }
+            )
+            console.log("Saved message: " + result?.modifiedCount)
+        } catch (e) {
+            console.error("Error saving message: " + e);
+        }
     }
+
 }
-const rooms = new RoomsController();
-export { rooms }
+

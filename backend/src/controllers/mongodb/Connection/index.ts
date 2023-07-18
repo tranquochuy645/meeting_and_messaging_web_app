@@ -1,4 +1,4 @@
-import { MongoClient, Db, DbOptions, ObjectId } from 'mongodb';
+import { MongoClient, Db, DbOptions } from 'mongodb';
 
 export default class DBConnection {
     private db: Db | null = null;

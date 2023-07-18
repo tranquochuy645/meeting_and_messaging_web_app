@@ -1,11 +1,9 @@
 import socketIO from "socket.io";
 import { Server as HTTPServer } from "http";
-import { verifyTokenViaSocketIO } from "../../middleware/socketIO/jwt";
-import { saveMessage } from "../../lib/saveMessage";
-import { createWatcher } from "../mongodb";
+import { verifyTokenViaSocketIO } from "../../middlewares/socketIO/jwt";
+import { DbController as CTR } from "../../server";
 import { ChangeStreamDocument, ObjectId } from "mongodb";
 import { v4 as uuidv4 } from 'uuid';
-import { users as usersCRUD } from "../mongodb";
 const setupSocketIO = (server: HTTPServer) => {
   const io = new socketIO.Server(server);
   io.use(verifyTokenViaSocketIO);
@@ -43,7 +41,7 @@ const setupSocketIO = (server: HTTPServer) => {
         }
         socket.join(userId);
 
-        const user = await usersCRUD.getRooms(userId)
+        const user = await CTR.users.getRooms(userId)
 
         const rooms: string[] = user?.rooms.map(
           (room: ObjectId) => room.toString()
@@ -55,7 +53,7 @@ const setupSocketIO = (server: HTTPServer) => {
         )
         if (!io.sockets.adapter.rooms.get(userId)?.size) {
           // if this socket is the first socket of the user
-          await usersCRUD.setStatus(userId, true);
+          await CTR.users.setStatus(userId, true);
           //Send online signal to all rooms of the user
           rooms.forEach(
             room => socket.to(room).emit("onl", userId)
@@ -66,7 +64,7 @@ const setupSocketIO = (server: HTTPServer) => {
           //msg: [room id, content, date]
           console.log("msg:", msg);
           io.to(msg[0]).emit("msg", [userId, msg[0], msg[1], msg[2]]);
-          saveMessage(userId, msg[0], msg[1], msg[2]);
+          CTR.rooms.saveMessage(userId, msg[0], msg[1], msg[2]);
         });
 
         // Handle call event
@@ -86,7 +84,7 @@ const setupSocketIO = (server: HTTPServer) => {
             room => io.to(room).emit("off", userId)
           )
           try {
-            await usersCRUD.setStatus(userId, false);
+            await CTR.users.setStatus(userId, false);
           } catch (error) {
             console.error(error);
           }
@@ -129,7 +127,7 @@ const setupSocketIO = (server: HTTPServer) => {
 
         // TODO: when a user left a room in database,
         // must force the user to leave the socket.io room
-        
+
         // send a signal for users to refresh
         io.to(roomId).emit('room')
       }
@@ -145,7 +143,7 @@ const setupSocketIO = (server: HTTPServer) => {
     }
   ];
 
-  createWatcher("rooms", pipeline_1, handleRoomsChange);
+  CTR.createWatcher("rooms", pipeline_1, handleRoomsChange);
 
   const handleInvitationsChange = async (change: ChangeStreamDocument) => {
     try {
@@ -169,7 +167,7 @@ const setupSocketIO = (server: HTTPServer) => {
     }
   }]
 
-  createWatcher("users", pipeline_2, handleInvitationsChange);
+  CTR.createWatcher("users", pipeline_2, handleInvitationsChange);
 };
 
 

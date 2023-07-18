@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { ObjectId } from 'mongodb';
-import { verifyToken } from '../../middleware/express/jwt';
-import { extractRooms } from '../../lib/extractRooms';
-import { rooms as roomsCRUD, users as usersCRUD } from '../../controllers/mongodb';
+import { verifyToken } from '../../middlewares/express/jwt';
+import { extractRooms } from '../../controllers/mongodb/CRUD/Combined/extractRoom';
+import { DbController as CTR } from '../../server';
 const router = Router();
 
 // GET /api/v1/rooms/ 
@@ -30,7 +30,7 @@ router.get(
       message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer",
     });
     try {
-      const data = await roomsCRUD.getRoom(req.headers.userId as string, req.params.id as string, 10)
+      const data = await CTR.rooms.getRoom(req.headers.userId as string, req.params.id as string, 10)
       res.status(200).json(data);
     } catch (err) {
       // Not found or not a member of this room
@@ -63,12 +63,12 @@ router.post('/', verifyToken, async (req, res) => {
       participants: [creator_userOId],
       messages: []
     }
-    const insertedRoom = await roomsCRUD.createRoom(newRoom);
+    const insertedRoom = await CTR.rooms.createRoom(newRoom);
     // return modified count
     if (!insertedRoom) {
       throw new Error("Deo biet sao bug luon");
     }
-    const updateCreatorRoomsList = await usersCRUD.joinRoom(
+    const updateCreatorRoomsList = await CTR.users.joinRoom(
       creator_userId,
       insertedRoom.insertedId.toString()
     );
@@ -76,7 +76,7 @@ router.post('/', verifyToken, async (req, res) => {
       throw new Error("Error updating creator rooms list")
     }
     // return modified count
-    const updateUsersInvitationList = await usersCRUD.updateMany(
+    const updateUsersInvitationList = await CTR.users.updateMany(
       { _id: { $in: oIdList } },
       { $push: { invitations: insertedRoom.insertedId } }
     )
@@ -103,21 +103,21 @@ router.put('/:id',
     });
     try {
       if (req.body.accept == true) {
-        const joinOk = await usersCRUD.joinRoom(req.headers.userId as string, req.params.id as string)
+        const joinOk = await CTR.users.joinRoom(req.headers.userId as string, req.params.id as string)
         if (!joinOk) {
           throw new Error("Couldn't add to rooms list")
         }
-        const addOk = await roomsCRUD.addParticipant(req.headers.userId as string, req.params.id as string)
+        const addOk = await CTR.rooms.addParticipant(req.headers.userId as string, req.params.id as string)
         if (!addOk) {
           throw new Error("Couldn't add to participants list")
         }
       } else {
-        const roomPullCount = await roomsCRUD.pullFromInvitedList(req.headers.userId as string, req.params.id as string)
+        const roomPullCount = await CTR.rooms.pullFromInvitedList(req.headers.userId as string, req.params.id as string)
         if (!roomPullCount) {
           // Not found or not a member of this room
           return res.status(403).json({ message: 'Not invited' });
         }
-        const userPullCount = await usersCRUD.pullFromInvitaionList(req.headers.userId as string, req.params.id as string)
+        const userPullCount = await CTR.users.pullFromInvitaionList(req.headers.userId as string, req.params.id as string)
         if (!userPullCount) {
           // Not found or not a member of this room
           return res.status(403).json({ message: 'Not invited' });

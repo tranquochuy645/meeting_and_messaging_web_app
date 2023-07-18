@@ -1,8 +1,8 @@
 import express from 'express';
 import path from 'path';
 import api from './api';
-import { chooseFavicon } from './middleware/express/faviconPick';
-import { filterJsonError } from './middleware/express/jsonFilter';
+import { chooseFavicon } from './middlewares/express/faviconPick';
+import { filterJsonError } from './middlewares/express/jsonFilter';
 
 const app = express();
 const publicPath = path.resolve(__dirname, '../public');

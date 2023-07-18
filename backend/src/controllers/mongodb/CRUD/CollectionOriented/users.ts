@@ -1,14 +1,6 @@
-import { Collection, Filter, ObjectId, UpdateDescription, UpdateFilter } from "mongodb";
-
-class UsersController {
-    private _collection: Collection | null;
-
-    constructor() {
-        this._collection = null;
-    }
-    set ref(ref: Collection) {
-        this._collection = ref;
-    }
+import { ObjectId } from "mongodb";
+import { CollectionReference } from "./generic";
+export class UsersController extends CollectionReference {
     public async checkAvailableUserName(username: string) {
         const result = await this._collection?.findOne({ username })
         return !result
@@ -123,5 +115,4 @@ class UsersController {
         }
     }
 }
-const users = new UsersController();
-export { users }
+
