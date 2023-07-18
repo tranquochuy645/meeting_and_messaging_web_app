@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { DbController as CTR} from '../../server';
+import { DbController as CTR } from '../../server';
 import { generateAuthToken } from '../../lib/generateAuthToken';
 import { generateProfileImage } from '../../lib/generateProfileImage';
 import { handleRegPassword } from '../../middlewares/express/handleRegPassword';
@@ -25,7 +25,7 @@ router.post('/register', handleRegPassword, async (req, res) => {
         fullname: username,
         avatar: newDefaultProfileImage,
         isOnline: false,
-        invitations: [globalThis.globalChatId],
+        invitations: [CTR.globalChatId],
         rooms: [],
         createdAt: new Date(),
       };
@@ -34,7 +34,7 @@ router.post('/register', handleRegPassword, async (req, res) => {
       if (!result) {
         throw new Error(`Error creating user`);
       }
-      await CTR.rooms.pushToInvitedList(result.insertedId.toString(), globalThis.globalChatId.toString());
+      await CTR.rooms.pushToInvitedList(result.insertedId.toString(), CTR.globalChatId.toString());
       return res.status(200).json({ message: 'Created account successfully' });
     }
     return res.status(409).json({ message: 'Username already exists' });
