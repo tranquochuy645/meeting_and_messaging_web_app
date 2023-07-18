@@ -1,29 +1,17 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { FC, useEffect, useRef } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { getSocket } from '../../SocketController';
 import { Socket } from 'socket.io-client';
+import RemoteVideoScreen from '../../components/RemoteVideoScreen';
 import './style.css';
-
-const peerConnectionConfig: RTCConfiguration = {
-    iceServers: [
-        {
-            urls: "stun:stun.relay.metered.ca:80",
-        }
-    ],
-    iceCandidatePoolSize: 10,
-};
-
 
 const Call: FC = () => {
     const { roomId } = useParams();
     const navigate = useNavigate();
     const socketRef = useRef<Socket | null>(null);
-    const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-    const remoteStreamRef = useRef<MediaStream | null>(null);
-    const remoteVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
     const localStreamRef = useRef<MediaStream | null>(null);
     const localVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
-    const localDescriptionRef = useRef<any>(null);
+    const [peersList, setPeersList] = useState<any[]>([])
     const initialize = async () => {
         localStreamRef.current = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         if (localVideoPlayerRef.current) {
@@ -32,61 +20,50 @@ const Call: FC = () => {
             throw new Error("Can not get user media")
         }
     }
-    const createPeerConnection = async (peerId: string) => {
-        peerConnectionRef.current = new RTCPeerConnection(peerConnectionConfig);
-        remoteStreamRef.current = new MediaStream();
-        if (remoteVideoPlayerRef.current) {
-            remoteVideoPlayerRef.current.srcObject = remoteStreamRef.current;
-        } else {
-            throw new Error("41")
-        }
-
-        localStreamRef.current?.getTracks()
-            .forEach((track) => {
-                localStreamRef.current &&
-                    peerConnectionRef.current?.addTrack(track, localStreamRef.current)
-            })
-        peerConnectionRef.current.ontrack = (e) => {
-            e.streams[0].getTracks()
-                .forEach((track) => {
-                    remoteStreamRef.current?.addTrack(track)
-                })
-        }
-        peerConnectionRef.current.onicecandidate = async (e) => {
-            e.candidate &&
-                socketRef.current?.emit("ice_candidate", [peerId, e.candidate]);
-        }
-    }
-    const createOffer = async (peerId: string) => {
-        await createPeerConnection(peerId);
-        localDescriptionRef.current = await peerConnectionRef.current?.createOffer();
-        await peerConnectionRef.current?.setLocalDescription(localDescriptionRef.current);
-
-    }
-    const createAnswer = async (peerId: string, offer: any) => {
-        await createPeerConnection(peerId);
-        await peerConnectionRef.current?.setRemoteDescription(offer);
-        localDescriptionRef.current = await peerConnectionRef.current?.createAnswer()
-        await peerConnectionRef.current?.setLocalDescription(localDescriptionRef.current);
-        socketRef.current?.emit("answer", [peerId, localDescriptionRef.current]);
-    }
 
     const handleNewPeer = async (peerId: string) => {
-        console.log(peerId);
-        await createOffer(peerId);
-        socketRef.current?.emit("offer", [peerId, localDescriptionRef.current]);
+        setPeersList(
+            (prev) => {
+                const peer = {
+                    id: peerId
+                }
+                return [...prev, peer]
+            }
+        )
     }
     const handleOffer = async (msg: any[]) => {
         // msg: [peerId, offer]
-        await createAnswer(msg[0], msg[1]);
+        setPeersList(
+            (prev) => {
+                const peer = {
+                    id: msg[0],
+                    offer: msg[1]
+                }
+                return [...prev, peer]
+            }
+        )
     }
     const handleAnswer = async (msg: any[]) => {
         // msg: [peerId, answer]
-        await peerConnectionRef.current?.setRemoteDescription(msg[1]);
+        setPeersList(prev => {
+            return prev.map(peer => {
+                if (peer.id === msg[0]) {
+                    return { ...peer, answer: msg[1] };
+                }
+                return peer;
+            });
+        });
     }
     const handleIceCandidate = async (msg: any[]) => {
         // msg: [peerId, iceCandidate]
-        peerConnectionRef.current?.addIceCandidate(msg[1])
+        setPeersList(prev => {
+            return prev.map(peer => {
+                if (peer.id === msg[0]) {
+                    return { ...peer, ice: msg[1] };
+                }
+                return peer;
+            });
+        });
     }
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -112,14 +89,29 @@ const Call: FC = () => {
             }
         };
     }, []);
+    const handleSendToPeer = (type: string, msg: any) => {
+        socketRef.current?.emit(type, msg);
+    }
 
 
     return (
         <div>
             <h1>Call Page</h1>
             <p>Room ID: {roomId}</p>
-            <video className="remote-video" ref={remoteVideoPlayerRef} autoPlay playsInline />
+            {/* <video className="remote-video" ref={remoteVideoPlayerRef} autoPlay playsInline /> */}
             <video id="local-video" ref={localVideoPlayerRef} autoPlay playsInline muted />
+            {peersList.map(
+                (peer: any) =>
+                    <RemoteVideoScreen
+                        key={peer.id}
+                        peerId={peer.id}
+                        localStream={localStreamRef.current}
+                        offer={peer.offer}
+                        answer={peer.answer}
+                        ice={peer.ice}
+                        onSendToPeer={handleSendToPeer}
+                    />
+            )}
         </div>
     );
 };
