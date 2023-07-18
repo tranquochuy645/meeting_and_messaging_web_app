@@ -1,15 +1,11 @@
-import { getDocuments } from "../../controllers/mongodb";
 import { ObjectId } from "mongodb";
+import { users as usersCRUD, rooms as roomsCRUD } from "../../controllers/mongodb";
 const getRoomIds = async (userId: string): Promise<any> => {
     try {
-        let roomIds = await getDocuments(
-            'users',
-            { _id: new ObjectId(userId) },
-            { projection: { rooms: 1 } }
-        );
-        roomIds = roomIds[0].rooms.map(
+        const result = await usersCRUD.getRooms(userId);
+        const roomIds = result?.rooms.map(
             (id: string) => {
-                return { "_id": new ObjectId(id) };
+                return { _id: new ObjectId(id) };
             }
         );
         return roomIds;
@@ -19,53 +15,27 @@ const getRoomIds = async (userId: string): Promise<any> => {
 };
 
 
-const getRoomsInfo = async (roomIds: ObjectId[]): Promise<any[]> => {
-    try {
-        return await getDocuments('rooms'
-            , { $or: roomIds }
-            , {
-                projection: {
-                    type: 1,
-                    name: 1,
-                    participants: 1
-                }
-            }
-        );
-    } catch (error) {
-        throw error;
-    }
-}
+
 
 const extractRooms = async (userId: string): Promise<any> => {
     try {
         const roomIds = await getRoomIds(userId);
         let data: any[] = [];
         if (roomIds.length > 0) {
-            const roomsInfo = await getRoomsInfo(roomIds);
+            const roomsInfo = await roomsCRUD.getParticipantLists({ $or: roomIds })
             data = await Promise.all(
                 roomsInfo.map(
                     async (room: any) => {
                         //Filter out the user calling this
                         const participantIds = room.participants
                         //Get all the participants data of all rooms by ids
-                        const participants = await getDocuments(
-                            'users',
-                            {
-                                _id: {
-                                    $in: participantIds.map(
-                                        (id: string) => new ObjectId(id)
-                                    )
-                                }
-                            },
-                            {
-                                projection: {
-                                    fullname: 1,
-                                    avatar: 1,
-                                    isOnline: 1,
-                                    socketId: 1
-                                }
+                        const participants = await usersCRUD.readManyShortProfiles({
+                            _id: {
+                                $in: participantIds.map(
+                                    (id: string) => new ObjectId(id)
+                                )
                             }
-                        );
+                        })
                         const roomWithParticipantsData = {
                             _id: room._id,
                             participants
@@ -75,6 +45,7 @@ const extractRooms = async (userId: string): Promise<any> => {
                 )
             );
         }
+        console.log(data);
         return data;
     } catch (error) {
         throw error;

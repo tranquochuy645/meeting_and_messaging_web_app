@@ -31,7 +31,7 @@ interface ChatBoxProps {
 }
 
 const getMessages = (roomId: string, token: string): Promise<any> => {
-  return fetch(`/api/rooms/${roomId}`, {
+  return fetch(`/api/v1/rooms/${roomId}`, {
     method: 'GET',
     headers: {
       'content-type': 'application/json',

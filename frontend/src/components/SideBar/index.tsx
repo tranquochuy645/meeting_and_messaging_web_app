@@ -16,7 +16,7 @@ interface SideBarProps {
 
 const getRoomsInfo = (token: string): Promise<any> => {
     return new Promise((resolve, reject) => {
-        fetch('/api/rooms', {
+        fetch('/api/v1/rooms', {
             method: 'GET',
             headers: {
                 'content-type': 'application/json',

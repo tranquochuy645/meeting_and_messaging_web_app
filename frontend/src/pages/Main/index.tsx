@@ -19,7 +19,7 @@ export interface ProfileData {
 
 
 export const getProfile = (token: string): Promise<any> => {
-    return fetch('/api/users/', {
+    return fetch('/api/v1/users/', {
         method: 'GET',
         headers: {
             'content-type': 'application/json',

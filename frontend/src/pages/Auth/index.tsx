@@ -19,7 +19,7 @@ const Auth: FC<AuthPageProps> = ({ onLogin }) => {
       const username = event.target.logUsername.value;
       const password = event.target.logPassword.value;
 
-      fetch("/api/auth/login", {
+      fetch("/api/v1/auth/login", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -54,7 +54,7 @@ const Auth: FC<AuthPageProps> = ({ onLogin }) => {
         return alert("weak password");
       }
 
-      fetch("/api/auth/register", {
+      fetch("/api/v1/auth/register", {
         method: "POST",
         headers: {
           "content-type": "application/json",

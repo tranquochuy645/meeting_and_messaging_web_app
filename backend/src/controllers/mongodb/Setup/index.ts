@@ -1,8 +1,10 @@
-import { Db } from 'mongodb';
-import roomSchema from './Schema/room.json';
-import userSchema from './Schema/user.json';
-import mediaSchema from './Schema/media.json';
-
+import { Db, ObjectId } from 'mongodb';
+import roomSchema from '../Schema/room.json';
+import userSchema from '../Schema/user.json';
+import mediaSchema from '../Schema/media.json';
+declare global {
+  var globalChatId: ObjectId;
+}
 // Define the global chat room object
 const globalChat = {
   type: "global",
@@ -47,7 +49,7 @@ const findOrCreateGlobalChatRoom = async (db: Db, collectionName: string) => {
   }
 };
 
-// Function to clear socket IDs and set isOnline to false for all users
+// Function to set isOnline to false for all users
 const resetOnlineState = (db: Db) => {
   db.collection("users").updateMany({}, { $set: { isOnline: false } })
     .then(result => {
@@ -70,11 +72,10 @@ const setup = async (db: Db) => {
         await findOrCreateGlobalChatRoom(db, collectionName);
       }
     }
+    await resetOnlineState(db);
   } catch (err) {
     console.error('Failed to check collection:', err);
   }
-
-  resetOnlineState(db);
 };
 
 export { setup };

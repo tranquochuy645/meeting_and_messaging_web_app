@@ -52,7 +52,7 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
       // Perform accept invitation logic
       console.log("Accepted invitation:", invitationId);
       const response = await fetch(
-        `/api/rooms/${invitationId}`,
+        `/api/v1/rooms/${invitationId}`,
         {
           method: "PUT",
           headers: {
@@ -77,7 +77,7 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
       // Perform refuse invitation logic
       console.log("Refused invitation:", invitationId);
       const response = await fetch(
-        `/api/rooms/${invitationId}`,
+        `/api/v1/rooms/${invitationId}`,
         {
           method: "PUT",
           headers: {
@@ -101,7 +101,7 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
     try {
       // Perform the fullname update logic
       const newName = fullnameInputRef.current?.value;
-      const response = await fetch(`/api/users/`, {
+      const response = await fetch(`/api/v1/users/`, {
         method: "PUT",
         headers: {
           "content-type": "application/json",
@@ -155,7 +155,7 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
 
             try {
               // Perform the avatar update logic
-              const response = await fetch(`/api/users/`, {
+              const response = await fetch(`/api/v1/users/`, {
                 method: "PUT",
                 headers: {
                   "content-type": "application/json",

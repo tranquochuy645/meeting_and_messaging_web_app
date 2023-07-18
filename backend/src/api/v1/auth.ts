@@ -1,13 +1,12 @@
 import { Router } from 'express';
-import { getDocuments, insertDocument } from '../controllers/mongodb';
-import { generateAuthToken } from '../lib/generateAuthToken';
-import { generateProfileImage } from '../lib/generateProfileImage';
-import { handleRegPassword } from '../middleware/express/handleRegPassword';
-import { updateGlobalRoomInvitedList } from '../lib/updateGlobalRoomInvitedList';
+import { users as usersCRUD, rooms as roomsCRUD } from '../../controllers/mongodb';
+import { generateAuthToken } from '../../lib/generateAuthToken';
+import { generateProfileImage } from '../../lib/generateProfileImage';
+import { handleRegPassword } from '../../middleware/express/handleRegPassword';
 import bcrypt from 'bcrypt';
 const router = Router();
 
-// POST /api/auth/register
+// POST /api/v1/auth/register
 router.post('/register', handleRegPassword, async (req, res) => {
   try {
     if (Object.keys(req.body).length === 0) {
@@ -17,9 +16,8 @@ router.post('/register', handleRegPassword, async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({ message: 'Credentials Missing' });
     }
-
-    const users = await getDocuments('users', { username });
-    if (users.length === 0) {
+    const isAvailableUserName = await usersCRUD.checkAvailableUserName(username);
+    if (isAvailableUserName) {
       const newDefaultProfileImage = generateProfileImage(username.charAt(0));
       const newUser = {
         username,
@@ -32,8 +30,11 @@ router.post('/register', handleRegPassword, async (req, res) => {
         createdAt: new Date(),
       };
 
-      const result = await insertDocument('users', newUser);
-      await updateGlobalRoomInvitedList(result.insertedId);
+      const result = await usersCRUD.createUser(newUser);
+      if (!result) {
+        throw new Error(`Error creating user`);
+      }
+      await roomsCRUD.pushToInvitedList(result.insertedId.toString(), globalThis.globalChatId.toString());
       return res.status(200).json({ message: 'Created account successfully' });
     }
     return res.status(409).json({ message: 'Username already exists' });
@@ -43,7 +44,7 @@ router.post('/register', handleRegPassword, async (req, res) => {
 });
 
 
-// POST /api/auth/login
+// POST /api/v1/auth/login
 router.post('/login', async (req, res) => {
   try {
     if (Object.keys(req.body).length === 0) {
@@ -54,20 +55,19 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Credentials Missing' });
     }
 
-    const users = await getDocuments('users', { username }, { projection: { password: 1 } });
+    const user = await usersCRUD.getPassword(username)
 
-    if (users.length !== 1) {
+    if (!user) {
       return res.status(404).json({ message: 'User Not Found' });
     }
 
-    const user = users[0];
     if (!user.password) {
       throw new Error("password or fullname doesn't exist in the database");
     }
 
-    const result = await bcrypt.compare(password, user.password);
+    const compResult = await bcrypt.compare(password, user.password);
 
-    if (result) {
+    if (compResult) {
       const access_token = generateAuthToken({ _id: user._id, role: 'owner' });
       return res.status(200).json({ access_token });
     } else {
@@ -79,7 +79,7 @@ router.post('/login', async (req, res) => {
 });
 
 
-// POST /api/auth/logout
+// POST /api/v1/auth/logout
 router.post('/logout', (req, res) => {
   // Logout logic here
 });

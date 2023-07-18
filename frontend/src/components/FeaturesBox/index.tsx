@@ -29,7 +29,7 @@ const FeaturesBox: FC<FeaturesBoxProps> = ({ token }) => {
         const userIdsList = usersList.map(user => user._id);
         try {
             const response = await fetch(
-                "/api/rooms",
+                "/api/v1/rooms",
                 {
                     method: 'POST',
                     headers: {

@@ -15,7 +15,7 @@ const SearchBar: FC<SearchBarProps> = ({ token, onChoose }) => {
     }
 
     fetch(
-      `/api/search/${searchTerm}`,
+      `/api/v1/search/${searchTerm}`,
       {
         headers: {
           'content-type': 'application/json',

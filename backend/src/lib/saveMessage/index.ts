@@ -1,17 +1,15 @@
-import { updateDocument } from "../../controllers/mongodb"
 import { ObjectId } from "mongodb"
+import { rooms as roomsCRUD } from "../../controllers/mongodb"
 export const saveMessage = async (sender: string, roomId: string, content: string, timestamp: string) => {
     const data = {
         sender: new ObjectId(sender),
         content,
         timestamp
     }
-    const oid = new ObjectId(roomId);
     try {
-        const result = await updateDocument("rooms", { _id: oid }, { $push: { messages: data } })
-        console.log("Saved message: " + result);
+        const result = await roomsCRUD.saveMessage(roomId, data)
+        console.log("Saved message: " + result?.modifiedCount);
     } catch (e) {
-        console.log(data);
         console.error("Error saving message: " + e);
     }
 }
