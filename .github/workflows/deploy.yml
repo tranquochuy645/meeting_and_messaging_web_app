@@ -53,8 +53,8 @@ jobs:
         
       - name: Move release files
         run: |
-          mv production-files/* ./
-          rm -r production-files/
+          mv release/* ./
+          rm -r release/
 
       - name: Commit and push changes
         run: |
