@@ -1,4 +1,5 @@
 import { FC, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './style.css';
 import SideBar from '../../components/SideBar';
 import ChatBox from '../../components/ChatBox';
@@ -43,6 +44,15 @@ const Main: FC<MainProps> = ({ token }) => {
     const [profileData, setProfileData] = useState<ProfileData | null>(null);
     const [roomsInfo, setRoomsInfo] = useState<any[]>([]);
     const [currentRoomIndex, setCurrentRoomIndex] = useState<number>(0);
+    const navigate =useNavigate();
+    const handleReFreshProfile = async () => {
+        try{
+            const newData = await getProfile(token);
+            setProfileData(newData);
+        }catch(err){
+            navigate("/auth")
+        }
+    }
     const handleRoomChange = (index: number) => {
         setCurrentRoomIndex(index);
     }
@@ -59,6 +69,7 @@ const Main: FC<MainProps> = ({ token }) => {
                 })
                 .catch((error) => {
                     console.error(error);
+                    navigate("/auth")
                 });
         }
     }, [token]);
@@ -68,7 +79,7 @@ const Main: FC<MainProps> = ({ token }) => {
         <>
             {
                 profileData ?
-                    <TopBar token={token} profileData={profileData} />
+                    <TopBar token={token} profileData={profileData} onRefresh={handleReFreshProfile} />
                     :
                     <PendingFigure size={100} />}
             {

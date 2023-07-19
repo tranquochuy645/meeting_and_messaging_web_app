@@ -1,5 +1,5 @@
 import { FC, memo, useState, useEffect, useRef } from "react";
-import { getProfile, ProfileData } from "../../pages/Main";
+import { ProfileData } from "../../pages/Main";
 import { getSocket } from "../../SocketController";
 import { Socket } from "socket.io-client";
 import PendingFigure from "../PendingFigure";
@@ -10,31 +10,22 @@ import './style.css';
 interface TopBarProps {
   token: string;
   profileData: ProfileData | null;
+  onRefresh:()=>void;
 }
 
-const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
-  const [data, setData] = useState<ProfileData | null>(profileData);
+const TopBar: FC<TopBarProps> = ({ token, profileData ,onRefresh}) => {
   const [showInvitation, setShowInvitation] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fullnameInputRef = useRef<HTMLInputElement>(null);
   const socketRef = useRef<Socket | null>(null);
   const navigate = useNavigate();
 
-  const refreshProfile = () => {
-    getProfile(token)
-      .then((data) => setData(data))
-      .catch(
-        (error) => {
-          console.error(error)
-          navigate("/auth")
-        }
-      );
-  };
+
 
   useEffect(() => {
     if (token) {
       const socket = getSocket(token);
-      socket.on("inv", refreshProfile);
+      socket.on("inv", onRefresh);
       socketRef.current = socket
     }
     return () => {
@@ -112,7 +103,7 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
         })
       });
       if (response.ok) {
-        refreshProfile()
+        onRefresh()
       }
     } catch (error) {
       console.error(error);
@@ -167,7 +158,7 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
               });
 
               if (response.ok) {
-                refreshProfile();
+                onRefresh();
               }
             } catch (error) {
               console.error(error);
@@ -188,9 +179,9 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
     <>
       <header>
         <div id="profile">
-          {data && data.avatar ? (
+          {profileData && profileData.avatar ? (
             <>
-              <img src={data.avatar} alt="Profile" id="profile_img" />
+              <img src={profileData.avatar} alt="Profile" id="profile_img" />
               <input
                 type="file"
                 accept="image/*"
@@ -202,9 +193,9 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
             <PendingFigure size={30} />
           )}
           <div id="profile_info">
-            {data && data.fullname ? (
+            {profileData && profileData.fullname ? (
               <>
-                <h3>{data.fullname}</h3>
+                <h3>{profileData.fullname}</h3>
                 <input
                   type="text"
                   ref={fullnameInputRef}
@@ -222,12 +213,12 @@ const TopBar: FC<TopBarProps> = ({ token, profileData }) => {
           onClick={() => setShowInvitation(
             (prev) => !prev)}
         >
-          {showInvitation ? "X" : `Show invitations (${data?.invitations.length})`}
+          {showInvitation ? "X" : `Show invitations (${profileData?.invitations.length})`}
         </button>
         {
           showInvitation && <div>
-            {data && data.invitations.length > 0 ? (
-              data.invitations.map((invitation: string) => (
+            {profileData && profileData.invitations.length > 0 ? (
+              profileData.invitations.map((invitation: string) => (
                 <div key={invitation}>
                   <p>{invitation}</p>
                   <button onClick={() => handleAcceptInvitation(invitation)}>

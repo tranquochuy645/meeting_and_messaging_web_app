@@ -78,8 +78,13 @@ export default class UsersController extends CollectionReference {
    * @param data - The updated data for the user.
    * @returns A Promise resolving to the result of the update operation.
    */
-  public updateUser(id: string, data: any): Promise<any> {
-    return this._collection?.updateOne({ _id: new ObjectId(id) }, { $set: data });
+  public async updateUser(id: string, data: any): Promise<any> {
+    try{
+      const result = await this._collection?.updateOne({ _id: new ObjectId(id) }, { $set: data });
+      return result.modifiedCount
+    }catch (err){
+      throw err
+    }
   }
 
   /**
