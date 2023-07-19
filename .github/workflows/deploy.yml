@@ -32,7 +32,7 @@ jobs:
           path: ./release
 
   deploy:
-    name: Deploy
+    name: release
     needs: build  # This ensures that the "deploy" job runs after the "build" job successfully completes
     runs-on: ubuntu-latest
 
