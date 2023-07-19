@@ -49,7 +49,7 @@ jobs:
         run: |
           git config --global user.name "tranquochuy645"
           git config --global user.email "tranquochuy645@gmail.com"
-          git checkout -b "release name: Deploy"
+          git checkout -b "release"
         
       - name: Move release files
         run: |
