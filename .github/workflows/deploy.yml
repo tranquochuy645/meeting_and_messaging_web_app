@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build And push to "build" branch
     runs-on: ubuntu-latest
 
     steps:
@@ -25,43 +25,12 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Upload production-ready build files
-        uses: actions/upload-artifact@v2
-        with:
-          name: production-files
-          path: ./release
+      - name: Push
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: build 
+          FOLDER: release 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
+          MESSAGE: "Commit by Github Action" # The commit message
 
-  deploy:
-    name: release
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Download production-ready build files
-        uses: actions/download-artifact@v2
-        with:
-          name: production-files
-
-      - name: Move public folder
-        run: mv release/public ./public/
-
-      - name: Move src folder
-        run: mv release/src ./src/
-
-      - name: Remove empty release directory
-        run: rm -r release/
-
-      - name: Set up Git
-        run: |
-          git config --global user.name "tranquochuy645"
-          git config --global user.email "tranquochuy645@gmail.com"
-          git checkout -b "release"
-
-      - name: Commit and push changes
-        run: |
-          git add .
-          git commit -m "Deploying release files"
-          git push origin "release"
