@@ -33,7 +33,7 @@ jobs:
 
   deploy:
     name: release
-    needs: build  # This ensures that the "deploy" job runs after the "build" job successfully completes
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -45,16 +45,20 @@ jobs:
         with:
           name: production-files
 
+      - name: Move public folder
+        run: mv release/public ./public/
+
+      - name: Move src folder
+        run: mv release/src ./src/
+
+      - name: Remove empty release directory
+        run: rm -r release/
+
       - name: Set up Git
         run: |
           git config --global user.name "tranquochuy645"
           git config --global user.email "tranquochuy645@gmail.com"
           git checkout -b "release"
-        
-      - name: Move release files
-        run: |
-          mv release/* ./
-          rm -r release/
 
       - name: Commit and push changes
         run: |
