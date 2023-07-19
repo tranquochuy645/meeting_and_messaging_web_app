@@ -20,8 +20,16 @@ const Call: FC = () => {
             throw new Error("Can not get user media")
         }
     }
+    const handleOffPeer = (peerId: string) => {
+        setPeersList((prev) => {
+            // Filter the previous peers list to exclude the peer with the specified peerId
+            const updatedPeersList = prev.filter((peer) => peer.id !== peerId);
+            return updatedPeersList;
+        });
+    };
 
-    const handleNewPeer = async (peerId: string) => {
+
+    const handleNewPeer = (peerId: string) => {
         setPeersList(
             (prev) => {
                 const peer = {
@@ -77,6 +85,7 @@ const Call: FC = () => {
             // Register event listeners
             const socket = getSocket(token, true);
             socket.on('new_peer', handleNewPeer);
+            socket.on('off_peer', handleOffPeer);
             socket.on('offer', handleOffer);
             socket.on('answer', handleAnswer);
             socket.on('ice_candidate', handleIceCandidate);

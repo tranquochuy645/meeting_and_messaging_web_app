@@ -22,7 +22,7 @@ export default class RoomsExtractor {
   /**
    * Retrieve the room IDs based on the user ID.
    * @param userId - The user ID.
-   * @returns A Promise resolving to the room IDs.
+   * @returns A Promise resolving to the room IDs as an ObjectId[]
    */
   private async getRoomIds(userId: string): Promise<any> {
     try {

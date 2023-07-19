@@ -1,0 +1,52 @@
+{
+    "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+            "_id",
+            "type",
+            "participants",
+            "messages"
+        ],
+        "properties": {
+            "_id": {
+                "bsonType": "objectId"
+            },
+            "type": {
+                "enum": [
+                    "global",
+                    "default"
+                ]
+            },
+            "participants": {
+                "bsonType": "array",
+                "description": "must be an array",
+                "items": {
+                    "bsonType": [
+                        "objectId",
+                        "null"
+                    ]
+                }
+            },
+            "invited": {
+                "bsonType": "array",
+                "description": "must be an array",
+                "items": {
+                    "bsonType": [
+                        "objectId",
+                        "null"
+                    ]
+                }
+            },
+            "messages": {
+                "bsonType": "array",
+                "description": "must be an array",
+                "items": {
+                    "bsonType": [
+                        "object",
+                        "null"
+                    ]
+                }
+            }
+        }
+    }
+}

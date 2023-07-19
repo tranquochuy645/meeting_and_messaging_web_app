@@ -28,6 +28,9 @@ const setupSocketIO = (server: HTTPServer) => {
         //msg: [ target socket id, ice data]
         socket.to(msg[0]).emit('ice_candidate', [socket.id, msg[1]]);
       })
+      socket.on("disconnect", () => {
+        io.to(uuid).emit('off_peer', socket.id);
+      })
     });
     // Handle join chat event
     socket.on('join_chat', async () => {

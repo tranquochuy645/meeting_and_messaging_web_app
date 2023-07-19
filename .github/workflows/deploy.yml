@@ -1,0 +1,63 @@
+name: Release Workflow
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+
+      - name: Build project
+        run: npm run build
+
+      - name: Upload production-ready build files
+        uses: actions/upload-artifact@v2
+        with:
+          name: production-files
+          path: ./release
+
+  deploy:
+    name: Deploy
+    needs: build  # This ensures that the "deploy" job runs after the "build" job successfully completes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Download production-ready build files
+        uses: actions/download-artifact@v2
+        with:
+          name: production-files
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "tranquochuy645"
+          git config --global user.email "tranquochuy645@gmail.com"
+          git checkout -b "release name: Deploy"
+        
+      - name: Move release files
+        run: |
+          mv production-files/* ./
+          rm -r production-files/
+
+      - name: Commit and push changes
+        run: |
+          git add .
+          git commit -m "Deploying release files"
+          git push origin "release name: Deploy"

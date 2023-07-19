@@ -2,22 +2,21 @@
 
 # Run TypeScript compiler
 echo "Compiling TypeScript..."
+rm -rf dist
 tsc &&
  
 # Copy package.json to dist directory
 echo "Copying package.json to dist..."
 cp package.json dist/ &&
 
-# Create the target directory if it doesn't exist
-mkdir -p ../../prod/ &&
 
-# Move contents of dist to prod
-echo "moving to prod..." 
+# Move contents of dist to release directory
+echo "moving to release..." 
 
-cp -r dist/* ../prod/ &&
+cp -r dist/* ../release/ 
 
-cd ../prod &&
+# cd ../release 
 
 
-npm install --omit=dev
+# npm install --omit=dev
 

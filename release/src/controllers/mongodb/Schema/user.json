@@ -1,0 +1,65 @@
+{
+    "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+            "_id",
+            "username",
+            "password",
+            "fullname",
+            "avatar",
+            "rooms",
+            "createdAt",
+            "isOnline",
+            "invitations"
+        ],
+        "properties": {
+            "_id": {
+                "bsonType": "objectId"
+            },
+            "username": {
+                "bsonType": "string",
+                "description": "must be a string and is required"
+            },
+            "password": {
+                "bsonType": "string",
+                "description": "must be a string and is required"
+            },
+            "fullname": {
+                "bsonType": "string",
+                "description": "must be a string and is required"
+            },
+            "avatar": {
+                "bsonType": "string",
+                "description": "must be a string and is required"
+            },
+            "rooms": {
+                "bsonType": "array",
+                "description": "must be an array and is required",
+                "items": {
+                    "bsonType": ["objectId", "null"]
+                }
+            },
+            "createdAt": {
+                "bsonType": "date",
+                "description": "must be a date and is required"
+            },
+            "isOnline": {
+                "bsonType": "bool",
+                "description": "must be a boolean and is required"
+            },
+            "invitations": {
+                "bsonType": "array",
+                "description": "must be an array and is required",
+                "items": {
+                    "bsonType": [
+                        "objectId",
+                        "null"
+                    ]
+                }
+            },
+            "lastUpdate": {
+                "bsonType": "date"
+            }
+        }
+    }
+}

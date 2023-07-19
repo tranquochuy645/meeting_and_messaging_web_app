@@ -119,7 +119,7 @@ export default class UsersController extends CollectionReference {
   /**
    * Get the rooms of a user.
    * @param id - The ID of the user.
-   * @returns A Promise resolving to the user's rooms object.
+   * @returns A Promise resolving to the user's rooms object. { rooms: ObjectId[] }
    */
   public getRooms(id: string): Promise<any> {
     return this._collection?.findOne(

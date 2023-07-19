@@ -18,6 +18,6 @@ export default defineConfig({
   },
   plugins: [react()],
   build: {
-    outDir: '../prod/public',
+    outDir: '../release/public',
   },
 })
