@@ -60,4 +60,4 @@ jobs:
         run: |
           git add .
           git commit -m "Deploying release files"
-          git push origin "release name: Deploy"
+          git push origin "release"
