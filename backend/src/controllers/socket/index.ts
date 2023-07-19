@@ -1,7 +1,7 @@
 import socketIO from "socket.io";
 import { Server as HTTPServer } from "http";
 import { verifyTokenViaSocketIO } from "../../middlewares/socketIO/jwt";
-import { DbController as CTR } from "../../server";
+import { chatAppDbController as dc } from "../mongodb";
 import { ChangeStreamDocument, ObjectId } from "mongodb";
 import { v4 as uuidv4 } from 'uuid';
 const setupSocketIO = (server: HTTPServer) => {
@@ -41,7 +41,7 @@ const setupSocketIO = (server: HTTPServer) => {
         }
         socket.join(userId);
 
-        const user = await CTR.users.getRooms(userId)
+        const user = await dc.users.getRooms(userId)
 
         const rooms: string[] = user?.rooms.map(
           (room: ObjectId) => room.toString()
@@ -53,7 +53,7 @@ const setupSocketIO = (server: HTTPServer) => {
         )
         if (!io.sockets.adapter.rooms.get(userId)?.size) {
           // if this socket is the first socket of the user
-          await CTR.users.setStatus(userId, true);
+          await dc.users.setStatus(userId, true);
           //Send online signal to all rooms of the user
           rooms.forEach(
             room => socket.to(room).emit("onl", userId)
@@ -64,7 +64,7 @@ const setupSocketIO = (server: HTTPServer) => {
           //msg: [room id, content, date]
           console.log("msg:", msg);
           io.to(msg[0]).emit("msg", [userId, msg[0], msg[1], msg[2]]);
-          CTR.rooms.saveMessage(userId, msg[0], msg[1], msg[2]);
+          dc.rooms.saveMessage(userId, msg[0], msg[1], msg[2]);
         });
 
         // Handle call event
@@ -84,7 +84,7 @@ const setupSocketIO = (server: HTTPServer) => {
             room => io.to(room).emit("off", userId)
           )
           try {
-            await CTR.users.setStatus(userId, false);
+            await dc.users.setStatus(userId, false);
           } catch (error) {
             console.error(error);
           }
@@ -143,7 +143,7 @@ const setupSocketIO = (server: HTTPServer) => {
     }
   ];
 
-  CTR.createWatcher("rooms", pipeline_1, handleRoomsChange);
+  dc.watch("rooms", pipeline_1, handleRoomsChange);
 
   const handleInvitationsChange = async (change: ChangeStreamDocument) => {
     try {
@@ -167,7 +167,7 @@ const setupSocketIO = (server: HTTPServer) => {
     }
   }]
 
-  CTR.createWatcher("users", pipeline_2, handleInvitationsChange);
+  dc.watch("users", pipeline_2, handleInvitationsChange);
 };
 
 

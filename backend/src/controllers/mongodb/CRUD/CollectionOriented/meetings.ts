@@ -1,6 +1,6 @@
 import { Collection } from "mongodb";
 
 import { CollectionReference } from "./generic";
-export class MeetingsController extends CollectionReference {
+export default class MeetingsController extends CollectionReference {
 
 }

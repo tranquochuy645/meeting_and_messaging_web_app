@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { DbController as CTR } from '../../server';
 import { generateAuthToken } from '../../lib/generateAuthToken';
 import { generateProfileImage } from '../../lib/generateProfileImage';
 import { handleRegPassword } from '../../middlewares/express/handleRegPassword';
+import {chatAppDbController as dc} from '../../controllers/mongodb';
 import bcrypt from 'bcrypt';
 const router = Router();
 
@@ -16,7 +16,7 @@ router.post('/register', handleRegPassword, async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({ message: 'Credentials Missing' });
     }
-    const isAvailableUserName = await CTR.users.checkAvailableUserName(username);
+    const isAvailableUserName = await dc.users.checkAvailableUserName(username);
     if (isAvailableUserName) {
       const newDefaultProfileImage = generateProfileImage(username.charAt(0));
       const newUser = {
@@ -25,16 +25,16 @@ router.post('/register', handleRegPassword, async (req, res) => {
         fullname: username,
         avatar: newDefaultProfileImage,
         isOnline: false,
-        invitations: [CTR.globalChatId],
+        invitations: [dc.globalChatId],
         rooms: [],
         createdAt: new Date(),
       };
 
-      const result = await CTR.users.createUser(newUser);
+      const result = await dc.users.createUser(newUser);
       if (!result) {
         throw new Error(`Error creating user`);
       }
-      await CTR.rooms.pushToInvitedList(result.insertedId.toString(), CTR.globalChatId.toString());
+      await dc.rooms.pushToInvitedList(result.insertedId.toString(), dc.globalChatId.toString());
       return res.status(200).json({ message: 'Created account successfully' });
     }
     return res.status(409).json({ message: 'Username already exists' });
@@ -55,7 +55,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Credentials Missing' });
     }
 
-    const user = await CTR.users.getPassword(username)
+    const user = await dc.users.getPassword(username)
 
     if (!user) {
       return res.status(404).json({ message: 'User Not Found' });

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { verifyToken } from '../../middlewares/express/jwt';
-import {DbController as CTR} from '../../server';
+import { chatAppDbController as dc } from '../../controllers/mongodb';
 import { ObjectId } from 'mongodb';
 const router = Router();
 
@@ -13,7 +13,7 @@ router.get('/', verifyToken, async (req, res) => {
           { message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer" }
         )
     }
-    const data = await CTR.users.readProfile(req.headers.userId as string)
+    const data = await dc.users.readProfile(req.headers.userId as string)
     res.status(200).json(data);
   } catch (err: any) {
     res.status(500).json({ message: err.message })
@@ -29,7 +29,7 @@ router.get('/:id', async (req, res) => {
           { message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer" }
         )
     }
-    const data = await CTR.users.readShortProfile(req.params.id as string)
+    const data = await dc.users.readShortProfile(req.params.id as string)
     res.status(200).json(data);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -60,7 +60,7 @@ router.put('/', verifyToken, async (req, res) => {
     }
 
     // Update the user document by ID with the specified fields
-    const result = await CTR.users.updateUser(req.headers.userId as string, updateData)
+    const result = await dc.users.updateUser(req.headers.userId as string, updateData)
     if (!result) {
       return res.status(200).json({ message: 'User updated successfully' });
     }

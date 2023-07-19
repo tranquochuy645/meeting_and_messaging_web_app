@@ -3,7 +3,9 @@ import roomSchema from '../Schema/room.json';
 import userSchema from '../Schema/user.json';
 import mediaSchema from '../Schema/media.json';
 
-
+/**
+ * DatabaseSetup class for setting up the database collections and initializing global chat room.
+ */
 class DatabaseSetup {
   // Define the global chat room object
   private globalChat = {
@@ -11,13 +13,18 @@ class DatabaseSetup {
     participants: [],
     messages: []
   };
-  private _globalChatId: ObjectId|undefined;
+  private _globalChatId: ObjectId | undefined;
 
   // Define the collection names and validators
   private collectionNames = ['users', 'rooms', 'media'];
   private validators = [userSchema, roomSchema, mediaSchema];
 
-  // Function to create a collection with a validator
+  /**
+   * Create a collection with a validator in the database.
+   * @param db - The MongoDB database instance.
+   * @param collectionName - The name of the collection to be created.
+   * @param validator - The validator object for the collection.
+   */
   private async createCollection(db: Db, collectionName: string, validator: object) {
     try {
       const collection = await db.createCollection(collectionName, { validator });
@@ -33,7 +40,11 @@ class DatabaseSetup {
     }
   }
 
-  // Function to find or create the global chat room
+  /**
+   * Find or create the global chat room in the database.
+   * @param db - The MongoDB database instance.
+   * @param collectionName - The name of the collection to search for the global chat room.
+   */
   private async findOrCreateGlobalChatRoom(db: Db, collectionName: string) {
     try {
       const data = await db.collection(collectionName).find({ type: 'global' }).toArray();
@@ -50,7 +61,10 @@ class DatabaseSetup {
     }
   }
 
-  // Function to set isOnline to false for all users
+  /**
+   * Set the isOnline field to false for all users in the database.
+   * @param db - The MongoDB database instance.
+   */
   private resetOnlineState(db: Db) {
     db.collection("users").updateMany({}, { $set: { isOnline: false } })
       .then(result => {
@@ -61,8 +75,11 @@ class DatabaseSetup {
       });
   }
 
-  // Main setup function
-  public async setup(db: Db) {
+  /**
+   * Main setup function to initialize database collections and global chat room.
+   * @param db - The MongoDB database instance.
+   */
+  protected async setup(db: Db) {
     try {
       for (const [index, collectionName] of this.collectionNames.entries()) {
         const collectionInfo = await db.listCollections({ name: collectionName }).next();
@@ -78,11 +95,16 @@ class DatabaseSetup {
       console.error('Failed to check collection:', err);
     }
   }
-  get globalChatId(){
-    if(!this._globalChatId) throw new Error()
-    return this._globalChatId
+
+  /**
+   * Get the ID of the global chat room.
+   * @throws Error if the global chat ID is undefined.
+   * @returns The ID of the global chat room.
+   */
+  get globalChatId() {
+    if (!this._globalChatId) throw new Error("Global chat ID not initialized");
+    return this._globalChatId;
   }
 }
 
 export default DatabaseSetup;
-
