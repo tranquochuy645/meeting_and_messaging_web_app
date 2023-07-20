@@ -58,7 +58,9 @@ export default class RoomsController extends CollectionReference {
           projection: {
             _id: 0,
             participants: 1,
-            messages: 1
+            messages: 1,
+            isMeeting: 1,
+            meeting_uuid: 1
           }
         }
       );
@@ -186,6 +188,17 @@ export default class RoomsController extends CollectionReference {
     } catch (err) {
       throw err;
     }
+  }
+  public setMeeting(roomId: string, uuid?: string) {
+    if (uuid)
+      return this._collection?.updateOne(
+        { _id: new ObjectId(roomId) },
+        { $set: { isMeeting: true, meeting_uuid: uuid } }
+      )
+    return this._collection?.updateOne(
+      { _id: new ObjectId(roomId) },
+      { $set: { isMeeting: false, meeting_uuid: null } }
+    )
   }
 
   /**

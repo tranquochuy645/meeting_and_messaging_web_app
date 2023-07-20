@@ -5,8 +5,8 @@ import { Socket } from 'socket.io-client';
 import RemoteVideoScreen from '../../components/RemoteVideoScreen';
 import './style.css';
 
-const Call: FC = () => {
-    const { roomId } = useParams();
+const Meet: FC = () => {
+    const { meetId } = useParams();
     const navigate = useNavigate();
     const socketRef = useRef<Socket | null>(null);
     const localStreamRef = useRef<MediaStream | null>(null);
@@ -75,15 +75,18 @@ const Call: FC = () => {
     }
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
+        const originalRoomId = urlParams.get('room');
         const token = urlParams.get('token');
-        if (!token) {
-            navigate('/auth');
-            return;
+        // console.log(meetId);
+        // console.log(originalRoomId);
+        // console.log(token);
+        if (!token || !originalRoomId || !meetId) {
+            return navigate('/auth');
         }
         console.log('render');
         initialize().then(() => {
             // Register event listeners
-            const socket = getSocket(token, true);
+            const socket = getSocket(token, originalRoomId, meetId);
             socket.on('new_peer', handleNewPeer);
             socket.on('off_peer', handleOffPeer);
             socket.on('offer', handleOffer);
@@ -105,8 +108,8 @@ const Call: FC = () => {
 
     return (
         <div>
-            <h1>Call Page</h1>
-            <p>Room ID: {roomId}</p>
+            <h1>Meeting Page</h1>
+            <p>Meet UUID: {meetId}</p>
             {/* <video className="remote-video" ref={remoteVideoPlayerRef} autoPlay playsInline /> */}
             <video id="local-video" ref={localVideoPlayerRef} autoPlay playsInline muted />
             {peersList.map(
@@ -125,4 +128,4 @@ const Call: FC = () => {
     );
 };
 
-export default Call;
+export default Meet;

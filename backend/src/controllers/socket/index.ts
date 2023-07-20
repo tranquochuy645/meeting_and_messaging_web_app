@@ -9,13 +9,48 @@ const setupSocketIO = (server: HTTPServer) => {
   io.use(verifyTokenViaSocketIO);
 
   // Set up event handlers for socket connections
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
+    const userId = socket?.handshake?.headers?.userId;
+    if (!userId || typeof userId !== "string") {
+      socket.emit("error", { message: "Invalid user" });
+      return socket.disconnect();
+    }
+
+    let rooms: string[];
+    try {
+      const user = await dc.users.getRooms(userId)
+      rooms = user.rooms.map(
+        (room: ObjectId) => room.toString()
+      );
+    } catch (e) {
+      return socket.disconnect();
+    }
+    socket.join(userId);
+    dc.users.setStatus(userId, true);
+    socket.emit("ok");
     console.log("A user connected");
     // Handle join meeting event
-    socket.on("join_meet", (uuid: string) => {
+    socket.on("join_meet", (initData: string[]) => {
       console.log("A user has joined meeting");
-      socket.join(uuid);
-      socket.to(uuid).emit('new_peer', socket.id);
+
+      //initData: [ original chat room id , meeting uuid]
+      if (!initData || initData.length != 2
+        || !initData[0] || !initData[1]
+        || !rooms.includes(initData[0])
+      ) {
+        return socket.disconnect()
+      }
+      socket.join(initData[1]);
+
+      socket.on("disconnect", () => {
+        io.to(initData[1]).emit('off_peer', socket.id);
+        //if there is still user in this meeting, return
+        console.log(io.sockets.adapter.rooms.get(initData[1])?.size)
+        if (io.sockets.adapter.rooms.get(initData[1])?.size) return
+        //else if all users has left the meeting
+        io.to(initData[0]).emit("end_meet");
+        dc.rooms.setMeeting(initData[0]);
+      })
       socket.on('offer', (msg: any[]) => {
         //msg: [ target socket id, offer data]
         socket.to(msg[0]).emit('offer', [socket.id, msg[1]]);
@@ -28,33 +63,28 @@ const setupSocketIO = (server: HTTPServer) => {
         //msg: [ target socket id, ice data]
         socket.to(msg[0]).emit('ice_candidate', [socket.id, msg[1]]);
       })
-      socket.on("disconnect", () => {
-        io.to(uuid).emit('off_peer', socket.id);
-      })
+      // When a user completed setup camera, they send "ok"
+      // Announce that they have joined
+      socket.to(initData[1]).emit('new_peer', socket.id);
+      // Check if this is the first user in the meeting
+      if (io.sockets.adapter.rooms.get(initData[1])?.size == 1) {
+        //anounce the room
+        console.log("first user")
+        socket.to(initData[0]).emit("meet", [userId, initData[0], initData[1], new Date()]);
+
+        // Set isMeeting to true and save uuid in db
+        dc.rooms.setMeeting(initData[0], initData[1]);
+      }
     });
     // Handle join chat event
     socket.on('join_chat', async () => {
       console.log("A user has joined chat");
-      try {
-        const userId = socket?.handshake?.headers?.userId;
-        if (!userId || typeof userId !== "string") {
-          socket.emit("error", { message: "Invalid user" });
-          socket.disconnect();
-          return;
+      rooms && rooms.length > 0 && rooms.forEach(
+        (room: string) => {
+          socket.join(room)
         }
-        socket.join(userId);
-        dc.users.setStatus(userId, true);
-
-        const user = await dc.users.getRooms(userId)
-
-        const rooms: string[] = user?.rooms.map(
-          (room: ObjectId) => room.toString()
-        );
-        rooms && rooms.length > 0 && rooms.forEach(
-          (room: string) => {
-            socket.join(room)
-          }
-        )
+      )
+      try {
         if (!io.sockets.adapter.rooms.get(userId)?.size) {
           // if this socket is the first socket of the user
           await dc.users.setStatus(userId, true);
@@ -72,11 +102,12 @@ const setupSocketIO = (server: HTTPServer) => {
         });
 
         // Handle call event
-        socket.on("call", (msg) => {
+        socket.on("meet", (msg) => {
           //msg: [room id, date]
-          console.log("call:", msg);
-          const newRoomUUID = uuidv4();
-          io.to(msg[0]).emit("call", [userId, newRoomUUID, msg[1]]);
+          console.log("meet:", msg);
+          const meeting_uuid = uuidv4();
+          socket.emit("meet", [userId, msg[0], meeting_uuid]);
+
         });
 
         socket.on("disconnect", async () => {
@@ -106,8 +137,15 @@ const setupSocketIO = (server: HTTPServer) => {
       console.log("A user disconnected");
     })
   });
+  const pipeline_update = [
+    {
+      $match: {
+        'updateDescription.updatedFields': { $exists: true }
+      }
+    }
+  ];
 
-  const handleRoomsChange = async (change: ChangeStreamDocument) => {
+  const handleRoomsChange = (change: ChangeStreamDocument) => {
     try {
       if (change.operationType == "update") {
         const regex = /^participants(?:\.\d+)?$/;
@@ -141,17 +179,11 @@ const setupSocketIO = (server: HTTPServer) => {
       console.error(error);
     }
   }
-  const pipeline_1 = [
-    {
-      $match: {
-        'updateDescription.updatedFields': { $exists: true }
-      }
-    }
-  ];
 
-  dc.watch("rooms", pipeline_1, handleRoomsChange);
 
-  const handleInvitationsChange = async (change: ChangeStreamDocument) => {
+  dc.watch("rooms", pipeline_update, handleRoomsChange);
+
+  const handleInvitationsChange = (change: ChangeStreamDocument) => {
     try {
       if (change.operationType == "update") {
         const regex = /^invitations(?:\.\d+)?$/;
@@ -167,13 +199,9 @@ const setupSocketIO = (server: HTTPServer) => {
       console.error(error);
     }
   }
-  const pipeline_2 = [{
-    $match: {
-      'updateDescription.updatedFields': { $exists: true }
-    }
-  }]
 
-  dc.watch("users", pipeline_2, handleInvitationsChange);
+
+  dc.watch("users", pipeline_update, handleInvitationsChange);
 };
 
 

@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import PendingFigure from './components/PendingFigure';
 const Auth = lazy(() => import('./pages/Auth'));
 const Main = lazy(() => import('./pages/Main'));
-const Call = lazy(() => import('./pages/Call'));
+const Meet = lazy(() => import('./pages/Meet'));
 
 import '@fortawesome/fontawesome-free/css/all.css';
 
@@ -38,10 +38,10 @@ function App() {
           </Suspense>
         }
       />
-      <Route path="/call/:roomId"
+      <Route path="/meet/:meetId"
         element={
           <Suspense fallback={<PendingFigure size={500} />}>
-            <Call/>
+            <Meet/>
           </Suspense>
         }
       />
