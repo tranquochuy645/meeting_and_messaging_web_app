@@ -73,7 +73,6 @@ const Main: FC<MainProps> = ({ token }) => {
 
   return (
     <div id="main-page" className="flex">
-      {" "}
       {profileData ? (
         <>
           <div className="container">
@@ -100,6 +99,8 @@ const Main: FC<MainProps> = ({ token }) => {
                   room={roomsInfo[currentRoomIndex]}
                 />
               )}
+              <img id="chat-bg" src="/assets/img/img_new/pattern.png" />
+
             </section>
           </div>
         </>
