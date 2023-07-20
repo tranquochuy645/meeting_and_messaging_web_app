@@ -25,3 +25,38 @@
   height: 100%;
   object-fit: cover;
 }
+
+#profile #btn_edit {
+    order: 3;
+}
+
+/* #logout-btn {
+    order: 4;
+    margin-left: 4px;
+    color: #009688;
+    cursor: pointer;
+    list-style: none;
+    background-color: transparent;
+    border: none;
+    font-size: 2rem;
+} */
+.btn_profile {
+    order: 4;
+    margin-left: 0%;
+    color: #009688;
+    cursor: pointer;
+    list-style: none;
+    background-color: transparent;
+    border: none;
+    font-size: 2rem;
+}
+#notify-container{
+position: absolute;
+bottom: -50px;
+right: -10px;
+z-index: 100;
+color:var(--background-color);
+background-color:var(--text-color);
+}
+
+

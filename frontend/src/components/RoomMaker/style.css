@@ -1,5 +1,12 @@
 #room-maker {
-    border: solid var(--text-color);
+    position: relative;
+    width: 100%;
+    height: 50px;
+    background: #f6f6f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 15px;
 }
 
 .chosenUser {

@@ -52,6 +52,7 @@ const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
 
     return (
         <div id="room-maker">
+            <SearchBar token={token} onChoose={handleChooseUser} />
             {
                 usersList.length > 0 && (
                     <div className='flex'>
@@ -69,11 +70,11 @@ const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
 
                         )}
                         </div>
-                        <button onClick={handleCreateNewRoom}>Create</button>
+                        <button className='btn_profile' onClick={handleCreateNewRoom}><i className='bx bxs-message-square-add' ></i></button>
                     </div>
                 )
             }
-            <SearchBar token={token} onChoose={handleChooseUser} />
+            
         </div>
     );
 };

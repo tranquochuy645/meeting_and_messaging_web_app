@@ -65,10 +65,11 @@ const SearchBar: FC<SearchBarProps> = ({ token, onChoose }) => {
         ref={searchInputRef}
         onKeyPress={handleKeyPress}
       />
-      <button onClick={handleSearch}>Search</button>
+      <button  className='btn_profile' onClick={handleSearch}><i className='bx bx-search' ></i></button>
+      
 
       {searchResults.length > 0 && (
-        <div className="search_dropdown">
+        <div id="search_dropdown">
           {searchResults.map(result => (
             <div
               key={result._id}
@@ -76,7 +77,7 @@ const SearchBar: FC<SearchBarProps> = ({ token, onChoose }) => {
                 () => {
                   onChoose({ _id: result._id, fullname: result.fullname })
                 }}>
-              <img src={result.avatar} alt="Avatar" />
+              <img className='profile-picture' src={result.avatar} alt="Avatar" />
               {result.fullname}
             </div>
           ))}

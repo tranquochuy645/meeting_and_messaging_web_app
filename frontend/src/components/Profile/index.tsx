@@ -4,7 +4,7 @@ import { getSocket } from "../../SocketController";
 import { Socket } from "socket.io-client";
 import ThemeSwitch from "../ThemeSwitch";
 import { useNavigate } from "react-router-dom";
-import './style.css';
+import "./style.css";
 
 interface ProfileProps {
   token: string;
@@ -15,108 +15,98 @@ interface ProfileProps {
 const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   const [showInvitation, setShowInvitation] = useState<boolean>(false);
   const [showProfileEditor, setShowProfileEditor] = useState<boolean>(false);
-  const fileRef = useRef<any>(null)
-  const imageDataRef = useRef<any>(null)
+  const fileRef = useRef<any>(null);
+  const imageDataRef = useRef<any>(null);
   const socketRef = useRef<Socket | null>(null);
   const navigate = useNavigate();
-
-
 
   useEffect(() => {
     if (token) {
       const socket = getSocket(token);
       socket.on("inv", onRefresh);
-      socketRef.current = socket
+      socketRef.current = socket;
     }
     return () => {
       socketRef.current?.disconnect();
-    }
+    };
   }, [token]);
 
   const handleLogout = () => {
-    sessionStorage.removeItem('token');
+    sessionStorage.removeItem("token");
     navigate("/auth");
   };
 
   const handleAcceptInvitation = (invitationId: string) => {
-    fetch(
-      `/api/v1/rooms/${invitationId}`,
-      {
-        method: "PUT",
-        headers: {
-          "content-type": "application/json",
-          "authorization": "Bearer " + token
-        },
-        body: JSON.stringify({
-          accept: true
-        })
-      }
-    );
+    fetch(`/api/v1/rooms/${invitationId}`, {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({
+        accept: true,
+      }),
+    });
   };
 
   const handleRefuseInvitation = (invitationId: string) => {
-    fetch(
-      `/api/v1/rooms/${invitationId}`,
-      {
-        method: "PUT",
-        headers: {
-          "content-type": "application/json",
-          "authorization": "Bearer " + token
-        },
-        body: JSON.stringify({
-          accept: false
-        })
-      }
-    );
+    fetch(`/api/v1/rooms/${invitationId}`, {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
+        authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({
+        accept: false,
+      }),
+    });
   };
   const handleSubmit = async (event: any) => {
     event.preventDefault();
     let body: any = {};
     if (event.target.bio.value) {
-      body.bio = event.target.bio.value
+      body.bio = event.target.bio.value;
     }
     if (event.target.fullname.value) {
-      body.fullname = event.target.fullname.value
+      body.fullname = event.target.fullname.value;
     }
     if (event.target.password.value) {
-      body.password = event.target.password.value
+      body.password = event.target.password.value;
       if (event.target.current_password.value) {
-        body.current_password = event.target.current_password.value
+        body.current_password = event.target.current_password.value;
       } else {
         return alert("Please enter current password");
       }
     }
     if (imageDataRef.current) {
-      body.avatar = imageDataRef.current
+      body.avatar = imageDataRef.current;
     }
-    if (!body.bio
-      && !body.fullname
-      && !body.password
-      && !body.avatar
-    ) {
-      return alert("Empty form")
+    if (!body.bio && !body.fullname && !body.password && !body.avatar) {
+      return alert("Empty form");
     }
     const response = await fetch(`/api/v1/users/`, {
       method: "PUT",
       headers: {
         "content-type": "application/json",
-        "authorization": "Bearer " + token
+        authorization: "Bearer " + token,
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
-    setShowProfileEditor(false)
+    setShowProfileEditor(false);
     if (response.ok) {
       alert("Updated successfully!");
-      return onRefresh()
+      return onRefresh();
     }
     const data = await response.json();
     if (data.message) {
       return alert(data.message);
     }
     alert("Error updating profile");
-  }
+  };
   const handleDeleteAccount = async () => {
-    const confirmed = window.confirm("Are you sure you want to delete your account?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your account?"
+    );
     if (confirmed) {
       const password = window.prompt("Enter your password:");
 
@@ -127,9 +117,9 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
             method: "DELETE",
             headers: {
               "content-type": "application/json",
-              "authorization": "Bearer " + token
+              authorization: "Bearer " + token,
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify(body),
           });
 
           if (response.ok) {
@@ -150,8 +140,6 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
       }
     }
   };
-
-
 
   const handleUploadImage = () => {
     if (fileRef?.current && fileRef.current.length > 0) {
@@ -202,31 +190,51 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   return (
     <>
       <div id="profile">
-        <img src={profileData?.avatar} alt="Profile" id="profile_img" className="cover" />
-        {showProfileEditor ?
+        <img
+          src={profileData?.avatar}
+          alt="Profile"
+          id="profile_img"
+          className="cover"
+        />
+        {showProfileEditor ? (
           <input
             type="file"
             accept="image/*"
             ref={fileRef}
             onChange={handleUploadImage}
           />
-          :
-          <button onClick={() => setShowProfileEditor(true)} >
-            Edit
+        ) : (
+          <button
+            id="btn_edit"
+            className="btn_profile"
+            onClick={() => setShowProfileEditor(true)}
+          >
+            <i className="bx bxs-pencil"></i>
           </button>
-        }
+        )}
         <div>
           <h3>{profileData?.fullname}</h3>
           {profileData?.bio && <p>{profileData?.bio}</p>}
         </div>
         <button
-          onClick={() => setShowInvitation(
-            (prev) => !prev)}
+          id="btn_tb"
+          className="btn_profile"
+          onClick={() => setShowInvitation((prev) => !prev)}
         >
-          {showInvitation ? "X" : `TB (${profileData?.invitations.length})`}
+          {showInvitation ? (
+            <i className='bx bxs-message-square-x' ></i>
+          ) : (
+            <div id="bell">
+              <i className="bx bxs-bell"></i>
+              {profileData?.invitations.length &&
+              profileData?.invitations.length > 0 ? (
+                <span id="nofcount">{profileData?.invitations.length}</span>
+              ) : null}
+            </div>
+          )}
         </button>
-        {
-          showInvitation && <div>
+        {showInvitation && (
+          <div id="notify-container">
             {profileData && profileData.invitations.length > 0 ? (
               profileData.invitations.map((invitation: string) => (
                 <div key={invitation}>
@@ -243,31 +251,22 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
               <p>No invitations</p>
             )}
           </div>
-        }
+        )}
         <ThemeSwitch />
-        <button id="logout-btn" onClick={handleLogout}>
-          Logout
+        <button id="logout-btn" className="btn_profile" onClick={handleLogout}>
+          <i className="bx bx-log-in"></i>
         </button>
-      </div >
-      {
-        showProfileEditor &&
+      </div>
+      {showProfileEditor && (
         <>
           <form onSubmit={handleSubmit}>
             <div>
               <label htmlFor="bio">Bio:</label>
-              <input
-                type="text"
-                id="bio"
-                name="bio"
-              />
+              <input type="text" id="bio" name="bio" />
             </div>
             <div>
               <label htmlFor="fullname">Name:</label>
-              <input
-                type="text"
-                id="fullname"
-                name="fullname"
-              />
+              <input type="text" id="fullname" name="fullname" />
             </div>
             <div>
               <label htmlFor="current_password">Current password:</label>
@@ -279,11 +278,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
             </div>
             <div>
               <label htmlFor="password">New password:</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-              />
+              <input type="password" id="password" name="password" />
             </div>
 
             <button type="submit">Save</button>
@@ -291,7 +286,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
           <button onClick={() => setShowProfileEditor(false)}>Cancel</button>
           <button onClick={handleDeleteAccount}>Delete account</button>
         </>
-      }
+      )}
     </>
   );
 };
