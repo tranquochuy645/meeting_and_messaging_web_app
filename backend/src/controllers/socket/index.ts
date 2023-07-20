@@ -43,6 +43,7 @@ const setupSocketIO = (server: HTTPServer) => {
           return;
         }
         socket.join(userId);
+        dc.users.setStatus(userId, true);
 
         const user = await dc.users.getRooms(userId)
 
@@ -86,6 +87,8 @@ const setupSocketIO = (server: HTTPServer) => {
           rooms.forEach(
             room => io.to(room).emit("off", userId)
           )
+          dc.users.setStatus(userId, false);
+
           try {
             await dc.users.setStatus(userId, false);
           } catch (error) {

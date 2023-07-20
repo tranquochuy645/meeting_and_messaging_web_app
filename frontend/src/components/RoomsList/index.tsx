@@ -4,9 +4,8 @@ import './style.css';
 import { getSocket } from '../../SocketController';
 import { Socket } from 'socket.io-client';
 import { ChatRoom } from '../ChatBox';
-import FeaturesBox from '../FeaturesBox';
 import { useNavigate } from 'react-router-dom';
-interface SideBarProps {
+interface RoomsListProps {
     userId: string;
     currentRoomIndex: number;
     token: string;
@@ -42,10 +41,10 @@ const getRoomsInfo = (token: string): Promise<any> => {
     });
 };
 
-const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChange, onUpdateStatus }) => {
+const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoomChange, onUpdateStatus }) => {
     const [roomsInfo, setRoomsInfo] = useState<ChatRoom[]>([]);
     const preventDuplicateRenderRef = useRef("")
-    const socketRef= useRef<Socket |null>(null);
+    const socketRef = useRef<Socket | null>(null);
     const navigate = useNavigate();
     const handleOnlineUpdate = (msg: string) => {
         const senderId = msg;
@@ -108,7 +107,6 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
         getRoomsInfo(token)
             .then(
                 (data) => {
-                    console.log(data);
                     setRoomsInfo(data);
                 }
             ).catch(() => {
@@ -141,13 +139,13 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
                     socket.on("onl", handleOnlineUpdate);
                     socket.on("off", handleOfflineUpdate);
                     socket.on("room", handleRoomRefresh);
-                    socketRef.current=socket;
+                    socketRef.current = socket;
                 })
                 .catch(() => {
                     navigate("/auth");
                 });
         }
-        return ()=>{
+        return () => {
             socketRef.current?.disconnect();
         }
     }, [token]);
@@ -158,14 +156,13 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
                 <div className={`chat-room ${index == currentRoomIndex ? 'active' : ''}`}
                     key={room._id}
                     onClick={() => handleRoomClick(index)}>
-                    <Room userId={userId} roomData={room.participants} />
+                    <Room userId={userId} participants={room.participants} />
                 </div>
             ))
     }, [roomsInfo])
 
     return (
-        <div id='SideBar'>
-            <FeaturesBox token={token} />
+        <div id='rooms-list'>
             {roomsInfo && roomsInfo.length > 0 ? (
                 <div>
                     {roomList}
@@ -177,4 +174,4 @@ const SideBar: FC<SideBarProps> = ({ userId, currentRoomIndex, token, onRoomChan
     );
 };
 
-export default SideBar;
+export default RoomsList;

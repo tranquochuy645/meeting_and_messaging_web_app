@@ -48,23 +48,11 @@ router.put('/', verifyToken, async (req, res) => {
   try {
     // Extract the update data from req.body
     const updateData: UserUpdateOptions = req.body;
-    // console.log(req.body);
-    const allowedFields: string[] = ['password', 'fullname', 'avatar'];
-    const updateFields = Object.keys(updateData);
-    const invalidFields = updateFields.filter(
-      //only accept valid field and string data type
-      (field) => !allowedFields.includes(field) || typeof updateData[field] !== 'string'
-    );
-    if (updateFields.length == 0 || invalidFields.length > 0) {
-      return res.status(400).json({ message: 'Invalid update fields', invalidFields });
-    }
-
-    // Update the user document by ID with the specified fields
     const result = await dc.users.updateUser(req.headers.userId as string, updateData)
     if (result) {
       return res.status(200).json({ message: 'User updated successfully' });
     }
-    res.status(404).json({ message: 'User not found' });
+    res.status(400).json({ message: 'Invalid update fields || no field changed' });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error' });
   }

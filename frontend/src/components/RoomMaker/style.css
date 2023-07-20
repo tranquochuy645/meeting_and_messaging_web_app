@@ -1,0 +1,12 @@
+#room-maker {
+    border: solid var(--text-color);
+}
+
+.chosenUser {
+    border: solid purple;
+}
+
+.chosenUser>span {
+    margin-left: 10px;
+    border: solid red;
+}

@@ -1,17 +1,25 @@
 import { FC } from 'react';
 import './style.css';
-import PendingFigure from '../PendingFigure';
 
-
+interface Participant {
+    _id: string;
+    avatar: string;
+    fullname: string;
+    isOnline: boolean;
+    bio?: string;
+}
 interface RoomProps {
-    roomData: any[];
+    participants: Participant[];
     userId: string;
 }
 
-const Room: FC<RoomProps> = ({ roomData, userId }) => {
-    roomData = roomData.filter(user => user._id !== userId)
-    const isGroup = roomData.length > 1;
-    const groupMembers = roomData.slice(0, 4); // Get up to four group members
+const Room: FC<RoomProps> = ({ participants, userId }) => {
+    participants = participants.filter(user => user._id !== userId)
+    if (participants.length==0){
+        return null;
+    }
+    const isGroup = participants.length > 1;
+    const groupMembers = participants.slice(0, 4); // Get up to four group members
     return (
         <div className="user-card">
             {isGroup ? (
@@ -19,11 +27,7 @@ const Room: FC<RoomProps> = ({ roomData, userId }) => {
                     <div className="group-pictures-container">
                         {groupMembers.map((profile, index) => (
                             <div key={index} className="profile">
-                                {profile.avatar ? (
-                                    <img src={profile.avatar} alt="Profile" className="group-profile-picture" />
-                                ) : (
-                                    <PendingFigure size={5} />
-                                )}
+                                <img src={profile.avatar} alt="Profile" className="group-profile-picture" />
                             </div>
                         ))}
                     </div>
@@ -31,31 +35,22 @@ const Room: FC<RoomProps> = ({ roomData, userId }) => {
                         {groupMembers.length > 0 && (
                             <h3>{groupMembers.map((profile) => profile.fullname).join(', ')}</h3>
                         )}
-                        {roomData.length > 4 && (
-                            <p className="group-members-count">+{roomData.length - 4} more</p>
+                        {participants.length > 4 && (
+                            <p className="group-members-count">+{participants.length - 4} more</p>
                         )}
                     </div>
                 </>
             ) : (
                 <>
-                    {roomData[0] && roomData[0].avatar ? (
-                        <img src={roomData[0].avatar} alt="Profile" className="profile-picture" />
-                    ) : (
-                        <PendingFigure size={30} />
-                    )}
-                    <div className="user-info">
-                        {roomData[0] && roomData[0].fullname ? (
-                            <h3>{roomData[0].fullname}</h3>
-                        ) : (
-                            <PendingFigure size={30} />
-                        )}
-                        {roomData[0] && roomData[0].isOnline !== undefined ? (
-                            <p className={roomData[0].isOnline ? 'online' : 'offline'}>
-                                {roomData[0].isOnline ? 'Online' : 'Offline'}
-                            </p>
-                        ) : (
-                            <PendingFigure size={15} />
-                        )}
+                    <img src={participants[0].avatar} alt="Profile" className="profile-picture" />
+                    <div className="user-info ">
+                        <h3>
+                            {participants[0].fullname + "  "}
+                            <span className={participants[0].isOnline ? 'online' : 'offline'}>
+                                &bull;
+                            </span>
+                        </h3>
+                        {participants[0].bio && <p>{participants[0].bio}</p>}
                     </div>
                 </>
             )}

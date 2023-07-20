@@ -1,0 +1,7 @@
+#rooms-list{
+    height: 80%;
+    overflow-y: scroll;
+}
+.chat-room.active{
+    border: solid red;
+}

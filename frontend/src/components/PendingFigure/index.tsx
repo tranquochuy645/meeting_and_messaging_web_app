@@ -1,10 +1,10 @@
-import React from 'react';
+import { FC } from 'react';
 
 interface PendingFigureProps {
   size: number;
 }
 
-const PendingFigure: React.FC<PendingFigureProps> = ({ size }) => {
+const PendingFigure: FC<PendingFigureProps> = ({ size }) => {
   return (
     <div>
       <svg

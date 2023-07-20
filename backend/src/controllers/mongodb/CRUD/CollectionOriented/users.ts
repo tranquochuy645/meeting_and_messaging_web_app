@@ -66,6 +66,7 @@ export default class UsersController extends CollectionReference {
         projection: {
           fullname: 1,
           avatar: 1,
+          bio: 1,
           isOnline: 1,
         }
       }
@@ -79,10 +80,10 @@ export default class UsersController extends CollectionReference {
    * @returns A Promise resolving to the result of the update operation.
    */
   public async updateUser(id: string, data: any): Promise<any> {
-    try{
+    try {
       const result = await this._collection?.updateOne({ _id: new ObjectId(id) }, { $set: data });
       return result.modifiedCount
-    }catch (err){
+    } catch (err) {
       throw err
     }
   }
@@ -92,9 +93,9 @@ export default class UsersController extends CollectionReference {
    * @param id - The ID of the user to be deleted.
    * @returns A Promise resolving to the result of the deletion operation.
    */
-//   public deleteUser(id: string): Promise<any> {
-//     // TODO: Implement user deletion logic.
-//   }
+  //   public deleteUser(id: string): Promise<any> {
+  //     // TODO: Implement user deletion logic.
+  //   }
 
   /**
    * Get the password of a user.

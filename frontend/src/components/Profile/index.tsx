@@ -2,21 +2,21 @@ import { FC, memo, useState, useEffect, useRef } from "react";
 import { ProfileData } from "../../pages/Main";
 import { getSocket } from "../../SocketController";
 import { Socket } from "socket.io-client";
-import PendingFigure from "../PendingFigure";
 import ThemeSwitch from "../ThemeSwitch";
 import { useNavigate } from "react-router-dom";
 import './style.css';
 
-interface TopBarProps {
+interface ProfileProps {
   token: string;
   profileData: ProfileData | null;
-  onRefresh:()=>void;
+  onRefresh: () => void;
 }
 
-const TopBar: FC<TopBarProps> = ({ token, profileData ,onRefresh}) => {
+const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   const [showInvitation, setShowInvitation] = useState<boolean>(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const fullnameInputRef = useRef<HTMLInputElement>(null);
+  const [showProfileEditor, setShowProfileEditor] = useState<boolean>(false);
+  const fileRef = useRef<any>(null)
+  const imageDataRef = useRef<any>(null)
   const socketRef = useRef<Socket | null>(null);
   const navigate = useNavigate();
 
@@ -87,32 +87,50 @@ const TopBar: FC<TopBarProps> = ({ token, profileData ,onRefresh}) => {
       console.error(error);
     }
   };
-
-  const handleUpdateFullname = async () => {
-    try {
-      // Perform the fullname update logic
-      const newName = fullnameInputRef.current?.value;
-      const response = await fetch(`/api/v1/users/`, {
-        method: "PUT",
-        headers: {
-          "content-type": "application/json",
-          "authorization": "Bearer " + token
-        },
-        body: JSON.stringify({
-          fullname: newName
-        })
-      });
-      if (response.ok) {
-        onRefresh()
-      }
-    } catch (error) {
-      console.error(error);
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    let body: any = {};
+    if (event.target.bio.value) {
+      body.bio = event.target.bio.value
     }
-  };
+    if (event.target.fullname.value) {
+      body.fullname = event.target.fullname.value
+    }
+    if (event.target.password.value) {
+      body.password = event.target.password.value
+    }
+    if (imageDataRef.current) {
+      body.avatar = imageDataRef.current
+    }
+    if (!body.bio
+      && !body.fullname
+      && !body.password
+      && !body.avatar
+    ) {
+      return alert("Empty form")
+    }
+    const response = await fetch(`/api/v1/users/`, {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
+        "authorization": "Bearer " + token
+      },
+      body: JSON.stringify(body)
+    });
+    if (response.ok) {
+      onRefresh()
+    } else {
+      alert("Error while updating profile")
+      setShowProfileEditor(false)
+    }
+  }
 
-  const handleUpdateAvatar = () => {
-    if (fileInputRef.current?.files && fileInputRef.current.files.length > 0) {
-      const file = fileInputRef.current.files[0];
+
+
+
+  const handleUploadImage = () => {
+    if (fileRef?.current && fileRef.current.length > 0) {
+      const file = fileRef.current.files[0];
       const reader = new FileReader();
 
       reader.onload = async (event) => {
@@ -143,26 +161,7 @@ const TopBar: FC<TopBarProps> = ({ token, profileData ,onRefresh}) => {
 
             // Convert the resized image back to base64
             const resizedBase64Data = canvas.toDataURL("image/jpeg");
-
-            try {
-              // Perform the avatar update logic
-              const response = await fetch(`/api/v1/users/`, {
-                method: "PUT",
-                headers: {
-                  "content-type": "application/json",
-                  "authorization": "Bearer " + token
-                },
-                body: JSON.stringify({
-                  avatar: resizedBase64Data
-                })
-              });
-
-              if (response.ok) {
-                onRefresh();
-              }
-            } catch (error) {
-              console.error(error);
-            }
+            imageDataRef.current = resizedBase64Data;
           };
 
           // Load the image
@@ -177,43 +176,29 @@ const TopBar: FC<TopBarProps> = ({ token, profileData ,onRefresh}) => {
 
   return (
     <>
-      <header>
-        <div id="profile">
-          {profileData && profileData.avatar ? (
-            <>
-              <img src={profileData.avatar} alt="Profile" id="profile_img" />
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handleUpdateAvatar}
-              />
-            </>
-          ) : (
-            <PendingFigure size={30} />
-          )}
-          <div id="profile_info">
-            {profileData && profileData.fullname ? (
-              <>
-                <h3>{profileData.fullname}</h3>
-                <input
-                  type="text"
-                  ref={fullnameInputRef}
-                />
-                <button onClick={handleUpdateFullname}>
-                  Change Fullname
-                </button>
-              </>
-            ) : (
-              <PendingFigure size={30} />
-            )}
-          </div>
+      <div id="profile">
+        <img src={profileData?.avatar} alt="Profile" id="profile_img" />
+        {showProfileEditor ?
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileRef}
+            onChange={handleUploadImage}
+          />
+          :
+          <button onClick={() => setShowProfileEditor(true)} >
+            Edit
+          </button>
+        }
+        <div>
+          <h3>{profileData?.fullname}</h3>
+          {profileData?.bio && <p>{profileData?.bio}</p>}
         </div>
         <button
           onClick={() => setShowInvitation(
             (prev) => !prev)}
         >
-          {showInvitation ? "X" : `Show invitations (${profileData?.invitations.length})`}
+          {showInvitation ? "X" : `TB (${profileData?.invitations.length})`}
         </button>
         {
           showInvitation && <div>
@@ -234,13 +219,41 @@ const TopBar: FC<TopBarProps> = ({ token, profileData ,onRefresh}) => {
             )}
           </div>
         }
-        <div className="flex">
-          <ThemeSwitch />
-          <button id="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
-      </header>
+        <ThemeSwitch />
+        <button id="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
+      </div >
+      {
+        showProfileEditor && <form onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="bio">Bio:</label>
+            <input
+              type="text"
+              id="bio"
+              name="bio"
+            />
+          </div>
+          <div>
+            <label htmlFor="fullname">Name:</label>
+            <input
+              type="text"
+              id="fullname"
+              name="fullname"
+            />
+          </div>
+          <div>
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+            />
+          </div>
+          <button type="submit">Save</button>
+          <button onClick={() => setShowProfileEditor(false)}>Cancel</button>
+        </form>
+      }
     </>
   );
 };

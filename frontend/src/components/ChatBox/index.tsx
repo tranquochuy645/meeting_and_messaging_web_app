@@ -166,7 +166,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   }, [room._id]);
 
   return (
-    <div className="chat-box">
+    <div id="chat-box">
       <button onClick={handleMakeCall}>Make call</button>
       <div className="message-container">
         {

@@ -1,32 +1,16 @@
-header {
+#main-page {
+    height: 100%;
     width: 100%;
-    height: 10%;
-    min-height: 80px;
-    display: flex;
-    justify-content: space-between;
-}
-
-#logout-btn {
-    /* Button styles */
-    margin-left: 10px;
-    color: var(--text-color);
-    background-color: var(--background-color);
-    height: 30px;
-    padding: 4px 10px;
-    border: solid var(--text-color);
-    border-radius: 30px;
-    cursor: pointer;
-    transition: 0.4s;
-}
-
-#logout-btn:hover,
-#logout-btn:active {
-    background-color: #7d7d7d;
-}
-
-main {
-    justify-content: space-between;
-    height: 90%;
-    width: 100%;
+    padding-left: 3%;
+    padding-right: 3%;
     box-sizing: border-box;
+}
+section{
+    height: 100%;
+}
+#section-left{
+    width: 35%;
+}
+#section-right{
+    width: 65%;
 }

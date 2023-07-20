@@ -58,7 +58,7 @@ const SearchBar: FC<SearchBarProps> = ({ token, onChoose }) => {
   }, []);
 
   return (
-    <div id="search">
+    <div id="search-bar">
       <input
         type="text"
         placeholder="Search for users..."

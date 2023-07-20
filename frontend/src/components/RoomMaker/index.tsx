@@ -1,11 +1,10 @@
 import SearchBar from '../SearchBar';
 import { FC, useState } from 'react';
 import './style.css'
-interface FeaturesBoxProps {
+interface RoomMakerProps {
     token: string;
 }
-const FeaturesBox: FC<FeaturesBoxProps> = ({ token }) => {
-    const [showSearchBar, setShowSearchBar] = useState<boolean>(true);
+const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
     const [usersList, setUsersList] = useState<any[]>([])
     const handleChooseUser = (user: any) => {
         if (usersList.some(el => el._id == user._id)) {
@@ -43,7 +42,6 @@ const FeaturesBox: FC<FeaturesBoxProps> = ({ token }) => {
             )
             if (response.ok) {
                 setUsersList([]);
-                setShowSearchBar(false);
             } else {
                 alert("deo biet sao bug luon")
             }
@@ -53,35 +51,31 @@ const FeaturesBox: FC<FeaturesBoxProps> = ({ token }) => {
     }
 
     return (
-        <div id="featuresBox">
+        <div id="room-maker">
             {
-                showSearchBar && <>
-                    <SearchBar token={token} onChoose={handleChooseUser} />{
-                        usersList.length > 0 && (
-                            <>
-                                <div id="chosenList" className='flex'>{usersList.map(
-                                    (user, index) => {
-                                        return (
-                                            <div className='chosenUser flex' key={user.fullname}>
-                                                <p> {user.fullname}</p>
-                                                <span onClick={
-                                                    () => removeUserFromUsersList(index)
-                                                }>X</span>
-                                            </div >
-                                        )
-                                    }
+                usersList.length > 0 && (
+                    <div className='flex'>
+                        <div id="chosenList" className='flex'>{usersList.map(
+                            (user, index) => {
+                                return (
+                                    <div className='chosenUser flex' key={user.fullname}>
+                                        <p> {user.fullname}</p>
+                                        <span onClick={
+                                            () => removeUserFromUsersList(index)
+                                        }>X</span>
+                                    </div >
+                                )
+                            }
 
-                                )}
-                                </div>
-                                <button onClick={handleCreateNewRoom}>Create</button>
-                            </>
-                        )
-                    }
-                </>
+                        )}
+                        </div>
+                        <button onClick={handleCreateNewRoom}>Create</button>
+                    </div>
+                )
             }
-            <button onClick={() => setShowSearchBar(prev => !prev)}>{showSearchBar ? "X" : "Create new room"}</button>
+            <SearchBar token={token} onChoose={handleChooseUser} />
         </div>
     );
 };
 
-export default FeaturesBox;
+export default RoomMaker;

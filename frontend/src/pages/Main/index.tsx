@@ -1,10 +1,10 @@
 import { FC, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './style.css';
-import SideBar from '../../components/SideBar';
+import RoomsList from '../../components/RoomsList';
 import ChatBox from '../../components/ChatBox';
-import TopBar from '../../components/TopBar';
-import PendingFigure from '../../components/PendingFigure';
+import Profile from '../../components/Profile';
+import RoomMaker from '../../components/RoomMaker';
 interface MainProps {
     token: string;
 }
@@ -12,6 +12,7 @@ export interface ProfileData {
     _id: string;
     fullname: string;
     avatar: string;
+    bio:string;
     isOnline: boolean;
     rooms: string[];
     invitations: string[];
@@ -44,12 +45,12 @@ const Main: FC<MainProps> = ({ token }) => {
     const [profileData, setProfileData] = useState<ProfileData | null>(null);
     const [roomsInfo, setRoomsInfo] = useState<any[]>([]);
     const [currentRoomIndex, setCurrentRoomIndex] = useState<number>(0);
-    const navigate =useNavigate();
+    const navigate = useNavigate();
     const handleReFreshProfile = async () => {
-        try{
+        try {
             const newData = await getProfile(token);
             setProfileData(newData);
-        }catch(err){
+        } catch (err) {
             navigate("/auth")
         }
     }
@@ -74,21 +75,19 @@ const Main: FC<MainProps> = ({ token }) => {
         }
     }, [token]);
 
-
     return (
-        <>
-            {
-                profileData ?
-                    <TopBar token={token} profileData={profileData} onRefresh={handleReFreshProfile} />
-                    :
-                    <PendingFigure size={100} />}
-            {
-                profileData ?
-                    (<main className='flex'>
-                        <SideBar userId={profileData._id}
+        <div id='main-page' className='flex'> {
+            profileData ?
+                (<>
+                    <section id='section-left'>
+                        <Profile token={token} profileData={profileData} onRefresh={handleReFreshProfile} />
+                        <RoomMaker token={token} />
+                        <RoomsList userId={profileData._id}
                             currentRoomIndex={currentRoomIndex}
                             token={token} onRoomChange={handleRoomChange}
                             onUpdateStatus={handleUpdate} />
+                    </section>
+                    <section id='section-right'>
                         {
                             roomsInfo.length > 0
                             && <ChatBox
@@ -96,15 +95,16 @@ const Main: FC<MainProps> = ({ token }) => {
                                 token={token}
                                 room={roomsInfo[currentRoomIndex]} />
                         }
-                    </main>)
-                    :
-                    (<PendingFigure size={500} />)
-            }
-            <footer style={{ display: "none" }}>
-                <p>© 2023 Messaging App. All rights reserved.</p>
-            </footer >
-        </>
-    );
-};
+                    </section>
+                </>)
+                :
+                (<div>
+                    Loading skeleton ...
+                </div>)
+        }
+        </div>
+    )
+}
+
 
 export default Main;

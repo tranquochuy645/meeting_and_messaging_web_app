@@ -19,7 +19,6 @@
       },
       "participants": {
         "bsonType": "array",
-        "description": "must be an array",
         "items": {
           "bsonType": [
             "objectId",
@@ -29,7 +28,6 @@
       },
       "invited": {
         "bsonType": "array",
-        "description": "must be an array",
         "items": {
           "bsonType": [
             "objectId",
@@ -39,7 +37,6 @@
       },
       "messages": {
         "bsonType": "array",
-        "description": "must be an array",
         "items": {
           "bsonType": [
             "object",
