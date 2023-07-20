@@ -147,6 +147,46 @@ export default class RoomsController extends CollectionReference {
       throw err;
     }
   }
+  /**
+   * Remove a user from all rooms where they are present as a participant or invited.
+   * @param userId - The ID of the user to be removed from rooms.
+   * @returns A Promise resolving to the count of modified documents.
+   */
+  public async removeUserFromAllRooms(userId: string): Promise<number | undefined> {
+    try {
+      // Filter to find rooms where the user is a participant or invited
+      const filter = {
+        $or: [
+          { participants: new ObjectId(userId) },
+          { invited: new ObjectId(userId) }
+        ]
+      };
+
+      // Update operation to remove the user from participants and invited arrays
+      const update = {
+        $pull: {
+          participants: new ObjectId(userId),
+          invited: new ObjectId(userId),
+        },
+      };
+
+      // Use find to get all matching rooms
+      const rooms = await this._collection?.find(filter, { projection: { _id: 1 } }).toArray();
+      let modifiedCount = 0;
+
+      // Use a for...of loop to ensure each update operation is executed sequentially
+      for (const room of rooms) {
+        const result = await this._collection?.updateOne({ _id: new ObjectId(room._id) }, update);
+        if (result?.modifiedCount) {
+          modifiedCount += result.modifiedCount;
+        }
+      }
+
+      return modifiedCount;
+    } catch (err) {
+      throw err;
+    }
+  }
 
   /**
    * Save a message in a room.

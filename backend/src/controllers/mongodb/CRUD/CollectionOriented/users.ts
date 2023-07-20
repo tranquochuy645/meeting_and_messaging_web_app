@@ -89,25 +89,43 @@ export default class UsersController extends CollectionReference {
   }
 
   /**
-   * Delete a user.
-   * @param id - The ID of the user to be deleted.
-   * @returns A Promise resolving to the result of the deletion operation.
-   */
-  //   public deleteUser(id: string): Promise<any> {
-  //     // TODO: Implement user deletion logic.
-  //   }
+ * Delete a user.
+ * @param id - The ID of the user to be deleted.
+ * @returns A Promise resolving to the result of the deletion operation.
+ */
+  public async deleteUser(id: string): Promise<any> {
+    try {
+      const result = await this._collection?.deleteOne({ _id: new ObjectId(id) });
+      return result.deletedCount;
+    } catch (err) {
+      throw err;
+    }
+  }
 
   /**
-   * Get the password of a user.
-   * @param username - The username of the user.
-   * @returns A Promise resolving to the user's password.
-   */
-  public getPassword(username: string): Promise<any> {
-    return this._collection?.findOne(
-      { username: username },
-      { projection: { password: 1 } }
-    );
+ * Get the password of a user.
+ * @param username - The username of the user (optional).
+ * @param userId - The ID of the user (optional).
+ * @returns A Promise resolving to the user's password. Will reject if both the username and userId are missing
+ */
+  public getPassword(username?: string, userId?: string): Promise<any> {
+    if (userId) {
+      return this._collection?.findOne(
+        { _id: new ObjectId(userId) },
+        { projection: { password: 1 } }
+      );
+    }
+    if (username) {
+      return this._collection?.findOne(
+        { username: username },
+        { projection: { password: 1 } }
+      );
+    }
+    // Handle the case where both username and userId are undefined
+    return Promise.reject("Require at least one username or userId");
+
   }
+
 
   /**
    * Set the online status of a user.

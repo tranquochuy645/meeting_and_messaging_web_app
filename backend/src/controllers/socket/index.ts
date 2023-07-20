@@ -50,7 +50,7 @@ const setupSocketIO = (server: HTTPServer) => {
         const rooms: string[] = user?.rooms.map(
           (room: ObjectId) => room.toString()
         );
-        rooms.length > 0 && rooms.forEach(
+        rooms && rooms.length > 0 && rooms.forEach(
           (room: string) => {
             socket.join(room)
           }
