@@ -177,7 +177,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   return (
     <>
       <div id="profile">
-        <img src={profileData?.avatar} alt="Profile" id="profile_img" />
+        <img src={profileData?.avatar} alt="Profile" id="profile_img" className="cover" />
         {showProfileEditor ?
           <input
             type="file"
