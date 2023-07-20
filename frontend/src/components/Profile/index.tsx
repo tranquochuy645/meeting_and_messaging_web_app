@@ -197,13 +197,16 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         />
         {showProfileEditor ? (
           <>
-            <input
-              id="btn_upload-img"
-              type="file"
-              accept="image/*"
-              ref={fileRef}
-              onChange={handleUploadImage}
-            />
+            <label className="btn_profile" htmlFor="upload-img">
+            <i className="bx bxs-pencil"></i>
+              <input
+                id="upload-img"
+                type="file"
+                accept="image/*"
+                ref={fileRef}
+                onChange={handleUploadImage}
+              />
+            </label>
             <button className="btn_profile" onClick={() => setShowProfileEditor(false)}>
               <i className="bx bxs-pencil"></i>
             </button>

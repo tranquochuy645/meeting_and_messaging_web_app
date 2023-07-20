@@ -37,14 +37,8 @@
   font-size: 2rem;
 }
 
-#btn_upload-img {
-  margin-left: 0%;
-  color: #009688;
-  cursor: pointer;
-  list-style: none;
-  background-color: transparent;
-  border: none;
-  font-size: 2rem;
+#upload-img {
+  display: none;
 }
 
 #notify-container {
