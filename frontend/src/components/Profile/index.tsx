@@ -2,7 +2,6 @@ import { FC, memo, useState, useEffect, useRef } from "react";
 import { ProfileData } from "../../pages/Main";
 import { getSocket } from "../../SocketController";
 import { Socket } from "socket.io-client";
-import ThemeSwitch from "../ThemeSwitch";
 import { useNavigate } from "react-router-dom";
 import "./style.css";
 
@@ -197,37 +196,45 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
           className="cover"
         />
         {showProfileEditor ? (
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileRef}
-            onChange={handleUploadImage}
-          />
+          <>
+            <input
+              id="btn_upload-img"
+              type="file"
+              accept="image/*"
+              ref={fileRef}
+              onChange={handleUploadImage}
+            />
+            <button className="btn_profile" onClick={() => setShowProfileEditor(false)}>
+              <i className="bx bxs-pencil"></i>
+            </button>
+          </>
         ) : (
-          <button
-            id="btn_edit"
-            className="btn_profile"
-            onClick={() => setShowProfileEditor(true)}
-          >
-            <i className="bx bxs-pencil"></i>
-          </button>
+          <>
+            <div>
+              <h3>{profileData?.fullname}</h3>
+              {profileData?.bio && <p>{profileData?.bio}</p>}
+            </div>
+            <button
+              className="btn_profile"
+              onClick={() => setShowProfileEditor(true)}
+            >
+              <i className="bx bxs-pencil"></i>
+            </button>
+          </>
         )}
-        <div>
-          <h3>{profileData?.fullname}</h3>
-          {profileData?.bio && <p>{profileData?.bio}</p>}
-        </div>
+
         <button
-          id="btn_tb"
           className="btn_profile"
           onClick={() => setShowInvitation((prev) => !prev)}
         >
+
           {showInvitation ? (
             <i className='bx bxs-message-square-x' ></i>
           ) : (
             <div id="bell">
               <i className="bx bxs-bell"></i>
               {profileData?.invitations.length &&
-              profileData?.invitations.length > 0 ? (
+                profileData?.invitations.length > 0 ? (
                 <span id="nofcount">{profileData?.invitations.length}</span>
               ) : null}
             </div>
@@ -252,7 +259,6 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
             )}
           </div>
         )}
-        <ThemeSwitch />
         <button id="logout-btn" className="btn_profile" onClick={handleLogout}>
           <i className="bx bx-log-in"></i>
         </button>
@@ -261,12 +267,12 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         <>
           <form onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="bio">Bio:</label>
-              <input type="text" id="bio" name="bio" />
+              <label htmlFor="fullname">Your name:</label>
+              <input type="text" id="fullname" name="fullname" />
             </div>
             <div>
-              <label htmlFor="fullname">Name:</label>
-              <input type="text" id="fullname" name="fullname" />
+              <label htmlFor="bio">Bio:</label>
+              <input type="text" id="bio" name="bio" />
             </div>
             <div>
               <label htmlFor="current_password">Current password:</label>
@@ -283,7 +289,6 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
 
             <button type="submit">Save</button>
           </form>
-          <button onClick={() => setShowProfileEditor(false)}>Cancel</button>
           <button onClick={handleDeleteAccount}>Delete account</button>
         </>
       )}

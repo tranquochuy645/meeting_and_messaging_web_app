@@ -31,6 +31,8 @@
 #section-left {
   position: relative;
   flex: 30%;
+  display: flex;
+  flex-direction: column;
   background: #fff;
   border-right: 1 px solid #000;
 }

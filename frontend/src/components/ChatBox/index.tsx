@@ -3,6 +3,7 @@ import './style.css';
 import { getSocket } from '../../SocketController';
 import { ProfileData } from '../../pages/Main';
 import { useNavigate } from 'react-router-dom';
+import ThemeSwitch from '../ThemeSwitch';
 interface Message {
   sender: string;
   content: string;
@@ -105,7 +106,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
     console.log(msg);
     // /call/:roomId/:token
     const url = `/call/${msg[1]}?token=${token}`;
-    if(msg[0]==profile?._id){
+    if (msg[0] == profile?._id) {
       // it's the call this user made
       return window.open(url)
     }
@@ -167,7 +168,10 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
 
   return (
     <div id="chat-box">
-      <button onClick={handleMakeCall}>Make call</button>
+      <div className='flex'>
+        <ThemeSwitch />
+        <button onClick={handleMakeCall}>Make call</button>
+      </div>
       <div className="message-container">
         {
           Array.isArray(messages) &&
