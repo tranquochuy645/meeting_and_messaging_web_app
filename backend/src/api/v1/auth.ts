@@ -62,7 +62,7 @@ router.post('/login', async (req, res) => {
     }
 
     if (!user.password) {
-      throw new Error("password or fullname doesn't exist in the database");
+      throw new Error("password doesn't exist in the database");
     }
 
     const compResult = await bcrypt.compare(password, user.password);

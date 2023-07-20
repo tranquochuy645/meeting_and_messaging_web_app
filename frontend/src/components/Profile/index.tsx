@@ -38,54 +38,36 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
     navigate("/auth");
   };
 
-  const handleAcceptInvitation = async (invitationId: string) => {
-    try {
-      // Perform accept invitation logic
-      console.log("Accepted invitation:", invitationId);
-      const response = await fetch(
-        `/api/v1/rooms/${invitationId}`,
-        {
-          method: "PUT",
-          headers: {
-            "content-type": "application/json",
-            "authorization": "Bearer " + token
-          },
-          body: JSON.stringify({
-            accept: true
-          })
-        }
-      );
-      if (response.ok) {
-        alert("ok");
+  const handleAcceptInvitation = (invitationId: string) => {
+    fetch(
+      `/api/v1/rooms/${invitationId}`,
+      {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+          "authorization": "Bearer " + token
+        },
+        body: JSON.stringify({
+          accept: true
+        })
       }
-    } catch (error) {
-      console.error(error);
-    }
+    );
   };
 
-  const handleRefuseInvitation = async (invitationId: string) => {
-    try {
-      // Perform refuse invitation logic
-      console.log("Refused invitation:", invitationId);
-      const response = await fetch(
-        `/api/v1/rooms/${invitationId}`,
-        {
-          method: "PUT",
-          headers: {
-            "content-type": "application/json",
-            "authorization": "Bearer " + token
-          },
-          body: JSON.stringify({
-            accept: false
-          })
-        }
-      );
-      if (response.ok) {
-        alert("ok");
+  const handleRefuseInvitation = (invitationId: string) => {
+    fetch(
+      `/api/v1/rooms/${invitationId}`,
+      {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+          "authorization": "Bearer " + token
+        },
+        body: JSON.stringify({
+          accept: false
+        })
       }
-    } catch (error) {
-      console.error(error);
-    }
+    );
   };
   const handleSubmit = async (event: any) => {
     event.preventDefault();
@@ -98,6 +80,11 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
     }
     if (event.target.password.value) {
       body.password = event.target.password.value
+      if (event.target.current_password.value) {
+        body.current_password = event.target.current_password.value
+      } else {
+        return alert("Please enter current password");
+      }
     }
     if (imageDataRef.current) {
       body.avatar = imageDataRef.current
@@ -117,14 +104,52 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
       },
       body: JSON.stringify(body)
     });
+    setShowProfileEditor(false)
     if (response.ok) {
-      onRefresh()
-    } else {
-      alert("Error while updating profile")
-      setShowProfileEditor(false)
+      alert("Updated successfully!");
+      return onRefresh()
     }
+    const data = await response.json();
+    if (data.message) {
+      return alert(data.message);
+    }
+    alert("Error updating profile");
   }
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm("Are you sure you want to delete your account?");
+    if (confirmed) {
+      const password = window.prompt("Enter your password:");
 
+      if (password !== null) {
+        try {
+          const body = { password };
+          const response = await fetch(`/api/v1/users/`, {
+            method: "DELETE",
+            headers: {
+              "content-type": "application/json",
+              "authorization": "Bearer " + token
+            },
+            body: JSON.stringify(body)
+          });
+
+          if (response.ok) {
+            sessionStorage.removeItem("token");
+            alert("You deleted your account successfully");
+            navigate("/auth");
+          } else {
+            const data = await response.json();
+            if (data.message) {
+              alert(data.message);
+            } else {
+              alert("Wrong password!");
+            }
+          }
+        } catch (error) {
+          console.error("Error deleting account:", error);
+        }
+      }
+    }
+  };
 
 
 
@@ -225,34 +250,47 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         </button>
       </div >
       {
-        showProfileEditor && <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="bio">Bio:</label>
-            <input
-              type="text"
-              id="bio"
-              name="bio"
-            />
-          </div>
-          <div>
-            <label htmlFor="fullname">Name:</label>
-            <input
-              type="text"
-              id="fullname"
-              name="fullname"
-            />
-          </div>
-          <div>
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-            />
-          </div>
-          <button type="submit">Save</button>
+        showProfileEditor &&
+        <>
+          <form onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="bio">Bio:</label>
+              <input
+                type="text"
+                id="bio"
+                name="bio"
+              />
+            </div>
+            <div>
+              <label htmlFor="fullname">Name:</label>
+              <input
+                type="text"
+                id="fullname"
+                name="fullname"
+              />
+            </div>
+            <div>
+              <label htmlFor="current_password">Current password:</label>
+              <input
+                type="password"
+                id="current_password"
+                name="current_password"
+              />
+            </div>
+            <div>
+              <label htmlFor="password">New password:</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+              />
+            </div>
+
+            <button type="submit">Save</button>
+          </form>
           <button onClick={() => setShowProfileEditor(false)}>Cancel</button>
-        </form>
+          <button onClick={handleDeleteAccount}>Delete account</button>
+        </>
       }
     </>
   );

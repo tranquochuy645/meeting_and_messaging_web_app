@@ -10,6 +10,9 @@ router.get('/', verifyToken, async (req, res) => {
   try {
     const userId = req.headers.userId as string;
     const roomsInfo = await dc.roomsExtractor.exec(userId);
+    if(!roomsInfo){
+      return res.status(404).json({message:"User not found"});
+    }
     res.status(200).json(roomsInfo);
   } catch (error) {
     console.error('Error retrieving data:', error);
