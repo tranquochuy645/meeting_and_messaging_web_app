@@ -18,13 +18,37 @@ interface RemoteVideoScreenProps {
     localStream: MediaStream | null;
     onSendToPeer: (type: string, msg: any) => void;
 }
-const RemoteVideoScreen: FC<RemoteVideoScreenProps> = ({ peerId, offer, answer, ice, localStream, onSendToPeer }) => {
+const RemoteVideoScreen: FC<RemoteVideoScreenProps> = (
+    { peerId, offer, answer, ice, localStream, onSendToPeer }
+) => {
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
     const remoteStreamRef = useRef<MediaStream | null>(null);
     const remoteVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
     const localDescriptionRef = useRef<any>(null);
+
     const createPeerConnection = async (peerId: string) => {
         peerConnectionRef.current = new RTCPeerConnection(peerConnectionConfig);
+
+        peerConnectionRef.current.onconnectionstatechange = () => {
+            switch (peerConnectionRef.current?.connectionState) {
+                case 'connected':
+                    console.log("connected");
+                    break;
+                case 'disconnected':
+                    console.log("disconnected");
+                    break;
+                case 'failed':
+                    console.log("failed");
+
+                    break;
+                case 'closed':
+                    console.log("closed");
+                    break;
+                default:
+                    console.log("connecting")
+            }
+        };
+
         remoteStreamRef.current = new MediaStream();
         if (remoteVideoPlayerRef.current) {
             remoteVideoPlayerRef.current.srcObject = remoteStreamRef.current;
@@ -47,6 +71,7 @@ const RemoteVideoScreen: FC<RemoteVideoScreenProps> = ({ peerId, offer, answer, 
                 onSendToPeer("ice_candidate", [peerId, e.candidate]);
         }
     }
+
     const createOffer = async (peerId: string) => {
         await createPeerConnection(peerId);
         localDescriptionRef.current = await peerConnectionRef.current?.createOffer();
@@ -62,31 +87,31 @@ const RemoteVideoScreen: FC<RemoteVideoScreenProps> = ({ peerId, offer, answer, 
     }
 
 
-    const handleAnswer = async (data:any) => {
+    const handleAnswer = async (data: any) => {
         await peerConnectionRef.current?.setRemoteDescription(data);
     }
-    const handleIceCandidate = async (data:any) => {
+    const handleIceCandidate = async (data: any) => {
         // msg: [peerId, iceCandidate]
         peerConnectionRef.current?.addIceCandidate(data)
     }
     useEffect(() => {
         if (offer) {
             createAnswer(peerId, offer)
-        }else{
+        } else {
             createOffer(peerId)
         }
     }, []);
-    useEffect(()=>{
-        if(answer){
+    useEffect(() => {
+        if (answer) {
             handleAnswer(answer);
         }
-    },[answer])
-    useEffect(()=>{
-        if(ice){
+    }, [answer])
+    useEffect(() => {
+        if (ice) {
             console.log(ice);
             handleIceCandidate(ice);
         }
-    },[ice])
+    }, [ice])
 
 
     return (

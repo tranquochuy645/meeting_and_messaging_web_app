@@ -106,8 +106,12 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
     if (msg[1] == room._id) {
       setMeeting(msg[2]);
     }
-    if (msg[0] == profile?._id && !msg[3]) {
+    if (msg[0] == profile?._id) {
       // it's the call this user made
+      if(msg[3]){
+        //already joined
+        return
+      }
       return handleJoinCall(msg[2]);
     }
 

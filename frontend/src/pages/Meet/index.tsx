@@ -20,6 +20,35 @@ const Meet: FC = () => {
             throw new Error("Can not get user media")
         }
     }
+
+    const handleToggleCamera = () => {
+        // Make sure there is a local stream and a peer connection
+        if (localStreamRef.current) {
+            // Get all the video tracks from the local stream
+            const videoTracks = localStreamRef.current.getVideoTracks();
+
+            // Toggle the state of each video track
+            videoTracks.forEach((track) => {
+                // If the track is enabled, disable it (turn off the camera)
+                // If the track is disabled, enable it (turn on the camera)
+                track.enabled = !track.enabled;
+            });
+        }
+    }
+    const handleToggleSound = () => {
+        // Make sure there is a local stream and a peer connection
+        if (localStreamRef.current) {
+            // Get all the audio tracks from the local stream
+            const audioTracks = localStreamRef.current.getAudioTracks();
+
+            // Toggle the state of each audio track
+            audioTracks.forEach((track) => {
+                // If the track is enabled, disable it (turn off the microphone)
+                // If the track is disabled, enable it (turn on the microphone)
+                track.enabled = !track.enabled;
+            });
+        }
+    };
     const handleOffPeer = (peerId: string) => {
         setPeersList((prev) => {
             // Filter the previous peers list to exclude the peer with the specified peerId
@@ -77,9 +106,6 @@ const Meet: FC = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const originalRoomId = urlParams.get('room');
         const token = urlParams.get('token');
-        // console.log(meetId);
-        // console.log(originalRoomId);
-        // console.log(token);
         if (!token || !originalRoomId || !meetId) {
             return navigate('/auth');
         }
@@ -112,6 +138,8 @@ const Meet: FC = () => {
             <p>Meet UUID: {meetId}</p>
             {/* <video className="remote-video" ref={remoteVideoPlayerRef} autoPlay playsInline /> */}
             <video id="local-video" ref={localVideoPlayerRef} autoPlay playsInline muted />
+            <button onClick={handleToggleCamera}>Toggle camera</button>
+            <button onClick={handleToggleSound}>Toggle sound</button>
             {peersList.map(
                 (peer: any) =>
                     <RemoteVideoScreen
