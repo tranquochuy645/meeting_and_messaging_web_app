@@ -187,8 +187,8 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   };
 
   return (
-    <>
-      <div id="profile">
+    <div id="profile">
+      <div id="profile_topbar">
         <img
           src={profileData?.avatar}
           alt="Profile"
@@ -197,8 +197,8 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         />
         {showProfileEditor ? (
           <>
-            <label className="btn_profile" htmlFor="upload-img">
-            <i className="bx bxs-pencil"></i>
+            <label id="btn_upload-img" htmlFor="upload-img">
+              <i className='bx bxs-camera'></i>
               <input
                 id="upload-img"
                 type="file"
@@ -207,7 +207,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
                 onChange={handleUploadImage}
               />
             </label>
-            <button className="btn_profile" onClick={() => setShowProfileEditor(false)}>
+            <button className="btn" onClick={() => setShowProfileEditor(false)}>
               <i className="bx bxs-pencil"></i>
             </button>
           </>
@@ -218,7 +218,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
               {profileData?.bio && <p>{profileData?.bio}</p>}
             </div>
             <button
-              className="btn_profile"
+              className="btn"
               onClick={() => setShowProfileEditor(true)}
             >
               <i className="bx bxs-pencil"></i>
@@ -227,7 +227,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         )}
 
         <button
-          className="btn_profile"
+          className="btn"
           onClick={() => setShowInvitation((prev) => !prev)}
         >
 
@@ -262,7 +262,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
             )}
           </div>
         )}
-        <button id="logout-btn" className="btn_profile" onClick={handleLogout}>
+        <button id="logout-btn" className="btn" onClick={handleLogout}>
           <i className="bx bx-log-in"></i>
         </button>
       </div>
@@ -295,7 +295,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
           <button onClick={handleDeleteAccount}>Delete account</button>
         </>
       )}
-    </>
+    </div>
   );
 };
 

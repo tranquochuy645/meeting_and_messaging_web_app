@@ -1,32 +1,47 @@
 import { useState, useEffect } from 'react';
-import './style.css'
-const darkTheme = {
-    text: "#000",
-    bg: "#ffffff"
+import './style.css';
+
+interface Theme {
+    text: string;
+    background: string;
+    theme: string;
 }
-const lightTheme = {
-    text: "#ffffff",
-    bg: "#000"
-}
+
+const themes: { [key: string]: Theme } = {
+    light: {
+        text: "#000",
+        background: "#ffffff",
+        theme: "#046d8c",
+    },
+    dark: {
+        text: "#ffffff",
+        background: "#000",
+        theme: "#240063",
+    },
+    // Add more themes here if needed
+};
+
+const useTheme = () => {
+    const [theme, setTheme] = useState<string>(sessionStorage.getItem('theme') || 'light');
+
+    useEffect(() => {
+        const selectedTheme = themes[theme];
+        Object.entries(selectedTheme).forEach(([key, value]) => {
+            document.documentElement.style.setProperty(`--${key}-color`, value);
+        });
+        sessionStorage.setItem('theme', theme);
+    }, [theme]);
+
+    return [theme, setTheme] as const;
+};
+
 const ThemeSwitch = () => {
-    const [isLightMode, setIsLightMode] = useState(sessionStorage.getItem('theme') === "light");
+    const [theme, setTheme] = useTheme();
+    const isLightMode = theme === 'light';
 
     const handleToggle = () => {
-        setIsLightMode(!isLightMode);
+        setTheme(isLightMode ? 'dark' : 'light');
     };
-    useEffect(() => {
-        if (isLightMode) {
-            sessionStorage.setItem('theme', 'light');
-            document.querySelector('.switcher-label')?.classList.remove('active');
-            document.documentElement.style.setProperty("--text-color", lightTheme.text);
-            document.documentElement.style.setProperty("--background-color", lightTheme.bg);
-        } else {
-            sessionStorage.setItem('theme', 'dark');
-            document.querySelector('.switcher-label')?.classList.add('active');
-            document.documentElement.style.setProperty("--text-color", darkTheme.text);
-            document.documentElement.style.setProperty("--background-color", darkTheme.bg);
-        }
-    }, [isLightMode])
 
     return (
         <div className='theme-switch-container'>
@@ -36,7 +51,7 @@ const ThemeSwitch = () => {
                 checked={isLightMode}
                 onChange={handleToggle}
             />
-            <label className="switcher-label" htmlFor="switcher-input">
+            <label className={`switcher-label ${isLightMode ? '' : 'active'}`} htmlFor="switcher-input">
                 <i className='fas fa-solid fa-sun'></i>
                 <span className="switcher-toggler"></span>
                 <i className='fas fa-solid fa-moon'></i>

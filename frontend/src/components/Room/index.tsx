@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import './style.css';
 
 interface Participant {
@@ -15,13 +15,13 @@ interface RoomProps {
 
 const Room: FC<RoomProps> = ({ participants, userId }) => {
     participants = participants.filter(user => user._id !== userId)
-    if (participants.length==0){
+    if (participants.length == 0) {
         return null;
     }
     const isGroup = participants.length > 1;
     const groupMembers = participants.slice(0, 4); // Get up to four group members
     return (
-        <div className="user-card">
+        <div className="card">
             {isGroup ? (
                 <>
                     <div className="group-pictures-container">
@@ -43,19 +43,17 @@ const Room: FC<RoomProps> = ({ participants, userId }) => {
             ) : (
                 <>
                     <img src={participants[0].avatar} alt="Profile" className="profile-picture" />
-                    <div className="user-info ">
-                        <h3>
-                            {participants[0].fullname + "  "}
-                            <span className={participants[0].isOnline ? 'online' : 'offline'}>
-                                &bull;
-                            </span>
-                        </h3>
-                        {participants[0].bio && <p>{participants[0].bio}</p>}
-                    </div>
+                    <h3>
+                        {participants[0].fullname + "  "}
+                        <span className={participants[0].isOnline ? 'online' : 'offline'}>
+                            &bull;
+                        </span>
+                    </h3>
+                    {participants[0].bio && <p>{participants[0].bio}</p>}
                 </>
             )}
         </div>
     );
 };
 
-export default Room
+export default memo(Room);

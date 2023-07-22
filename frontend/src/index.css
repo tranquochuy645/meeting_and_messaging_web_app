@@ -2,6 +2,7 @@
   /* Light Mode Colors default*/
   --text-color: #000;
   --background-color: #ffffff;
+  --theme-color: #0077b6;
 
   /* Common Styles */
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;

@@ -1,9 +1,17 @@
-import { FC, ChangeEvent, MouseEventHandler, useState, useEffect, useRef, useMemo } from 'react';
+import {
+  FC,
+  ChangeEvent,
+  useState,
+  useEffect,
+  useRef,
+  useMemo
+} from 'react';
 import './style.css';
 import { getSocket } from '../../SocketController';
 import { ProfileData } from '../../pages/Main';
 import { useNavigate } from 'react-router-dom';
 import ThemeSwitch from '../ThemeSwitch';
+import Room from '../Room';
 import { ChatRoom } from '../RoomsList';
 interface Message {
   sender: string;
@@ -22,7 +30,7 @@ interface ChatBoxProps {
   // onMessageEmit: (message: Message) => void;
   token: string;
   room: ChatRoom;
-  profile: ProfileData | null;
+  profile: ProfileData;
 }
 
 const getMessages = (roomId: string, token: string): Promise<any> => {
@@ -44,22 +52,23 @@ const getMessages = (roomId: string, token: string): Promise<any> => {
       throw new Error('Failed to fetch messages');
     });
 };
+
 let socket: any;
-
-
 const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [messages, setMessages] = useState<Message[] | null>(null);
   const [meeting, setMeeting] = useState<string | null>()
-  // const [isMeeting, setIsMeeting] = useState<boolean>(false);
   const roomIdRef = useRef(room._id);
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  // const roomProfileRef = useRef<ReactNode | null>(null);
   const navigate = useNavigate();
+
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
     console.log('typing ...');
   };
 
-  const handleSendMessage: MouseEventHandler<HTMLButtonElement> = () => {
+  const handleSendMessage = () => {
     if (inputValue.trim() !== '') {
       socket?.emit("msg", [room._id, inputValue, new Date()]);
       setInputValue('');
@@ -108,7 +117,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
     }
     if (msg[0] == profile?._id) {
       // it's the call this user made
-      if(msg[3]){
+      if (msg[3]) {
         //already joined
         return
       }
@@ -153,7 +162,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
             setMessages(data.messages);
             if (data.meeting_uuid) {
               setMeeting(data.meeting_uuid)
-            }else{
+            } else {
               setMeeting(null);
             }
           })
@@ -178,13 +187,36 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   useEffect(() => {
     roomIdRef.current = room._id;
   }, [room._id]);
+  useEffect(() => {
+    function handleScroll() {
+      // Add your scroll event logic here
+      // For example, you can check if the user has scrolled to the bottom of the container.
+      if (messagesContainerRef.current) {
+        console.log(messagesContainerRef.current.scrollTop)
+        console.log(messagesContainerRef.current.scrollHeight)
+        console.log(messagesContainerRef.current.clientHeight)
+      }
+    }
+
+    if (messagesContainerRef.current) {
+      console.log(messagesContainerRef.current)
+      messagesContainerRef.current.addEventListener("scroll", handleScroll);
+    }
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
 
   const messagesContainer = useMemo(() => {
     return (
-      <div className="message-container">
+      <>
         {
           Array.isArray(messages) &&
-          messages.map((message: Message, index: number) => {
+          messages.reverse().map((message: Message, index: number) => {
             let avatarSRC: string;
             if (message.sender && message.sender == profile?._id) {
               avatarSRC = profile.avatar
@@ -197,24 +229,31 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
             return (
               <div key={index}
                 className={`message ${message.sender == profile?._id ? 'own' : ''}`}>
-                {avatarSRC && (
-                  <img className="inchat-avatar" src={avatarSRC} alt="Sender Avatar" />
-                )}
-                <span>{message.content}</span>
-                <span>{message.timestamp}</span>
+                <div className='message_wrapper'>
+                  {message.sender != profile?._id && avatarSRC && (
+                    <img className="inchat-avatar" src={avatarSRC} alt="Sender Avatar" />
+                  )}
+                  <p>{message.content}</p>
+                </div>
+                <p className='message_timestamp'>{message.timestamp}</p>
               </div>
             );
           })
         }
-      </div>
+      </>
     )
   }, [messages])
 
   return (
     <div id="chat-box">
-      <div className='flex'>
+      <div id="chat-box_topbar" className='flex'>
+        <div id="chat-box_topbar_left">
+          <Room userId={profile?._id} participants={room.participants} />
+          <button className="btn" onClick={handleMakeCall}>
+            <i className='bx bxs-video' ></i>
+          </button>
+        </div>
         <ThemeSwitch />
-        <button onClick={handleMakeCall}>Make call</button>
       </div>
       {meeting && (
         <>
@@ -222,18 +261,22 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
           <button onClick={() => handleJoinCall(meeting)}>Join</button>
         </>
       )}
-      {messagesContainer}
+      <div ref={messagesContainerRef} id="messages-container">
+        {messagesContainer}
+      </div>
       <div className="input-container flex">
         <input
           type="text"
           value={inputValue}
           onChange={handleInputChange}
           className="input-field"
+          onKeyDown={(e) => { e.key == 'Enter' && handleSendMessage() }}
         />
         <button onClick={handleSendMessage} className="send-button">
           Send
         </button>
       </div>
+      <img id="chat-bg" src="/assets/img/img_new/pattern.png" />
     </div>
   );
 };

@@ -70,11 +70,13 @@ const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
 
                         )}
                         </div>
-                        <button className='btn_profile' onClick={handleCreateNewRoom}><i className='bx bxs-message-square-add' ></i></button>
+                        <button className='btn' onClick={handleCreateNewRoom}>
+                            <i className='bx bxs-message-square-add' ></i>
+                        </button>
                     </div>
                 )
             }
-            
+
         </div>
     );
 };
