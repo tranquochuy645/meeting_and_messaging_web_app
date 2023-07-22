@@ -15,11 +15,28 @@
     border-radius: 50%;
 }
 
-.input-container {
+#chat-box_input-container {
     width: 80%;
+    background-color: var(--theme-color);
     align-self: center;
     margin-bottom: 50px;
+    display: flex;
+    padding-top: 0.4rem;
+    padding-bottom: 0.1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 10px;
 }
+#input_message{
+    width: 100%;
+    background-color: var(--theme-color);
+    border: none;
+
+}
+#input_message:focus{
+    outline: none;
+}
+
 
 #messages-container {
     display: flex;
@@ -27,24 +44,7 @@
     padding: 1rem;
     height: 100%;
     overflow-y: scroll;
-    scroll-margin-top: 300px;
 }
-
-.input-field {
-    width: 60%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.send-button {
-    padding: 8px 16px;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
 .message {
     display: flex;
     width: 100%;

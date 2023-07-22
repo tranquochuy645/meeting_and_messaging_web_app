@@ -264,16 +264,16 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       <div ref={messagesContainerRef} id="messages-container">
         {messagesContainer}
       </div>
-      <div className="input-container flex">
+      <div id='chat-box_input-container'>
         <input
           type="text"
           value={inputValue}
+          id='input_message'
           onChange={handleInputChange}
-          className="input-field"
           onKeyDown={(e) => { e.key == 'Enter' && handleSendMessage() }}
         />
-        <button onClick={handleSendMessage} className="send-button">
-          Send
+        <button onClick={handleSendMessage} className="btn">
+          <i className='bx bxs-send' ></i>
         </button>
       </div>
       <img id="chat-bg" src="/assets/img/img_new/pattern.png" />
