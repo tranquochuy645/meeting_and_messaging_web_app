@@ -17,6 +17,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   const fileRef = useRef<any>(null);
   const imageDataRef = useRef<any>(null);
   const socketRef = useRef<Socket | null>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +30,15 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
       socketRef.current?.disconnect();
     };
   }, [token]);
+  useEffect(() => {
+    if (editorRef.current) {
+      if (showProfileEditor) {
+        editorRef.current.classList.add("active");
+      } else {
+        editorRef.current.classList.remove("active");
+      }
+    }
+  }, [showProfileEditor])
 
   const handleLogout = () => {
     sessionStorage.removeItem("token");
@@ -195,9 +205,9 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
           id="profile_img"
           className="cover"
         />
-        {showProfileEditor ? (
-          <>
-            <label id="btn_upload-img" htmlFor="upload-img">
+        {
+          showProfileEditor ?
+            (<label id="btn_upload-img" htmlFor="upload-img">
               <i className='bx bxs-camera'></i>
               <input
                 id="upload-img"
@@ -206,95 +216,95 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
                 ref={fileRef}
                 onChange={handleUploadImage}
               />
-            </label>
-            <button className="btn" onClick={() => setShowProfileEditor(false)}>
-              <i className="bx bxs-pencil"></i>
-            </button>
-          </>
-        ) : (
-          <>
-            <div>
+            </label>)
+            :
+            (<div>
               <h3>{profileData?.fullname}</h3>
               {profileData?.bio && <p>{profileData?.bio}</p>}
-            </div>
+            </div>)
+        }
+        <div className="flex">
+          {showProfileEditor ? (
+            <button className="btn" onClick={() => setShowProfileEditor(false)}>
+              <i className='bx bxs-message-square-x' ></i>
+            </button>
+          ) : (
             <button
               className="btn"
               onClick={() => setShowProfileEditor(true)}
             >
               <i className="bx bxs-pencil"></i>
             </button>
-          </>
-        )}
+          )}
 
-        <button
-          className="btn"
-          onClick={() => setShowInvitation((prev) => !prev)}
-        >
-
-          {showInvitation ? (
-            <i className='bx bxs-message-square-x' ></i>
-          ) : (
-            <div id="bell">
-              <i className="bx bxs-bell"></i>
-              {profileData?.invitations.length &&
-                profileData?.invitations.length > 0 ? (
-                <span id="nofcount">{profileData?.invitations.length}</span>
-              ) : null}
+          <button
+            className="btn"
+            onClick={() => setShowInvitation((prev) => !prev)}
+          >
+            {showInvitation ? (
+              <i className='bx bxs-message-square-x' ></i>
+            ) : (
+              <div id="bell">
+                <i className="bx bxs-bell"></i>
+                {profileData?.invitations.length &&
+                  profileData?.invitations.length > 0 ? (
+                  <span id="nofcount">{profileData?.invitations.length}</span>
+                ) : null}
+              </div>
+            )}
+          </button>
+          {showInvitation && (
+            <div id="notify-container">
+              {profileData && profileData.invitations.length > 0 ? (
+                profileData.invitations.map((invitation: string) => (
+                  <div key={invitation}>
+                    <p>{invitation}</p>
+                    <button onClick={() => handleAcceptInvitation(invitation)}>
+                      Accept
+                    </button>
+                    <button onClick={() => handleRefuseInvitation(invitation)}>
+                      Refuse
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p>No invitations</p>
+              )}
             </div>
           )}
-        </button>
-        {showInvitation && (
-          <div id="notify-container">
-            {profileData && profileData.invitations.length > 0 ? (
-              profileData.invitations.map((invitation: string) => (
-                <div key={invitation}>
-                  <p>{invitation}</p>
-                  <button onClick={() => handleAcceptInvitation(invitation)}>
-                    Accept
-                  </button>
-                  <button onClick={() => handleRefuseInvitation(invitation)}>
-                    Refuse
-                  </button>
-                </div>
-              ))
-            ) : (
-              <p>No invitations</p>
-            )}
-          </div>
-        )}
-        <button id="logout-btn" className="btn" onClick={handleLogout}>
-          <i className="bx bx-log-in"></i>
-        </button>
+          <button id="logout-btn" className="btn" onClick={handleLogout}>
+            <i className="bx bx-log-in"></i>
+          </button>
+        </div>
       </div>
-      {showProfileEditor && (
-        <>
-          <form onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="fullname">Your name:</label>
-              <input type="text" id="fullname" name="fullname" />
-            </div>
-            <div>
-              <label htmlFor="bio">Bio:</label>
-              <input type="text" id="bio" name="bio" />
-            </div>
-            <div>
-              <label htmlFor="current_password">Current password:</label>
-              <input
-                type="password"
-                id="current_password"
-                name="current_password"
-              />
-            </div>
-            <div>
-              <label htmlFor="password">New password:</label>
-              <input type="password" id="password" name="password" />
-            </div>
-
-            <button type="submit">Save</button>
-          </form>
-          <button onClick={handleDeleteAccount}>Delete account</button>
-        </>
-      )}
+      <div ref={editorRef} id="profile_editor">
+        <form id="profile_form">
+          <div>
+            <label htmlFor="fullname">Your name:</label>
+            <input type="text" id="fullname" name="fullname" placeholder={profileData?.fullname} />
+          </div>
+          <div>
+            <label htmlFor="bio">Bio:</label>
+            <input type="text" id="bio" name="bio" placeholder={profileData?.bio} />
+          </div>
+          <div>
+            <label htmlFor="current_password">Current password:</label>
+            <input
+              type="password"
+              id="current_password"
+              name="current_password"
+            />
+          </div>
+          <div>
+            <label htmlFor="password">New password:</label>
+            <input type="password" id="password" name="password" />
+          </div>
+        </form>
+        <div className="flex">
+          <button id="btn_delete-account" onClick={handleDeleteAccount}>Delete account</button>
+          <button id="btn_submit-edit" onClick={handleSubmit}>Save</button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -212,11 +212,12 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   }, []);
 
   const messagesContainer = useMemo(() => {
+    const reversed = messages?.reverse()
     return (
       <>
         {
-          Array.isArray(messages) &&
-          messages.reverse().map((message: Message, index: number) => {
+          Array.isArray(reversed) &&
+          reversed.map((message: Message, index: number) => {
             let avatarSRC: string;
             if (message.sender && message.sender == profile?._id) {
               avatarSRC = profile.avatar

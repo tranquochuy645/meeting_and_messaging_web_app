@@ -1,3 +1,7 @@
+#profile {
+  position: relative;
+}
+
 #profile_topbar {
   display: flex;
   position: relative;
@@ -61,4 +65,72 @@
   z-index: 100;
   color: var(--text-color);
   background-color: var(--background-color);
+}
+
+#profile_editor {
+  height: 0px;
+  opacity: 0;
+  overflow-y: hidden;
+  transition: 1s;
+}
+
+#profile_editor.active {
+  height: 230px;
+  opacity: 1;
+}
+
+#profile_form {
+  position: relative;
+  width: 100%;
+  padding: 1rem 1rem 1rem 1rem;
+}
+
+#profile_form div {
+  padding: 0.2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+#profile_form label {
+  display: inline;
+  overflow: hidden;
+}
+
+#profile_form input {
+  background-color: var(--background-color);
+  border-bottom: solid 2px var(--theme-color);
+  opacity: 0.5;
+}
+
+#profile_form input:hover,
+#profile_form input:focus {
+  opacity: 1;
+}
+
+#btn_delete-account {
+  color: red;
+}
+
+#btn_delete-account:hover {
+  border-bottom: solid 1px red;
+}
+#btn_submit-edit{
+  /* right: 0; */
+  color: var(--text-color);
+}
+#btn_submit-edit:hover{
+  border-bottom: solid 1px var(--text-color);
+}
+
+#profile_editor button {
+  /* position: absolute; */
+  /* bottom: 5px; */
+  margin: 0.5rem 1.4rem;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+#profile_editor .flex{
+  height: 2rem;
+  justify-content: space-between;
 }
