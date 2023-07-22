@@ -100,6 +100,7 @@
   background-color: var(--background-color);
   border-bottom: solid 2px var(--theme-color);
   opacity: 0.5;
+  transition: 0.5s;
 }
 
 #profile_form input:hover,
@@ -113,24 +114,26 @@
 
 #btn_delete-account:hover {
   border-bottom: solid 1px red;
+  cursor: pointer;
 }
-#btn_submit-edit{
-  /* right: 0; */
+
+#btn_submit-edit {
   color: var(--text-color);
 }
-#btn_submit-edit:hover{
+
+#btn_submit-edit:hover {
   border-bottom: solid 1px var(--text-color);
+  cursor: pointer;
 }
 
 #profile_editor button {
-  /* position: absolute; */
-  /* bottom: 5px; */
   margin: 0.5rem 1.4rem;
   background-color: transparent;
   border: none;
   outline: none;
 }
-#profile_editor .flex{
+
+#profile_editor .flex {
   height: 2rem;
   justify-content: space-between;
 }

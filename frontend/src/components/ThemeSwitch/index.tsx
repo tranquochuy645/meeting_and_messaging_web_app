@@ -10,8 +10,8 @@ interface Theme {
 const themes: { [key: string]: Theme } = {
     light: {
         text: "#000",
-        background: "#ffffff",
-        theme: "#046d8c",
+        background: "#d5e356",
+        theme: "#ffffff",
     },
     dark: {
         text: "#ffffff",

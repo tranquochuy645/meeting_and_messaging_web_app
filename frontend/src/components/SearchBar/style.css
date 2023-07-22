@@ -9,8 +9,11 @@
   height: 38px;
   border-radius: 30px;
   font-size: 14px;
-  background-color: var(--theme-color);
-  color: white;
+  border: solid var(--text-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: 0.5s;
+
 }
 
 #search-bar>button {

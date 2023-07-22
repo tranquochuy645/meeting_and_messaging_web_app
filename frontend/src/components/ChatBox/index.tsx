@@ -264,6 +264,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       )}
       <div ref={messagesContainerRef} id="messages-container">
         {messagesContainer}
+        <img id="chat-bg" src="/assets/img/img_new/pattern.png" />
       </div>
       <div id='chat-box_input-container'>
         <input
@@ -277,7 +278,6 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
           <i className='bx bxs-send' ></i>
         </button>
       </div>
-      <img id="chat-bg" src="/assets/img/img_new/pattern.png" />
     </div>
   );
 };
