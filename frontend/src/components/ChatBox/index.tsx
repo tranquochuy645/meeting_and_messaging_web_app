@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import ThemeSwitch from '../ThemeSwitch';
 import Room from '../Room';
 import { ChatRoom } from '../RoomsList';
+import VisibilitySensor from 'react-visibility-sensor';
 interface Message {
   sender: string;
   content: string;
@@ -22,6 +23,7 @@ interface Message {
 
 interface ChatRoomData {
   messages: Message[];
+  conversationLength: number;
   isMeeting?: boolean;
   meeting_uuid?: string | null;
 }
@@ -33,8 +35,12 @@ interface ChatBoxProps {
   profile: ProfileData;
 }
 
-const getMessages = (roomId: string, token: string): Promise<any> => {
-  return fetch(`/api/v1/rooms/${roomId}`, {
+const getMessages = (
+  roomId: string,
+  token: string,
+  limit?: string,
+  skip?: string): Promise<any> => {
+  return fetch(`/api/v1/rooms/${roomId}?limit=${limit}&skip=${skip}`, {
     method: 'GET',
     headers: {
       'content-type': 'application/json',
@@ -53,15 +59,20 @@ const getMessages = (roomId: string, token: string): Promise<any> => {
     });
 };
 
+let conversationLength: number;
 let socket: any;
 const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [messages, setMessages] = useState<Message[] | null>(null);
   const [meeting, setMeeting] = useState<string | null>()
   const roomIdRef = useRef(room._id);
+  const topRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   // const roomProfileRef = useRef<ReactNode | null>(null);
   const navigate = useNavigate();
+  let bottomVisibility: boolean;
+
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
@@ -90,6 +101,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       }
       const content = msg[2];
       const timestamp = msg[3];
+      conversationLength++;
       // Update the messages state to include the received message
       setMessages((prevMessages) => {
         if (prevMessages !== null) {
@@ -160,6 +172,9 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
         getMessages(room._id, token)
           .then((data: ChatRoomData) => {
             setMessages(data.messages);
+            if (data.conversationLength) {
+              conversationLength = data.conversationLength;
+            }
             if (data.meeting_uuid) {
               setMeeting(data.meeting_uuid)
             } else {
@@ -184,40 +199,43 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       socket?.on("end_meet", handleEndCall)
     }
   }, [token])
+
   useEffect(() => {
     roomIdRef.current = room._id;
-  }, [room._id]);
-  useEffect(() => {
-    function handleScroll() {
-      // Add your scroll event logic here
-      // For example, you can check if the user has scrolled to the bottom of the container.
-      if (messagesContainerRef.current) {
-        console.log(messagesContainerRef.current.scrollTop)
-        console.log(messagesContainerRef.current.scrollHeight)
-        console.log(messagesContainerRef.current.clientHeight)
+    if (topRef.current) { topRef.current.style.display = "none"; }
+    const tOut = setTimeout(() => {
+      if (topRef.current &&
+        messagesContainerRef.current &&
+        messagesContainerRef.current.scrollHeight > messagesContainerRef.current.clientHeight) {
+        topRef.current.style.display = "block";
       }
-    }
+      // Only allow the top visibility sensor to be displayed after initial render
+    }, 1000);
 
-    if (messagesContainerRef.current) {
-      console.log(messagesContainerRef.current)
-      messagesContainerRef.current.addEventListener("scroll", handleScroll);
-    }
-
-    // Clean up the event listener when the component unmounts
     return () => {
-      if (messagesContainerRef.current) {
-        messagesContainerRef.current.removeEventListener("scroll", handleScroll);
-      }
+      // Clear the timeout when the component unmounts
+      clearTimeout(tOut);
     };
-  }, []);
+  }, [room._id]);
+
+
+  useEffect(() => {
+    if (bottomRef.current && messagesContainerRef.current) {
+      if (bottomVisibility) {
+        bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      } else {
+        messagesContainerRef.current.scrollTop = 300;
+      }
+    }
+  }, [messages]);
+
 
   const messagesContainer = useMemo(() => {
-    const reversed = messages?.reverse()
     return (
       <>
         {
-          Array.isArray(reversed) &&
-          reversed.map((message: Message, index: number) => {
+          Array.isArray(messages) &&
+          messages.map((message: Message, index: number) => {
             let avatarSRC: string;
             if (message.sender && message.sender == profile?._id) {
               avatarSRC = profile.avatar
@@ -244,6 +262,45 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       </>
     )
   }, [messages])
+  const handleGetMoreMessages = (isVisible: boolean) => {
+    if (!isVisible) return
+    if (!messages || messages.length == 0) {
+      return
+    }
+    if (messages.length >= conversationLength) {
+      console.log("All messages have been received")
+      return
+    }
+    let skip;
+    let messagesLimit = 20;
+    skip = conversationLength - messages.length - messagesLimit
+    if (skip < 0) {
+      messagesLimit += skip;
+      skip = 0;
+    }
+    getMessages(room._id, token, `${messagesLimit}`, `${skip}`)
+      .then((data: ChatRoomData) => {
+        setMessages(
+          (prev) => {
+            if (prev)
+              return data.messages.concat(prev)
+            return data.messages
+          });
+        if (data.conversationLength) {
+          conversationLength = data.conversationLength;
+        }
+        if (data.meeting_uuid) {
+          setMeeting(data.meeting_uuid)
+        } else {
+          setMeeting(null);
+        }
+      })
+      .catch(
+        () => {
+          navigate("/auth");
+        });
+
+  }
 
   return (
     <div id="chat-box">
@@ -263,9 +320,15 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
         </>
       )}
       <div ref={messagesContainerRef} id="messages-container">
+        <VisibilitySensor onChange={handleGetMoreMessages} >
+          <h1 ref={topRef} id="topRef">top</h1>
+        </VisibilitySensor>
         {messagesContainer}
-        <img id="chat-bg" src="/assets/img/img_new/pattern.png" />
+        <VisibilitySensor onChange={(isVisible: boolean) => { bottomVisibility = isVisible }}>
+          <div ref={bottomRef}></div>
+        </VisibilitySensor>
       </div>
+      <img id="chat-box_bg" src="/assets/img/img_new/pattern.png" />
       <div id='chat-box_input-container'>
         <input
           type="text"
