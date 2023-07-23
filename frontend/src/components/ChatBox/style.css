@@ -126,3 +126,8 @@
     display: none;
     justify-content: center;
 }
+#btn_scroll{
+    display: none;
+    justify-self: center;
+    align-self: center;
+}

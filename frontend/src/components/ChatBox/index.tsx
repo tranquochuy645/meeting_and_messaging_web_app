@@ -37,10 +37,11 @@ interface ChatBoxProps {
 }
 
 
-
-let conversationLength: number;
 let socket: any;
+let justSent: boolean;
+let bottomIsVisible: boolean;
 const DEFAULT_MESSAGES_LIMIT: number = 30;
+
 
 const getMessages = (
   roomId: string,
@@ -70,16 +71,17 @@ const getMessages = (
 };
 
 const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
+  let conversationLength: number;
   const [inputValue, setInputValue] = useState<string>('');
   const [messages, setMessages] = useState<Message[] | null>(null);
   const [meeting, setMeeting] = useState<string | null>()
   const roomIdRef = useRef(room._id);
   const topRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const btnScrollRef = useRef<HTMLButtonElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   // const roomProfileRef = useRef<ReactNode | null>(null);
   const navigate = useNavigate();
-  let bottomVisibility: boolean;
 
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -90,6 +92,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   const handleSendMessage = () => {
     if (inputValue.trim() !== '') {
       socket?.emit("msg", [room._id, inputValue, new Date()]);
+      justSent = true;
       setInputValue('');
     }
   };
@@ -106,6 +109,10 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
           (participant) => participant._id === sender)
       ) {
         return
+      }
+      if (btnScrollRef.current) {
+        console.log("thissssssssss")
+        btnScrollRef.current.style.display = "block"
       }
       const content = msg[2];
       const timestamp = msg[3];
@@ -171,6 +178,11 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
     setMeeting(null)
   }
 
+  const handleScrollBottom = (target: HTMLElement) => {
+    target.scrollIntoView({ behavior: "smooth" });
+    if (btnScrollRef.current) btnScrollRef.current.style.display = "none"
+  }
+
   useEffect(
     () => {
       try {
@@ -228,14 +240,22 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
 
 
   useEffect(() => {
-    if (!bottomRef.current || !messagesContainerRef.current) return
-    if (bottomVisibility) {
-      return bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    if (!bottomRef.current || !messagesContainerRef.current || !messages) return
+    if (messages.length <= DEFAULT_MESSAGES_LIMIT) {
+      // if this is the first load 
+      return handleScrollBottom(bottomRef.current)
     }
-    if (messages && messages?.length <= DEFAULT_MESSAGES_LIMIT) {
-      return bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    if (messages[messages.length - 1].sender != profile._id) {
+      if (bottomIsVisible)
+        return handleScrollBottom(bottomRef.current);
+      messagesContainerRef.current.scrollTop = 300;
+      return
     }
-    messagesContainerRef.current.scrollTop = 300;
+    if (justSent) {
+      // if it is this user who have just send a message
+      justSent = false;
+      return handleScrollBottom(bottomRef.current)
+    }
 
   }, [messages]);
 
@@ -338,10 +358,17 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
           </div>
         </VisibilitySensor>
         {messagesContainer}
-        <VisibilitySensor onChange={(isVisible: boolean) => { bottomVisibility = isVisible }}>
-          <div ref={bottomRef}></div>
+        <VisibilitySensor onChange={(_: boolean) => { bottomIsVisible = _ }} >
+          <div ref={bottomRef}>.</div>
         </VisibilitySensor>
       </div>
+      <button id='btn_scroll' ref={btnScrollRef}
+        onClick={() => {
+          if (bottomRef.current) handleScrollBottom(bottomRef.current)
+        }}
+      >
+        {messages && messages[messages.length-1].content} <i className='bx bx-down-arrow-alt'></i>
+      </button>
       <img id="chat-box_bg" src="/assets/img/img_new/pattern.png" />
       <div id='chat-box_input-container'>
         <input
