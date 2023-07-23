@@ -18,6 +18,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   const imageDataRef = useRef<any>(null);
   const socketRef = useRef<Socket | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,19 +71,19 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
       }),
     });
   };
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
+  const handleSubmit = async () => {
+    if (!formRef.current) return;
     let body: any = {};
-    if (event.target.bio.value) {
-      body.bio = event.target.bio.value;
+    if (formRef.current.bio.value) {
+      body.bio = formRef.current.bio.value;
     }
-    if (event.target.fullname.value) {
-      body.fullname = event.target.fullname.value;
+    if (formRef.current.fullname.value) {
+      body.fullname = formRef.current.fullname.value;
     }
-    if (event.target.password.value) {
-      body.password = event.target.password.value;
-      if (event.target.current_password.value) {
-        body.current_password = event.target.current_password.value;
+    if (formRef.current.password.value) {
+      body.password = formRef.current.password.value;
+      if (formRef.current.current_password.value) {
+        body.current_password = formRef.current.current_password.value;
       } else {
         return alert("Please enter current password");
       }
@@ -278,7 +279,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         </div>
       </div>
       <div ref={editorRef} id="profile_editor">
-        <form id="profile_form">
+        <form id="profile_form" ref={formRef}>
           <div>
             <label htmlFor="fullname">Your name:</label>
             <input type="text" id="fullname" name="fullname" placeholder={profileData?.fullname} />
