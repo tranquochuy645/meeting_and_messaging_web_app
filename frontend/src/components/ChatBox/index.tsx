@@ -14,6 +14,7 @@ import ThemeSwitch from '../ThemeSwitch';
 import Room from '../Room';
 import { ChatRoom } from '../RoomsList';
 import VisibilitySensor from 'react-visibility-sensor';
+import PendingFigure from '../PendingFigure';
 interface Message {
   sender: string;
   content: string;
@@ -35,6 +36,12 @@ interface ChatBoxProps {
   profile: ProfileData;
 }
 
+
+
+let conversationLength: number;
+let socket: any;
+const DEFAULT_MESSAGES_LIMIT: number = 30;
+
 const getMessages = (
   roomId: string,
   token: string,
@@ -48,6 +55,9 @@ const getMessages = (
     },
   })
     .then((response) => {
+      if (response.status === 304) {
+        throw new Error("Already got this")
+      }
       if (response.ok) {
         return response.json();
       }
@@ -59,8 +69,6 @@ const getMessages = (
     });
 };
 
-let conversationLength: number;
-let socket: any;
 const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [messages, setMessages] = useState<Message[] | null>(null);
@@ -207,7 +215,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       if (topRef.current &&
         messagesContainerRef.current &&
         messagesContainerRef.current.scrollHeight > messagesContainerRef.current.clientHeight) {
-        topRef.current.style.display = "block";
+        topRef.current.style.display = "flex";
       }
       // Only allow the top visibility sensor to be displayed after initial render
     }, 1000);
@@ -220,13 +228,15 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
 
 
   useEffect(() => {
-    if (bottomRef.current && messagesContainerRef.current) {
-      if (bottomVisibility) {
-        bottomRef.current.scrollIntoView({ behavior: "smooth" });
-      } else {
-        messagesContainerRef.current.scrollTop = 300;
-      }
+    if (!bottomRef.current || !messagesContainerRef.current) return
+    if (bottomVisibility) {
+      return bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
+    if (messages && messages?.length <= DEFAULT_MESSAGES_LIMIT) {
+      return bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+    messagesContainerRef.current.scrollTop = 300;
+
   }, [messages]);
 
 
@@ -262,17 +272,19 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       </>
     )
   }, [messages])
+
   const handleGetMoreMessages = (isVisible: boolean) => {
     if (!isVisible) return
     if (!messages || messages.length == 0) {
       return
     }
     if (messages.length >= conversationLength) {
-      console.log("All messages have been received")
+      // All messages received
+      if (topRef.current) topRef.current.style.display = "none"
       return
     }
     let skip;
-    let messagesLimit = 20;
+    let messagesLimit = DEFAULT_MESSAGES_LIMIT;
     skip = conversationLength - messages.length - messagesLimit
     if (skip < 0) {
       messagesLimit += skip;
@@ -310,18 +322,20 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
           <button className="btn" onClick={handleMakeCall}>
             <i className='bx bxs-video' ></i>
           </button>
+          {meeting && (
+            <>
+              <p>This room is in a meeting</p>
+              <button onClick={() => handleJoinCall(meeting)}>Join</button>
+            </>
+          )}
         </div>
         <ThemeSwitch />
       </div>
-      {meeting && (
-        <>
-          <p>This room is in a meeting</p>
-          <button onClick={() => handleJoinCall(meeting)}>Join</button>
-        </>
-      )}
       <div ref={messagesContainerRef} id="messages-container">
         <VisibilitySensor onChange={handleGetMoreMessages} >
-          <h1 ref={topRef} id="topRef">top</h1>
+          <div ref={topRef} id="topRef">
+            <PendingFigure size={50} />
+          </div>
         </VisibilitySensor>
         {messagesContainer}
         <VisibilitySensor onChange={(isVisible: boolean) => { bottomVisibility = isVisible }}>
