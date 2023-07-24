@@ -371,7 +371,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       >
         {messages && messages[messages.length - 1].content} <i className='bx bx-down-arrow-alt'></i>
       </button>
-      <img id="chat-box_bg" src="/assets/img/img_new/pattern.png" />
+      ?
       <div id='chat-box_input-container'>
         <input
           type="text"
