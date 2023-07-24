@@ -2,7 +2,9 @@ import { Router } from 'express';
 import { generateAuthToken } from '../../lib/generateAuthToken';
 import { generateProfileImage } from '../../lib/generateProfileImage';
 import { handleRegPassword } from '../../middlewares/express/handleRegPassword';
-import {chatAppDbController as dc} from '../../controllers/mongodb';
+import { chatAppDbController as dc } from '../../controllers/mongodb';
+import User from '../../lib/newUserConstructor';
+import Media from '../../lib/newMediaConstructor';
 import bcrypt from 'bcrypt';
 const router = Router();
 
@@ -18,27 +20,39 @@ router.post('/register', handleRegPassword, async (req, res) => {
     }
     const isAvailableUserName = await dc.users.checkAvailableUserName(username);
     if (isAvailableUserName) {
-      const newDefaultProfileImage = generateProfileImage(username.charAt(0));
-      const newUser = {
+
+      const newUser = new User(
         username,
-        password,
-        fullname: username,
-        avatar: newDefaultProfileImage,
-        isOnline: false,
-        invitations: [dc.globalChatId],
-        rooms: [],
-        createdAt: new Date(),
-      };
+        password
+      )
 
       const result = await dc.users.createUser(newUser);
       if (!result) {
         throw new Error(`Error creating user`);
       }
+      // const newDefaultAvatarBlob = generateProfileImage(username.charAt(0))
+      const metadata = {
+        uploaderId: result.insertedId,
+        privacy: "public",
+        uploadTimestamp: new Date()
+      }
+      const mediaType = "image/svg"
+      const newMedia = new Media("some string", mediaType, metadata)
+      const mediaOId = await dc.media.saveMedia(newMedia)
+      const mediaUrl = `/media/${mediaOId.toString()}`;
+      await dc.users.updateUser(
+        result.insertedId.toString(),
+        {
+          invitations: [dc.globalChatId],
+          avatar: mediaUrl
+        }
+      )
       await dc.rooms.pushToInvitedList(result.insertedId.toString(), dc.globalChatId.toString());
       return res.status(200).json({ message: 'Created account successfully' });
     }
     return res.status(409).json({ message: 'Username already exists' });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 });

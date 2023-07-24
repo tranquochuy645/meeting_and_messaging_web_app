@@ -5,6 +5,7 @@ import authRouter from './auth';
 import roomsRouter from './rooms';
 import usersRouter from './users';
 import searchRouter from './search';
+import mediaRouter from './media';
 
 
 const router = Router();
@@ -28,5 +29,6 @@ router.use('/auth', authLimiter, authRouter);
 router.use('/rooms', generalLimiter, roomsRouter);
 router.use('/users', generalLimiter, usersRouter);
 router.use('/search', generalLimiter, searchRouter);
+router.use('/media', generalLimiter, mediaRouter);
 
 export default router;

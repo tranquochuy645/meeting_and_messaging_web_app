@@ -319,7 +319,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
             }
             return (
               <div key={index}
-                className={`message ${message.sender == profile?._id ? 'own' : ''}`}>
+                className={`message ${message.sender == profile?._id ? 'own' : 'guest'}`}>
                 <div className='message_wrapper'>
                   {message.sender != profile?._id && avatarSRC && (
                     <img className="inchat-avatar" src={avatarSRC} alt="Sender Avatar" />

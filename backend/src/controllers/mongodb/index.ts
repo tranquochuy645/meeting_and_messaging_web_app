@@ -49,7 +49,7 @@ class DatabaseController extends DatabaseSetup {
     this._watcher = new Watcher(this.db, DatabaseController._collectionNames);
     this._users = new UsersController(this.db.collection("users"));
     this._rooms = new RoomsController(this.db.collection("rooms"));
-    this._media = new MediaController(this.db.collection("meetings"));
+    this._media = new MediaController(this.db.collection("media"));
     this._roomsExtractor = new RoomsExtractor(this._users, this._rooms);
   }
 
