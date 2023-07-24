@@ -17,6 +17,15 @@
           "default"
         ]
       },
+      "isMeeting": {
+        "bsonType": "bool"
+      },
+      "meeting_uuid": {
+        "bsonType": [
+          "string",
+          "null"
+        ]
+      },
       "participants": {
         "bsonType": "array",
         "items": {

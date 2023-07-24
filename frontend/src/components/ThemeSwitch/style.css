@@ -20,11 +20,11 @@ input[type='checkbox'] {
 .switcher-label {
     cursor: pointer;
     --cont-height: 30px;
-    --cont-width: 50px;
+    --cont-width: 60px;
     height: var(--cont-height);
     width: var(--cont-width);
     border-radius: var(--cont-height);
-    background-color: rgb(68, 68, 68);
+    background-color: var(--theme-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -35,7 +35,7 @@ input[type='checkbox'] {
 /*toggler*/
 
 .switcher-toggler {
-    background-color: rgb(255, 255, 255);
+    background-color: var(--background-color);
     width: calc(var(--cont-height) - 6px);
     height: calc(var(--cont-height) - 6px);
     z-index: 1;
@@ -54,12 +54,12 @@ input[type='checkbox'] {
 /*sun and moon images*/
 .fa-moon {
     font-size: calc(var(--cont-height) - 10px);
-    color: dodgerblue;
+    color: rgb(55, 255, 195);
 }
 
 .fa-sun {
     font-size: calc(var(--cont-height) - 10px);
-    color: rgb(255, 251, 0);
+    color: rgb(255, 252, 97);
 }
 /* Bell */
 #bell {

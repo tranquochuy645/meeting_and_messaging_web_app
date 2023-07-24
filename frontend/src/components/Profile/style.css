@@ -1,12 +1,16 @@
 #profile {
+  position: relative;
+}
+
+#profile_topbar {
   display: flex;
   position: relative;
-  background: #ededed;
-  height: 60px;
+  height: 5rem;
   width: 100%;
   justify-content: space-between;
   align-items: center;
   padding: 0 15px;
+  transition: 0.3s;
 }
 
 #profile_img {
@@ -15,6 +19,7 @@
   height: 40px;
   overflow: hidden;
   border-radius: 50%;
+  border: solid #016d62;
   cursor: pointer;
 }
 
@@ -27,14 +32,26 @@
   object-fit: cover;
 }
 
-.btn_profile {
-  margin-left: 0%;
-  color: #009688;
+
+#btn_upload-img {
+  background-color: grey;
+  color: var(--text-color);
+  width: 1.3rem;
+  height: 1.3rem;
+  font-size: 1rem;
+  border-radius: 50%;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-left: 2rem;
+}
+
+#btn_upload-img:hover,
+#btn_upload-img:focus {
   cursor: pointer;
-  list-style: none;
-  background-color: transparent;
-  border: none;
-  font-size: 2rem;
+  box-shadow: 0 0 3px 3px var(--text-color);
 }
 
 #upload-img {
@@ -46,6 +63,7 @@
   bottom: -50px;
   right: -10px;
   z-index: 100;
+<<<<<<< HEAD
   color: var(--background-color);
   background-color: var(--text-color);
 }
@@ -56,3 +74,79 @@
   top: 15px;
   left: 40px;
 }
+=======
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+
+#profile_editor {
+  height: 0px;
+  opacity: 0;
+  overflow-y: hidden;
+  transition: 1s;
+}
+
+#profile_editor.active {
+  height: 230px;
+  opacity: 1;
+}
+
+#profile_form {
+  position: relative;
+  width: 100%;
+  padding: 1rem 1rem 1rem 1rem;
+}
+
+#profile_form div {
+  padding: 0.2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+#profile_form label {
+  display: inline;
+  overflow: hidden;
+}
+
+#profile_form input {
+  background-color: var(--background-color);
+  border-bottom: solid 2px var(--theme-color);
+  opacity: 0.5;
+  transition: 0.5s;
+}
+
+#profile_form input:hover,
+#profile_form input:focus {
+  opacity: 1;
+}
+
+#btn_delete-account {
+  color: red;
+}
+
+#btn_delete-account:hover {
+  border-bottom: solid 1px red;
+  cursor: pointer;
+}
+
+#btn_submit-edit {
+  color: var(--text-color);
+}
+
+#btn_submit-edit:hover {
+  border-bottom: solid 1px var(--text-color);
+  cursor: pointer;
+}
+
+#profile_editor button {
+  margin: 0.5rem 1.4rem;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+#profile_editor .flex {
+  height: 2rem;
+  justify-content: space-between;
+}
+>>>>>>> 7269e37554072280b39f3809997e5835998da46b

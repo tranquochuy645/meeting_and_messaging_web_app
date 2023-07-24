@@ -74,6 +74,19 @@ class DatabaseSetup {
         console.error('Failed to reset online state:', err);
       });
   }
+  /**
+ * Set the isMeeting field to false and meeting_uuid to null for all rooms in the database.
+ * @param db - The MongoDB database instance.
+ */
+  private resetMeetingState(db: Db) {
+    db.collection("rooms").updateMany({}, { $set: { isMeeting: false, meeting_uuid: null } })
+      .then(result => {
+        console.log("Reset meeting state: ", result.modifiedCount);
+      })
+      .catch(err => {
+        console.error('Failed to reset meeting state:', err);
+      });
+  }
 
   /**
    * Main setup function to initialize database collections and global chat room.
@@ -91,6 +104,7 @@ class DatabaseSetup {
         }
       }
       await this.resetOnlineState(db);
+      await this.resetMeetingState(db);
     } catch (err) {
       console.error('Failed to check collection:', err);
     }

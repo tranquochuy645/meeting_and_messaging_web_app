@@ -3,8 +3,20 @@ import Room from '../Room';
 import './style.css';
 import { getSocket } from '../../SocketController';
 import { Socket } from 'socket.io-client';
-import { ChatRoom } from '../ChatBox';
 import { useNavigate } from 'react-router-dom';
+export interface Participant {
+    _id: string;
+    fullname: string;
+    avatar: string;
+    isOnline: boolean;
+    socketId: string[];
+}
+export interface ChatRoom {
+    _id: string;
+    participants: Participant[];
+    isMeeting?: boolean;
+    meeting_uuid?: string | null;
+}
 interface RoomsListProps {
     userId: string;
     currentRoomIndex: number;

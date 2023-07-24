@@ -17,6 +17,8 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   const fileRef = useRef<any>(null);
   const imageDataRef = useRef<any>(null);
   const socketRef = useRef<Socket | null>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +31,15 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
       socketRef.current?.disconnect();
     };
   }, [token]);
+  useEffect(() => {
+    if (editorRef.current) {
+      if (showProfileEditor) {
+        editorRef.current.classList.add("active");
+      } else {
+        editorRef.current.classList.remove("active");
+      }
+    }
+  }, [showProfileEditor])
 
   const handleLogout = () => {
     sessionStorage.removeItem("token");
@@ -60,19 +71,19 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
       }),
     });
   };
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
+  const handleSubmit = async () => {
+    if (!formRef.current) return;
     let body: any = {};
-    if (event.target.bio.value) {
-      body.bio = event.target.bio.value;
+    if (formRef.current.bio.value) {
+      body.bio = formRef.current.bio.value;
     }
-    if (event.target.fullname.value) {
-      body.fullname = event.target.fullname.value;
+    if (formRef.current.fullname.value) {
+      body.fullname = formRef.current.fullname.value;
     }
-    if (event.target.password.value) {
-      body.password = event.target.password.value;
-      if (event.target.current_password.value) {
-        body.current_password = event.target.current_password.value;
+    if (formRef.current.password.value) {
+      body.password = formRef.current.password.value;
+      if (formRef.current.current_password.value) {
+        body.current_password = formRef.current.current_password.value;
       } else {
         return alert("Please enter current password");
       }
@@ -187,14 +198,15 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   };
 
   return (
-    <>
-      <div id="profile">
+    <div id="profile">
+      <div id="profile_topbar">
         <img
           src={profileData?.avatar}
           alt="Profile"
           id="profile_img"
           className="cover"
         />
+<<<<<<< HEAD
         {showProfileEditor ? (
           <>
             <label
@@ -203,6 +215,12 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
               htmlFor="upload-img"
             >
               <i className="bx bxs-camera"></i>
+=======
+        {
+          showProfileEditor ?
+            (<label id="btn_upload-img" htmlFor="upload-img">
+              <i className='bx bxs-camera'></i>
+>>>>>>> 7269e37554072280b39f3809997e5835998da46b
               <input
                 id="upload-img"
                 type="file"
@@ -210,6 +228,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
                 ref={fileRef}
                 onChange={handleUploadImage}
               />
+<<<<<<< HEAD
             </label>
             <button
               className="btn_profile"
@@ -221,18 +240,30 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         ) : (
           <>
             <div>
+=======
+            </label>)
+            :
+            (<div>
+>>>>>>> 7269e37554072280b39f3809997e5835998da46b
               <h3>{profileData?.fullname}</h3>
               {profileData?.bio && <p>{profileData?.bio}</p>}
-            </div>
+            </div>)
+        }
+        <div className="flex">
+          {showProfileEditor ? (
+            <button className="btn" onClick={() => setShowProfileEditor(false)}>
+              <i className='bx bxs-message-square-x' ></i>
+            </button>
+          ) : (
             <button
-              className="btn_profile"
+              className="btn"
               onClick={() => setShowProfileEditor(true)}
             >
               <i className="bx bxs-pencil"></i>
             </button>
-          </>
-        )}
+          )}
 
+<<<<<<< HEAD
         <button
           className="btn_profile"
           onClick={() => setShowInvitation((prev) => !prev)}
@@ -246,62 +277,77 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
               profileData?.invitations.length > 0 ? (
                 <span id="nofcount">{profileData?.invitations.length}</span>
               ) : null}
+=======
+          <button
+            className="btn"
+            onClick={() => setShowInvitation((prev) => !prev)}
+          >
+            {showInvitation ? (
+              <i className='bx bxs-message-square-x' ></i>
+            ) : (
+              <div id="bell">
+                <i className="bx bxs-bell"></i>
+                {profileData?.invitations.length &&
+                  profileData?.invitations.length > 0 ? (
+                  <span id="nofcount">{profileData?.invitations.length}</span>
+                ) : null}
+              </div>
+            )}
+          </button>
+          {showInvitation && (
+            <div id="notify-container">
+              {profileData && profileData.invitations.length > 0 ? (
+                profileData.invitations.map((invitation: string) => (
+                  <div key={invitation}>
+                    <p>{invitation}</p>
+                    <button onClick={() => handleAcceptInvitation(invitation)}>
+                      Accept
+                    </button>
+                    <button onClick={() => handleRefuseInvitation(invitation)}>
+                      Refuse
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p>No invitations</p>
+              )}
+>>>>>>> 7269e37554072280b39f3809997e5835998da46b
             </div>
           )}
-        </button>
-        {showInvitation && (
-          <div id="notify-container">
-            {profileData && profileData.invitations.length > 0 ? (
-              profileData.invitations.map((invitation: string) => (
-                <div key={invitation}>
-                  <p>{invitation}</p>
-                  <button onClick={() => handleAcceptInvitation(invitation)}>
-                    Accept
-                  </button>
-                  <button onClick={() => handleRefuseInvitation(invitation)}>
-                    Refuse
-                  </button>
-                </div>
-              ))
-            ) : (
-              <p>No invitations</p>
-            )}
-          </div>
-        )}
-        <button id="logout-btn" className="btn_profile" onClick={handleLogout}>
-          <i className="bx bx-log-in"></i>
-        </button>
+          <button id="logout-btn" className="btn" onClick={handleLogout}>
+            <i className="bx bx-log-in"></i>
+          </button>
+        </div>
       </div>
-      {showProfileEditor && (
-        <>
-          <form onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="fullname">Your name:</label>
-              <input type="text" id="fullname" name="fullname" />
-            </div>
-            <div>
-              <label htmlFor="bio">Bio:</label>
-              <input type="text" id="bio" name="bio" />
-            </div>
-            <div>
-              <label htmlFor="current_password">Current password:</label>
-              <input
-                type="password"
-                id="current_password"
-                name="current_password"
-              />
-            </div>
-            <div>
-              <label htmlFor="password">New password:</label>
-              <input type="password" id="password" name="password" />
-            </div>
-
-            <button type="submit">Save</button>
-          </form>
-          <button onClick={handleDeleteAccount}>Delete account</button>
-        </>
-      )}
-    </>
+      <div ref={editorRef} id="profile_editor">
+        <form id="profile_form" ref={formRef}>
+          <div>
+            <label htmlFor="fullname">Your name:</label>
+            <input type="text" id="fullname" name="fullname" placeholder={profileData?.fullname} />
+          </div>
+          <div>
+            <label htmlFor="bio">Bio:</label>
+            <input type="text" id="bio" name="bio" placeholder={profileData?.bio} />
+          </div>
+          <div>
+            <label htmlFor="current_password">Current password:</label>
+            <input
+              type="password"
+              id="current_password"
+              name="current_password"
+            />
+          </div>
+          <div>
+            <label htmlFor="password">New password:</label>
+            <input type="password" id="password" name="password" />
+          </div>
+        </form>
+        <div className="flex">
+          <button id="btn_delete-account" onClick={handleDeleteAccount}>Delete account</button>
+          <button id="btn_submit-edit" onClick={handleSubmit}>Save</button>
+        </div>
+      </div>
+    </div>
   );
 };
 

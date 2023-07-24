@@ -10,8 +10,8 @@ router.get('/', verifyToken, async (req, res) => {
   try {
     const userId = req.headers.userId as string;
     const roomsInfo = await dc.roomsExtractor.exec(userId);
-    if(!roomsInfo){
-      return res.status(404).json({message:"User not found"});
+    if (!roomsInfo) {
+      return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json(roomsInfo);
   } catch (error) {
@@ -25,21 +25,26 @@ router.get(
   '/:id',
   verifyToken,
   async (req, res) => {
-    if (
-      !ObjectId.isValid(req.params.id as string) ||
-      !ObjectId.isValid(req.headers.userId as string)
-    ) return res.status(400).json({
-      message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer",
-    });
+    if (!ObjectId.isValid(req.params.id as string)) {
+      return res.status(400).json({
+        message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer",
+      });
+    }
+    const skip = parseInt(req.query.skip as string, 10); // Parse the 'skip' parameter from the query string
+    const limit = parseInt(req.query.limit as string, 10) || 30; // Parse the 'limit' parameter from the query string or set default to 30
+
     try {
-      const data = await dc.rooms.getRoom(req.headers.userId as string, req.params.id as string, 10)
+      const data = await dc.rooms.getRoom(req.headers.userId as string, req.params.id as string, limit, skip); // Pass the 'limit' and 'skip' parameters to the getRoom function
       res.status(200).json(data);
     } catch (err) {
+      console.error(err);
       // Not found or not a member of this room
       res.status(404).json({ message: 'Room not found' });
     }
   }
 );
+
+
 
 
 // POST /api/v1/rooms

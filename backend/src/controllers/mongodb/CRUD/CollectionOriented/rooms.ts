@@ -44,35 +44,42 @@ export default class RoomsController extends CollectionReference {
    * @param whoSearch - The user searching for the room.
    * @param roomId - The ID of the room to retrieve.
    * @param messagesLimit - The limit of messages to retrieve.
+   * @param skip - Optional. The number of messages to skip from the beginning.
    * @returns A Promise resolving to the room details object.
    * @throws Error if the room is not found or the user is not a member of the room.
    */
-  public async getRoom(whoSearch: string, roomId: string, messagesLimit: number): Promise<any> {
+  public async getRoom(whoSearch: string, roomId: string, messagesLimit: number, skip?: number): Promise<any> {
     try {
-      let room = await this._collection?.findOne(
+      const room = await this._collection?.findOne(
         {
           _id: new ObjectId(roomId),
-          participants: { $in: [new ObjectId(whoSearch)] }
+          participants: new ObjectId(whoSearch)
         },
         {
           projection: {
             _id: 0,
             participants: 1,
-            messages: 1
+            messages: {
+              $slice: Number.isInteger(skip) ? [skip, messagesLimit] : -messagesLimit
+            },
+            conversationLength: { $cond: { if: { $isArray: "$messages" }, then: { $size: "$messages" }, else: "NA" } },
+            isMeeting: 1,
+            meeting_uuid: 1
           }
         }
       );
 
       if (!room) {
-        throw new Error("Room not found || Not a member of the room");
+        throw new Error("Room not found or user is not a member of the room");
       }
 
-      room.messages = room.messages.slice(-messagesLimit);
       return room;
     } catch (err) {
       throw err;
     }
   }
+
+
 
   /**
    * Add a user to the invited list of a room.
@@ -186,6 +193,17 @@ export default class RoomsController extends CollectionReference {
     } catch (err) {
       throw err;
     }
+  }
+  public setMeeting(roomId: string, uuid?: string) {
+    if (uuid)
+      return this._collection?.updateOne(
+        { _id: new ObjectId(roomId) },
+        { $set: { isMeeting: true, meeting_uuid: uuid } }
+      )
+    return this._collection?.updateOne(
+      { _id: new ObjectId(roomId) },
+      { $set: { isMeeting: false, meeting_uuid: null } }
+    )
   }
 
   /**

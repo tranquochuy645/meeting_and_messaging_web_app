@@ -5,6 +5,7 @@ import RoomsList from "../../components/RoomsList";
 import ChatBox from "../../components/ChatBox";
 import Profile from "../../components/Profile";
 import RoomMaker from "../../components/RoomMaker";
+import BackGround from "../../components/BackGround";
 interface MainProps {
   token: string;
 }
@@ -75,7 +76,7 @@ const Main: FC<MainProps> = ({ token }) => {
     <div id="main-page" className="flex">
       {profileData ? (
         <>
-          <div className="container">
+          <div id="main-page_container">
             <section id="section-left">
               <Profile
                 token={token}
@@ -99,10 +100,9 @@ const Main: FC<MainProps> = ({ token }) => {
                   room={roomsInfo[currentRoomIndex]}
                 />
               )}
-              <img id="chat-bg" src="/assets/img/img_new/pattern.png" />
-
             </section>
           </div>
+          <BackGround />
         </>
       ) : (
         <div>Loading skeleton ...</div>

@@ -65,7 +65,7 @@ const SearchBar: FC<SearchBarProps> = ({ token, onChoose }) => {
         ref={searchInputRef}
         onKeyPress={handleKeyPress}
       />
-      <button  className='btn_profile' onClick={handleSearch}><i className='bx bx-search' ></i></button>
+      <button  className='btn' onClick={handleSearch}><i className='bx bx-search' ></i></button>
       
 
       {searchResults.length > 0 && (

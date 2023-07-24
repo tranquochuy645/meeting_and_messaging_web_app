@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef } from 'react';
+import { FC, useEffect, useRef, useState, memo } from 'react';
 import './style.css';
 
 const peerConnectionConfig: RTCConfiguration = {
@@ -18,13 +18,38 @@ interface RemoteVideoScreenProps {
     localStream: MediaStream | null;
     onSendToPeer: (type: string, msg: any) => void;
 }
-const RemoteVideoScreen: FC<RemoteVideoScreenProps> = ({ peerId, offer, answer, ice, localStream, onSendToPeer }) => {
+const RemoteVideoScreen: FC<RemoteVideoScreenProps> = (
+    { peerId, offer, answer, ice, localStream, onSendToPeer }
+) => {
+    console.log("render remote video screen")
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
     const remoteStreamRef = useRef<MediaStream | null>(null);
     const remoteVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
     const localDescriptionRef = useRef<any>(null);
+    const [muted, setMuted] = useState(false);
+
     const createPeerConnection = async (peerId: string) => {
         peerConnectionRef.current = new RTCPeerConnection(peerConnectionConfig);
+
+        peerConnectionRef.current.onconnectionstatechange = () => {
+            switch (peerConnectionRef.current?.connectionState) {
+                case 'connected':
+                    console.log("connected");
+                    break;
+                case 'disconnected':
+                    console.log("disconnected");
+                    break;
+                case 'failed':
+                    console.log("failed");
+                    break;
+                case 'closed':
+                    console.log("closed");
+                    break;
+                default:
+                    console.log("connecting")
+            }
+        };
+
         remoteStreamRef.current = new MediaStream();
         if (remoteVideoPlayerRef.current) {
             remoteVideoPlayerRef.current.srcObject = remoteStreamRef.current;
@@ -47,6 +72,7 @@ const RemoteVideoScreen: FC<RemoteVideoScreenProps> = ({ peerId, offer, answer, 
                 onSendToPeer("ice_candidate", [peerId, e.candidate]);
         }
     }
+
     const createOffer = async (peerId: string) => {
         await createPeerConnection(peerId);
         localDescriptionRef.current = await peerConnectionRef.current?.createOffer();
@@ -62,39 +88,56 @@ const RemoteVideoScreen: FC<RemoteVideoScreenProps> = ({ peerId, offer, answer, 
     }
 
 
-    const handleAnswer = async (data:any) => {
+    const handleAnswer = async (data: any) => {
         await peerConnectionRef.current?.setRemoteDescription(data);
     }
-    const handleIceCandidate = async (data:any) => {
+    const handleIceCandidate = async (data: any) => {
         // msg: [peerId, iceCandidate]
         peerConnectionRef.current?.addIceCandidate(data)
     }
     useEffect(() => {
         if (offer) {
             createAnswer(peerId, offer)
-        }else{
+        } else {
             createOffer(peerId)
         }
     }, []);
-    useEffect(()=>{
-        if(answer){
+    useEffect(() => {
+        if (answer) {
             handleAnswer(answer);
         }
-    },[answer])
-    useEffect(()=>{
-        if(ice){
+    }, [answer])
+    useEffect(() => {
+        if (ice) {
             console.log(ice);
             handleIceCandidate(ice);
         }
-    },[ice])
+    }, [ice])
+    const handleToggleMute = () => {
+        if (remoteVideoPlayerRef.current) {
+            remoteVideoPlayerRef.current.muted = !remoteVideoPlayerRef.current.muted
+            setMuted(remoteVideoPlayerRef.current.muted)
+        }
+    }
+
 
 
     return (
-        <div>
+        <>
             <p>Peer ID: {peerId}</p>
+            <div className='flex meeting-page_ctrl'>
+                <button onClick={handleToggleMute}>
+                    {
+                        muted ?
+                            "Unmute"
+                            :
+                            "Mute"
+                    }
+                </button>
+            </div>
             <video className="remote-video" ref={remoteVideoPlayerRef} autoPlay playsInline />
-        </div>
+        </>
     );
 };
 
-export default RemoteVideoScreen;
+export default memo(RemoteVideoScreen);

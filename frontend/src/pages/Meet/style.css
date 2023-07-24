@@ -1,0 +1,49 @@
+#meeting-page {
+    width: 100%;
+    height: 100%;
+}
+
+.meeting-page_ctrl {
+    position: absolute;
+    z-index: 100;
+}
+
+video {
+    height: 90%;
+    width: auto;
+    object-fit: cover;
+    position: absolute;
+}
+
+
+#meeting-page section{
+    display: flex;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+}
+
+#meeting-page_section_local.aside {
+    margin-top: 60vh;
+    justify-content: flex-end;
+    height: 30%;
+    z-index: 50;
+}
+
+#meeting-page_section_remote {
+    box-sizing: border-box;
+    border: solid red;
+    z-index: 0;
+}
+#meeting-page_section_remote.stacked{
+    display: flex;
+    flex-direction: column;
+}
+#meeting-page_section_remote.stacked .remote-peer-container{
+    position: relative;
+    height: 10%;
+    margin-left: 10%;
+}
+#meeting-page_section_remote.stacked .remote-peer-container.pinned{
+    height: 60%;
+}

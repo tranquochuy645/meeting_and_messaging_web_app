@@ -1,0 +1,20 @@
+ #bgrn-svg {
+     height: 100%;
+     width: 100%;
+     position: fixed;
+     top: 0;
+     left: 0;
+     z-index: -100;
+ }
+
+ #stop_1 {
+     stop-color: var(--background-color);
+     transition: 0.5s;
+
+ }
+
+ #stop_2 {
+     stop-color: var(--theme-color);
+     transition: 0.5s;
+
+ }

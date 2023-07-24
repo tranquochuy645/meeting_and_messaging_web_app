@@ -1,8 +1,15 @@
 #rooms-list{
     position: relative;
     height: 100%;
+    padding:0.5rem;
     overflow-y: scroll;
 }
+.chat-room{
+    padding: 0.75rem;
+    transition: 0.5s;
+    border-top-left-radius: 1rem;
+    border-bottom-left-radius: 1rem ;
+}
 .chat-room.active{
-    border: solid red;
+    background-color: var(--theme-color);
 }
