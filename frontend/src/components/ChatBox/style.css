@@ -1,161 +1,171 @@
 #chat-box {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    z-index: 20;
-    /* background-image: url('/assets/img/img_new/pattern.png'); */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 200;
 }
 
 .inchat-avatar {
-    margin-right: 30px;
-    height: 30px;
-    width: 30px;
-    border-radius: 50%;
+  margin-right: 30px;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
 }
 
 #chat-box_input-container {
-    width: 90%;
-    position: relative;
-    background-color: transparent;
-    align-self: center;
-    margin-bottom: 20px;
-    display: flex;
-    padding-top: 0.4rem;
-    padding-bottom: 0.5rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    border-radius: 10px;
-    transition: 0.5s;
-   background-color: var(--background-color);
-   border: 1px solid var(--theme-color);
-    border-radius: 5px;
+  width: 90%;
+  position: relative;
+  background-color: transparent;
+  align-self: center;
+  margin-bottom: 20px;
+  display: flex;
+  padding-top: 0.4rem;
+  padding-bottom: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 10px;
+  transition: 0.5s;
+  background-color: var(--background-color);
+  border: 1px solid var(--theme-color);
+  border-radius: 5px;
 }
 
 #input_message {
-    height: 2.3rem;
-    width: 100%;
-    padding: 5px;
-    color: var(--text-color);
-    background-color: transparent;
-    border-bottom: solid 1px rgba(128, 128, 128, 0.353);
-    transition: 0.5s;
+  height: 2.3rem;
+  width: 100%;
+  padding: 5px;
+  color: var(--text-color);
+  background-color: transparent;
+  border-bottom: solid 1px rgba(128, 128, 128, 0.353);
+  transition: 0.5s;
 }
 
 #input_message:hover,
 #input_message:focus {
-    border-bottom: solid 1px grey;
+  border-bottom: solid 1px grey;
 }
 
 #messages-container {
-    position: relative;
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    padding-top: 3rem;
-    padding-left: 2rem;
-    padding-right: 5rem;
-    overflow-y: scroll;
+  position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  padding-top: 3rem;
+  padding-left: 2rem;
+  padding-right: 5rem;
+  overflow-y: scroll;
 }
 
 .message {
-    display: flex;
-    width: 100%;
-    position: relative;
-    padding-right: 0.5rem;
-    padding-left: 0.5rem;
-    padding-bottom: 1.5rem;
+  display: flex;
+  width: 100%;
+  position: relative;
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  padding-bottom: 1.5rem;
 }
-
-.mess.guest {
- 
+.message.guest::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -12px;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(
+    225deg,
+    color-mix(in srgb, var(--background-color) 60%, var(--theme-color) 40%) 0%,
+    color-mix(in srgb, var(--background-color) 60%, var(--theme-color) 40%) 50%,
+    transparent 50%,
+    transparent
+  );
 }
-.message.guest::before{
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -12px;
-    width: 20px;
-    height: 20px;
-    background: linear-gradient(225deg,color-mix(in srgb, var(--background-color) 60%, var(--theme-color) 40%) 0%,color-mix(in srgb, var(--background-color) 60%, var(--theme-color) 40%) 50%,transparent 50%,transparent );
-  }
-
 
 .message.own {
-    justify-content: flex-end;
+  justify-content: flex-end;
 }
-.message.own::before{
-    content: '';
-    position: absolute;
-    top: 0;
-    right: -12px;
-    width: 20px;
-    height: 20px;
-    background: linear-gradient(135deg,var(--theme-color) 0%,var(--theme-color) 50%,transparent 50%,transparent );
-  }
+.message.own::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(
+    135deg,
+    var(--theme-color) 0%,
+    var(--theme-color) 50%,
+    transparent 50%,
+    transparent
+  );
+}
 
 .message_wrapper {
-    display: flex;
-    background: color-mix(in srgb, var(--background-color) 60%, var(--theme-color) 40%);
-    width: fit-content;
-    border-radius: 0px 0 10px 10px ;
-    padding: 0.5rem;
+  display: flex;
+  background: color-mix(
+    in srgb,
+    var(--background-color) 60%,
+    var(--theme-color) 40%
+  );
+  width: fit-content;
+  border-radius: 0px 0 10px 10px;
+  padding: 0.5rem;
 }
 
 .message.own .message_wrapper {
-    background-color: var(--theme-color);
+  background-color: var(--theme-color);
 }
 
 .message_timestamp {
-    bottom: 0;
-    position: absolute;
-    opacity: 0;
-    transition: 0.5s;
+  bottom: 0;
+  position: absolute;
+  opacity: 0;
+  transition: 0.5s;
 }
 
 .message:hover .message_timestamp {
-    opacity: 1;
+  opacity: 1;
 }
 
 #chat-box_topbar {
-    height: 6rem;
-    padding: 1rem;
-    justify-content: space-between;
-    background-color: var(--background-color);
-    border-bottom: 1px solid var(--theme-color);
+  height: 6rem;
+  padding: 1rem;
+  justify-content: space-between;
+  background-color: var(--background-color);
+  border-bottom: 1px solid var(--theme-color);
 }
 
 #chat-box_topbar_left {
-    width: auto;
-    display: flex;
+  width: auto;
+  display: flex;
 }
 
 #chat-box_topbar_left .btn {
-    margin-left: 1rem;
+  margin-left: 1rem;
 }
 
 #chat-box_bg {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: calc(100% - 4rem);
-    height: calc(100% - 12rem);
-    margin-bottom: 6.3rem;
-    margin-left: 1rem;
-    border-radius: 1rem;
-    opacity: 0.5;
-    z-index: -100;
-    background-color: var(--theme-color);
-    box-shadow: 0 1px 3px 3px inset black;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: calc(100% - 4rem);
+  height: calc(100% - 12rem);
+  margin-bottom: 6.3rem;
+  margin-left: 1rem;
+  border-radius: 1rem;
+  opacity: 0.5;
+  z-index: -100;
+  background-color: var(--theme-color);
+  box-shadow: 0 1px 3px 3px inset black;
 }
 
-#topRef{
-    display: none;
-    justify-content: center;
+#topRef {
+  display: none;
+  justify-content: center;
 }
-#btn_scroll{
-    display: none;
-    justify-self: center;
-    align-self: center;
+#btn_scroll {
+  display: none;
+  justify-self: center;
+  align-self: center;
 }
