@@ -42,7 +42,7 @@
 
 .btn {
   margin-left: 0%;
-  color: #016d62;
+  color: var(--theme-color);
   cursor: pointer;
   list-style: none;
   background-color: transparent;
