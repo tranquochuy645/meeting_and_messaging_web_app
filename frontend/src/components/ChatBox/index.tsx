@@ -40,6 +40,7 @@ interface ChatBoxProps {
 let socket: any;
 let justSent: boolean;
 let bottomIsVisible: boolean;
+let conversationLength: number;
 const DEFAULT_MESSAGES_LIMIT: number = 30;
 
 
@@ -71,7 +72,6 @@ const getMessages = (
 };
 
 const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
-  let conversationLength: number;
   const [inputValue, setInputValue] = useState<string>('');
   const [messages, setMessages] = useState<Message[] | null>(null);
   const [meeting, setMeeting] = useState<string | null>()
@@ -111,7 +111,6 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
         return
       }
       if (btnScrollRef.current) {
-        console.log("thissssssssss")
         btnScrollRef.current.style.display = "block"
       }
       const content = msg[2];
@@ -183,6 +182,47 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
     if (btnScrollRef.current) btnScrollRef.current.style.display = "none"
   }
 
+  const handleGetMoreMessages = (isVisible: boolean) => {
+    if (!isVisible) return
+    if (!messages || messages.length == 0) {
+      return
+    }
+    if (messages.length >= conversationLength) {
+      // All messages received
+      if (topRef.current) topRef.current.style.display = "none"
+      return
+    }
+    let skip;
+    let messagesLimit = DEFAULT_MESSAGES_LIMIT;
+    skip = conversationLength - messages.length - messagesLimit
+    if (skip < 0) {
+      messagesLimit += skip;
+      skip = 0;
+    }
+    getMessages(room._id, token, `${messagesLimit}`, `${skip}`)
+      .then((data: ChatRoomData) => {
+        setMessages(
+          (prev) => {
+            if (prev)
+              return data.messages.concat(prev)
+            return data.messages
+          });
+        if (data.conversationLength) {
+          conversationLength = data.conversationLength;
+        }
+        if (data.meeting_uuid) {
+          setMeeting(data.meeting_uuid)
+        } else {
+          setMeeting(null);
+        }
+      })
+      .catch(
+        () => {
+          navigate("/auth");
+        });
+
+  }
+
   useEffect(
     () => {
       try {
@@ -245,6 +285,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       // if this is the first load 
       return handleScrollBottom(bottomRef.current)
     }
+
     if (messages[messages.length - 1].sender != profile._id) {
       if (bottomIsVisible)
         return handleScrollBottom(bottomRef.current);
@@ -256,6 +297,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
       justSent = false;
       return handleScrollBottom(bottomRef.current)
     }
+    messagesContainerRef.current.scrollTop = 300;
 
   }, [messages]);
 
@@ -293,46 +335,6 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
     )
   }, [messages])
 
-  const handleGetMoreMessages = (isVisible: boolean) => {
-    if (!isVisible) return
-    if (!messages || messages.length == 0) {
-      return
-    }
-    if (messages.length >= conversationLength) {
-      // All messages received
-      if (topRef.current) topRef.current.style.display = "none"
-      return
-    }
-    let skip;
-    let messagesLimit = DEFAULT_MESSAGES_LIMIT;
-    skip = conversationLength - messages.length - messagesLimit
-    if (skip < 0) {
-      messagesLimit += skip;
-      skip = 0;
-    }
-    getMessages(room._id, token, `${messagesLimit}`, `${skip}`)
-      .then((data: ChatRoomData) => {
-        setMessages(
-          (prev) => {
-            if (prev)
-              return data.messages.concat(prev)
-            return data.messages
-          });
-        if (data.conversationLength) {
-          conversationLength = data.conversationLength;
-        }
-        if (data.meeting_uuid) {
-          setMeeting(data.meeting_uuid)
-        } else {
-          setMeeting(null);
-        }
-      })
-      .catch(
-        () => {
-          navigate("/auth");
-        });
-
-  }
 
   return (
     <div id="chat-box">
@@ -367,7 +369,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
           if (bottomRef.current) handleScrollBottom(bottomRef.current)
         }}
       >
-        {messages && messages[messages.length-1].content} <i className='bx bx-down-arrow-alt'></i>
+        {messages && messages[messages.length - 1].content} <i className='bx bx-down-arrow-alt'></i>
       </button>
       <img id="chat-box_bg" src="/assets/img/img_new/pattern.png" />
       <div id='chat-box_input-container'>
