@@ -194,6 +194,15 @@ export default class RoomsController extends CollectionReference {
       throw err;
     }
   }
+
+  /**
+  * Set the meeting status and UUID for a room.
+  * @param roomId - The ID of the room.
+  * @param uuid - Optional. The UUID of the meeting.
+  *              If uuid is not provided, isMeeting is set to false, and the current UUID will be removed.
+  *              Otherwise, a new UUID will be set, and isMeeting will be set to true.
+  * @returns A Promise resolving to the count of modified documents.
+  */
   public setMeeting(roomId: string, uuid?: string) {
     if (uuid)
       return this._collection?.updateOne(
@@ -207,12 +216,13 @@ export default class RoomsController extends CollectionReference {
   }
 
   /**
-   * Save a message in a room.
-   * @param sender - The ID of the message sender.
-   * @param roomId - The ID of the room.
-   * @param content - The content of the message.
-   * @param timestamp - The timestamp of the message.
-   */
+ * Save a message in a room.
+ * @param sender - The ID of the message sender.
+ * @param roomId - The ID of the room.
+ * @param content - The content of the message.
+ * @param timestamp - The timestamp of the message.
+ * @throws Error if there's an issue while saving the message.
+ */
   public async saveMessage(sender: string, roomId: string, content: string, timestamp: string): Promise<void> {
     try {
       const data = {

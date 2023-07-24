@@ -6,7 +6,6 @@
        "username",
        "password",
        "fullname",
-       "avatar",
        "rooms",
        "createdAt",
        "isOnline",

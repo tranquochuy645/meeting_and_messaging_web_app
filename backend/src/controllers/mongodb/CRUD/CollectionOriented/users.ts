@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import { CollectionReference } from "./generic";
+import User from "../../../../lib/newUserConstructor";
 
 /**
  * UsersController class for handling user-related operations.
@@ -20,7 +21,7 @@ export default class UsersController extends CollectionReference {
    * @param newUser - The user object to be created.
    * @returns A Promise resolving to the result of the insertion operation.
    */
-  public createUser(newUser: any): Promise<any> {
+  public createUser(newUser: User): Promise<any> {
     return this._collection?.insertOne(newUser);
   }
 

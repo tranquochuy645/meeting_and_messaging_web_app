@@ -3,7 +3,7 @@ import DBConnection from './Connection';
 import { DbOptions, Db } from 'mongodb';
 import UsersController from './CRUD/CollectionOriented/users';
 import RoomsController from './CRUD/CollectionOriented/rooms';
-import MeetingsController from './CRUD/CollectionOriented/meetings';
+import MediaController from './CRUD/CollectionOriented/media';
 import RoomsExtractor from './CRUD/Combined/roomsExtractor';
 import Watcher from './Watcher';
 
@@ -11,13 +11,13 @@ import Watcher from './Watcher';
  * DatabaseController class for managing database setup and providing access to collections.
  */
 class DatabaseController extends DatabaseSetup {
-  public static readonly _collectionNames = ["users", "rooms", "meetings"];
+  public static readonly _collectionNames = ["users", "rooms", "media"];
   private static instance: DatabaseController;
   private connection: DBConnection | undefined;
   private db: Db | undefined;
   private _users: UsersController | undefined;
   private _rooms: RoomsController | undefined;
-  private _meetings: MeetingsController | undefined;
+  private _media: MediaController | undefined;
   private _roomsExtractor: RoomsExtractor | undefined;
   private _watcher: Watcher | undefined
 
@@ -49,7 +49,7 @@ class DatabaseController extends DatabaseSetup {
     this._watcher = new Watcher(this.db, DatabaseController._collectionNames);
     this._users = new UsersController(this.db.collection("users"));
     this._rooms = new RoomsController(this.db.collection("rooms"));
-    this._meetings = new MeetingsController(this.db.collection("meetings"));
+    this._media = new MediaController(this.db.collection("meetings"));
     this._roomsExtractor = new RoomsExtractor(this._users, this._rooms);
   }
 
@@ -92,9 +92,9 @@ class DatabaseController extends DatabaseSetup {
    * @throws Error if the MeetingsController instance is not initialized.
    * @returns The MeetingsController instance.
    */
-  public get meetings() {
-    if (!this._meetings) throw new Error("MEETINGS NOT INITIALIZED");
-    return this._meetings;
+  public get media() {
+    if (!this._media) throw new Error("MEDIA NOT INITIALIZED");
+    return this._media;
   }
 
   /**
