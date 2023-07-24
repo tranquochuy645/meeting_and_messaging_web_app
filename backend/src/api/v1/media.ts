@@ -2,8 +2,8 @@ import { Router } from 'express';
 import { ObjectId } from 'mongodb';
 import { verifyToken } from '../../middlewares/express/jwt';
 import { chatAppDbController as dc } from '../../controllers/mongodb';
+import { FileWriter } from '../../../FileWriter';
 const router = Router();
-
 // GET /api/v1/media/:id
 // This endpoint returns list of rooms'info that the user has access to
 router.get('/:id', verifyToken, async (req, res) => {

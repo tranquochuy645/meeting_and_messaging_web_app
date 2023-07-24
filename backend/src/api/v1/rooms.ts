@@ -64,20 +64,15 @@ router.post('/', verifyToken, async (req, res) => {
         throw new Error("Invalid id")
       }
     )
-    const newRoom = {
-      type: "default",
-      invited: oIdList,
-      participants: [creator_userOId],
-      messages: []
-    }
-    const insertedRoom = await dc.rooms.createRoom(newRoom);
+
+    const insertedRoom = await dc.rooms.createRoom(req.headers.userId as string,req.body.invited);
     // return modified count
     if (!insertedRoom) {
       throw new Error("Deo biet sao bug luon");
     }
     const updateCreatorRoomsList = await dc.users.joinRoom(
       creator_userId,
-      insertedRoom.insertedId.toString()
+      insertedRoom.toString()
     );
     if (!updateCreatorRoomsList) {
       throw new Error("Error updating creator rooms list")
@@ -85,7 +80,7 @@ router.post('/', verifyToken, async (req, res) => {
     // return modified count
     const updateUsersInvitationList = await dc.users.updateMany(
       { _id: { $in: oIdList } },
-      { $push: { invitations: insertedRoom.insertedId } }
+      { $push: { invitations: insertedRoom } }
     )
     if (updateUsersInvitationList == oIdList.length) {
       return res.status(200).json({ message: "Created Room Successfully" });

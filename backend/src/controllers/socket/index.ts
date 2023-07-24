@@ -145,55 +145,42 @@ const setupSocketIO = (server: HTTPServer) => {
     }
   ];
 
-  const handleRoomsChange = (change: ChangeStreamDocument) => {
+  const handleChange = (change: ChangeStreamDocument) => {
     try {
       if (change.operationType == "update") {
-        const regex = /^participants(?:\.\d+)?$/;
-        const joinEventRegex = /^participants\.\d+$/;
+        // const regex = /^rooms(?:\.\d+)?$/;;
         const updatedFields = change.updateDescription.updatedFields || {};
-        if (!Object.keys(updatedFields).some(key => regex.test(key))) {
-          // not changes in participants
-          return;
-        }
-        const roomId = change.documentKey._id.toString();
-        const joinedPal = Object.keys(updatedFields).find(key => joinEventRegex.test(key))
-        if (joinedPal) {
-          // if it matches the join regex then a new user joined the room
-          const user = updatedFields[joinedPal]?.toString()
-          io.sockets.adapter.rooms.get(user)?.forEach(
+        const userId = change.documentKey._id.toString();
+
+        const joinEventRegex = /^rooms\.\d+$/;
+        const joinedRoomKey = Object.keys(updatedFields).find(key => joinEventRegex.test(key))
+        if (joinedRoomKey) {
+          // if it matches the join regex then the user joined a new room
+          const roomId = updatedFields[joinedRoomKey]?.toString()
+          // send a signal for users in that room to refresh
+          io.to(roomId).emit('room')
+          // send a signal for the new user to refresh
+          io.to(userId).emit('room')
+
+          // emit the signal to the user before joining them the room's socket ids to avoid bugs
+          // it won't duplicate the signal
+          io.sockets.adapter.rooms.get(userId)?.forEach(
             // get all the socket ids of that user
             socketId => {
               //join those sockets to the room
               io.sockets.sockets.get(socketId)?.join(roomId)
             })
+
         }
-        // if it doesn't match the join regex then a user left the room
+        // if it doesn't match the join regex then the user left a room
 
         // TODO: when a user left a room in database,
         // must force the user to leave the socket.io room
-
-        // send a signal for users to refresh
-        io.to(roomId).emit('room')
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-
-  dc.watch("rooms", pipeline_update, handleRoomsChange);
-
-  const handleInvitationsChange = (change: ChangeStreamDocument) => {
-    try {
-      if (change.operationType == "update") {
-        const regex = /^invitations(?:\.\d+)?$/;
-        const updatedFields = change.updateDescription.updatedFields || {};
-        if (!Object.keys(updatedFields).some(key => regex.test(key))) {
-          // not changes in invitations
-          return;
+        const invsRegex = /^invitations(?:\.\d+)?$/;
+        if (Object.keys(updatedFields).some(key => invsRegex.test(key))) {
+          // changes in invitations
+          io.to(userId).emit('inv')
         }
-        const userId = change.documentKey._id.toString();
-        io.to(userId).emit('inv')
       }
     } catch (error) {
       console.error(error);
@@ -201,7 +188,8 @@ const setupSocketIO = (server: HTTPServer) => {
   }
 
 
-  dc.watch("users", pipeline_update, handleInvitationsChange);
+  dc.watch("users", pipeline_update, handleChange);
+
 };
 
 

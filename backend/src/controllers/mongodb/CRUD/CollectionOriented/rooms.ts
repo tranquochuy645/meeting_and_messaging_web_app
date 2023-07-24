@@ -2,16 +2,72 @@ import { ObjectId } from "mongodb";
 import { CollectionReference } from "./generic";
 
 /**
+ * Interface representing the structure of a room.
+ */
+interface Room {
+  type: "global" | "default"; // Type can only be "global" or "default"
+  invited: ObjectId[];
+  participants: ObjectId[];
+  messages: any[]; // Replace 'any' with the actual type of the messages
+  isMeeting: boolean; // Additional field to indicate if the room is a meeting
+  meeting_uuid: string | null; // Additional field to store the meeting UUID or null if not a meeting
+}
+
+/**
+* Room class representing a room object.
+*/
+class Room {
+  /**
+   * Create a new Room object.
+   * @param creator - The ID of the user creating the room (room owner).
+   * @param invited - An array of user IDs to invite to the room.
+   * @param type - Optional. The type of the room. Default is "default".
+   */
+  constructor(creator: string, invited: string[], type: "global" | "default" = "default") {
+    if (!ObjectId.isValid(creator))
+      throw new Error("Invalid creator user id");
+
+    // Validate the type field to allow only "global" or "default"
+    if (type !== "global" && type !== "default") {
+      throw new Error("Invalid value for 'type' field. It should be 'global' or 'default'.");
+    }
+
+    this.type = type;
+    this.invited = invited.map(id => {
+      if (!ObjectId.isValid(id))
+        throw new Error("Invalid invited id");
+      return new ObjectId(id);
+    });
+    this.participants = [new ObjectId(creator)];
+    this.messages = [];
+    this.isMeeting = false; // Set the default value for isMeeting
+    this.meeting_uuid = null; // Set the default value for meeting_uuid
+  }
+}
+
+
+
+/**
  * RoomsController class for handling room-related operations.
  */
 export default class RoomsController extends CollectionReference {
   /**
    * Create a new room.
    * @param newRoom - The room object to be created.
-   * @returns A Promise resolving to the result of the insertion operation.
+   * @returns A Promise resolving to the inserted room objectId
    */
-  public createRoom(newRoom: any): Promise<any> {
-    return this._collection?.insertOne(newRoom);
+  public async createRoom(creator: string,
+    invited: string[],
+    type: "global" | "default" | undefined = "default"): Promise<ObjectId> {
+    try {
+      const result = await this._collection?.insertOne(new Room(creator, invited, type));
+      if (result && result.insertedId) {
+        return result.insertedId;
+      }
+      throw new Error("Room insertion failed.");
+    } catch (err) {
+      throw err;
+    }
   }
 
   /**

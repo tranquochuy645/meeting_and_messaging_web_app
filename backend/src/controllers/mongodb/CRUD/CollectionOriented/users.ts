@@ -1,7 +1,30 @@
 import { ObjectId } from "mongodb";
 import { CollectionReference } from "./generic";
-import User from "../../../../lib/newUserConstructor";
 
+class User {
+  username: string;
+  password: string;
+  fullname: string;
+  avatar: string;
+  isOnline: boolean;
+  invitations: ObjectId[];
+  rooms: ObjectId[];
+  createdAt: Date;
+
+  constructor(
+    username: string,
+    password: string,
+  ) {
+    this.username = username;
+    this.password = password;
+    this.fullname = username;
+    this.avatar = "";
+    this.isOnline = false;
+    this.invitations = [];
+    this.rooms = [];
+    this.createdAt = new Date();
+  }
+}
 /**
  * UsersController class for handling user-related operations.
  */
@@ -19,10 +42,19 @@ export default class UsersController extends CollectionReference {
   /**
    * Create a new user.
    * @param newUser - The user object to be created.
-   * @returns A Promise resolving to the result of the insertion operation.
+   * @returns A Promise resolving to the created user objectId
    */
-  public createUser(newUser: User): Promise<any> {
-    return this._collection?.insertOne(newUser);
+  public async createUser(username: string, password: string): Promise<ObjectId> {
+    try {
+      const result = await this._collection?.insertOne(new User(username, password));
+      // Return the inserted ID
+      if (result && result.insertedId) {
+        return result.insertedId;
+      }
+      throw new Error("User insertion failed.");
+    } catch (err) {
+      throw err;
+    }
   }
 
   /**

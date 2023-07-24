@@ -1,31 +1,79 @@
 import { ObjectId } from "mongodb";
 import { CollectionReference } from "./generic";
-import Media from "../../../../lib/newMediaConstructor";
 
+/**
+ * Interface for the metadata associated with media.
+ */
+interface MediaMetadata {
+    uploaderId: ObjectId;
+    privacy: string;
+    uploadTimestamp: Date;
+    allowedUsers?: ObjectId[]; // Array of user IDs allowed to access the media (for private media)
+    [key: string]: any; // Generic key-value pairs for additional metadata
+}
+
+/**
+ * Represents a media document.
+ */
+class Media {
+    mediaUrl: string;
+    mediaType: string;
+    metadata: MediaMetadata;
+
+    /**
+     * Create a new Media object.
+     * @param mediaUrl - The URL or location of the media.
+     * @param mediaType - The type of media (e.g., "image", "video", "audio", etc.).
+     * @param metadata - Metadata associated with the media (uploaderId, privacy, and uploadTimestamp are required).
+     *                  Optionally, specify allowedUsers for private media to specify who can access it.
+     */
+    constructor(mediaUrl: string, mediaType: string, metadata: MediaMetadata) {
+        // Ensure that uploaderId, privacy, and uploadTimestamp are provided in the metadata
+        const { uploaderId, privacy, uploadTimestamp, ...additionalMetadata } = metadata;
+        if (!ObjectId.isValid(uploaderId)) {
+            throw new Error("Invalid uploaderId.");
+        }
+        if (!privacy || !uploadTimestamp) {
+            throw new Error("Privacy and uploadTimestamp are required in metadata.");
+        }
+
+        // Validate privacy field to contain only valid values
+        if (privacy !== "public" && privacy !== "private") {
+            throw new Error("Invalid value for privacy field. It should be 'public' or 'private'.");
+        }
+
+        this.mediaUrl = mediaUrl;
+        this.mediaType = mediaType;
+        this.metadata = {
+            uploaderId,
+            privacy,
+            uploadTimestamp,
+            ...additionalMetadata,
+        };
+    }
+}
+
+/**
+ * A controller for handling media operations and interactions with the media collection.
+ */
 export default class MediaController extends CollectionReference {
     /**
      * Save media in the media collection.
-         * @returns A Promise resolving to the ID of the inserted media document.
+     * @param mediaUrl - The URL or location of the media.
+     * @param mediaType - The type of media (e.g., "image", "video", "audio", etc.).
+     * @param metadata - Metadata associated with the media (uploaderId, privacy, and uploadTimestamp are required).
+     *                  Optionally, specify allowedUsers for private media to specify who can access it.
+     * @returns A Promise resolving to the ID of the inserted media document.
+     * @throws Error if the media insertion fails or metadata is invalid.
      */
-    public async saveMedia(
-        media: Media
-    ): Promise<ObjectId> {
+    public async saveMedia(mediaUrl: string, mediaType: string, metadata: MediaMetadata): Promise<ObjectId> {
         try {
-            // Ensure that uploaderId, privacy, and uploadTimestamp are provided in the metadata
-            // const { uploaderId, privacy, uploadTimestamp } = media.metadata;
-            // if (!uploaderId || !privacy || !uploadTimestamp) {
-            //     throw new Error("uploaderId, privacy, and uploadTimestamp are required in metadata.");
-            // }
-            // Already validated by the media constructor
-            // Insert the document into the collection and retrieve the inserted ID
-            const result = await this._collection?.insertOne(media);
-
+            const result = await this._collection?.insertOne(new Media(mediaUrl, mediaType, metadata));
             // Return the inserted ID
             if (result && result.insertedId) {
                 return result.insertedId;
-            } else {
-                throw new Error("Media insertion failed.");
             }
+            throw new Error("Media insertion failed.");
         } catch (err) {
             throw err;
         }
@@ -37,10 +85,11 @@ export default class MediaController extends CollectionReference {
      * @param whoAsked - The ID of the user requesting the media (optional).
      * @returns A Promise resolving to the media document (including media data and metadata).
      *          Returns null if the media with the provided ID is not found or access is denied.
+     * @throws Error if the mediaId or whoAsked is invalid.
      */
     public async getMediaById(mediaId: string, whoAsked?: string): Promise<Media | null> {
         if (!ObjectId.isValid(mediaId)) {
-            throw new Error("Invalid media id");
+            throw new Error("Invalid mediaId.");
         }
         if (!whoAsked) {
             // If whoAsked is not provided, only return the public media document
@@ -52,10 +101,10 @@ export default class MediaController extends CollectionReference {
             ) as Promise<Media | null>;
         }
         if (!ObjectId.isValid(whoAsked)) {
-            throw new Error("Invalid user id");
+            throw new Error("Invalid user ID.");
         }
 
-        // If whoAsked is provided, check the privacy before returning the media document
+        // If whoAsked is provided, check the privacy and allowedUsers before returning the media document
         const media = await this._collection?.findOne({
             _id: new ObjectId(mediaId),
         }) as Media | null;
@@ -64,22 +113,33 @@ export default class MediaController extends CollectionReference {
             return null; // Media not found
         }
 
-        if (media.metadata?.privacy === "private" && media.metadata?.uploaderId.toString() !== whoAsked) {
-            return null; // Access denied for private media
+        if (media.metadata?.privacy === "private") {
+            // Check if the user is allowed to access private media
+            const allowedUsers = media.metadata?.allowedUsers;
+            if (!allowedUsers || !allowedUsers.includes(new ObjectId(whoAsked))) {
+                return null; // Access denied for private media
+            }
         }
 
         return media;
     }
 
+    /**
+     * Renew the URL or location of the media.
+     * @param mediaId - The ID of the media document to update.
+     * @param newUrl - The new URL or location to set for the media.
+     * @returns A Promise resolving to the number of modified documents (1 if successful, 0 if not found).
+     * @throws Error if the mediaId is invalid.
+     */
     public async renewUrl(mediaId: string, newUrl: string): Promise<number> {
         try {
             const result = await this._collection?.updateOne(
                 { _id: new ObjectId(mediaId) },
                 { mediaUrl: newUrl }
             )
-            return result.modifiedCount
+            return result.modifiedCount || 0;
         } catch (err) {
-            throw err
+            throw err;
         }
     }
 }

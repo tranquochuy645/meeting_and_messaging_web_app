@@ -9,7 +9,7 @@
     "dev": "npm-run-all --parallel dev:backend dev:frontend",
     "dev:backend": "cd backend && nodemon src/server.ts",
     "dev:frontend": "cd frontend && npm run dev",
-    "start": "cd prod && npm run start",
+    "start": "cd release && npm run start",
     "acp": " git add . && git commit -m 'acp' && git push"
   },
   "author": "Huy Tran",

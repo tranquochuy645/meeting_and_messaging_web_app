@@ -29,6 +29,6 @@ router.use('/auth', authLimiter, authRouter);
 router.use('/rooms', generalLimiter, roomsRouter);
 router.use('/users', generalLimiter, usersRouter);
 router.use('/search', generalLimiter, searchRouter);
-router.use('/media', generalLimiter, mediaRouter);
+// router.use('/media', generalLimiter, mediaRouter);
 
 export default router;

@@ -369,7 +369,8 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
           if (bottomRef.current) handleScrollBottom(bottomRef.current)
         }}
       >
-        {messages && messages[messages.length - 1].content} <i className='bx bx-down-arrow-alt'></i>
+        {Array.isArray(messages) && messages.length > 1 && messages[messages.length - 1].content}
+        <i className='bx bx-down-arrow-alt'></i>
       </button>
       ?
       <div id='chat-box_input-container'>
