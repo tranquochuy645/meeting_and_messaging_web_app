@@ -49,3 +49,10 @@
   color: var(--background-color);
   background-color: var(--text-color);
 }
+
+#imgavachange {
+  position: absolute;
+  font-size: 2rem;
+  top: 15px;
+  left: 40px;
+}

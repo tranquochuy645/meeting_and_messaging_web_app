@@ -197,8 +197,12 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         />
         {showProfileEditor ? (
           <>
-            <label className="btn_profile" htmlFor="upload-img">
-            <i className="bx bxs-pencil"></i>
+            <label
+              id="imgavachange"
+              className="btn_profile"
+              htmlFor="upload-img"
+            >
+              <i className="bx bxs-camera"></i>
               <input
                 id="upload-img"
                 type="file"
@@ -207,7 +211,10 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
                 onChange={handleUploadImage}
               />
             </label>
-            <button className="btn_profile" onClick={() => setShowProfileEditor(false)}>
+            <button
+              className="btn_profile"
+              onClick={() => setShowProfileEditor(false)}
+            >
               <i className="bx bxs-pencil"></i>
             </button>
           </>
@@ -230,14 +237,13 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
           className="btn_profile"
           onClick={() => setShowInvitation((prev) => !prev)}
         >
-
           {showInvitation ? (
-            <i className='bx bxs-message-square-x' ></i>
+            <i className="bx bxs-message-square-x"></i>
           ) : (
             <div id="bell">
               <i className="bx bxs-bell"></i>
               {profileData?.invitations.length &&
-                profileData?.invitations.length > 0 ? (
+              profileData?.invitations.length > 0 ? (
                 <span id="nofcount">{profileData?.invitations.length}</span>
               ) : null}
             </div>

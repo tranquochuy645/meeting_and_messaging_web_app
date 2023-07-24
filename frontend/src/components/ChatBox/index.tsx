@@ -168,10 +168,16 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
 
   return (
     <div id="chat-box">
-      <div className='flex'>
-        <ThemeSwitch />
-        <button onClick={handleMakeCall}>Make call</button>
-      </div>
+      <div className="header">
+          <div className="userimg">
+            <img src="./assets/img/img_new/sage.jpg" alt="" className='cover' id='ava_r_header'/>
+          </div>
+          <h4>Sage</h4>
+          <ul className="nav_icons">
+            <li><ThemeSwitch /></li>
+            <li><button className='btn_profile' onClick={handleMakeCall}><i className='bx bxs-phone-call'></i></button></li>
+          </ul>
+        </div>
       <div className="message-container">
         {
           Array.isArray(messages) &&
@@ -191,22 +197,24 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
                 {avatarSRC && (
                   <img className="inchat-avatar" src={avatarSRC} alt="Sender Avatar" />
                 )}
-                <span>{message.content}</span>
-                <span>{message.timestamp}</span>
+                <span id='mess_content'>{message.content}</span>
+                <span id='mess_time'>{message.timestamp}</span>
               </div>
             );
           })
         }
       </div>
       <div className="input-container flex">
+      <i className='bx bx-happy-alt btn_profile' ></i>
+      <i className='bx bxs-file-blank btn_profile' ></i>
         <input
           type="text"
           value={inputValue}
           onChange={handleInputChange}
           className="input-field"
         />
-        <button onClick={handleSendMessage} className="send-button">
-          Send
+        <button onClick={handleSendMessage} className="send-button btn_profile">
+        <i className='bx bxs-send' ></i>
         </button>
       </div>
     </div>
