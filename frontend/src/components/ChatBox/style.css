@@ -66,6 +66,11 @@
   padding-left: 0.5rem;
   padding-bottom: 1.5rem;
 }
+.message p {
+  word-wrap: break-word;
+  white-space: pre-line;
+  max-width: 300px;
+}
 .message.guest::before {
   content: "";
   position: absolute;
