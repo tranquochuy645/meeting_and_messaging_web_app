@@ -1,22 +1,19 @@
-function generateProfileImage(initials: string): Blob {
-  const size = 200; // Size of the SVG image in pixels
-  const fontSize = Math.floor(size / 2); // Increased font size
-  const fontWeight = 'bold'; // Font weight set to bold
-  const background = getRandomColor(); // Random background color
-  const textColor = getContrastingColor(background); // Text color based on the background color
+function generateProfileImage(initials: string): string {
+    const size = 200; // Size of the SVG image in pixels
+    const fontSize = Math.floor(size / 2); // Increased font size
+    const fontWeight = 'bold'; // Font weight set to bold
+    const background = getRandomColor(); // Random background color
+    const textColor = getContrastingColor(background); // Text color based on the background color
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-    <rect width="100%" height="100%" fill="${background}" />
-    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="${fontSize}px" font-weight="${fontWeight}" fill="${textColor}">
-      ${initials.toUpperCase()}
-    </text>
-  </svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <rect width="100%" height="100%" fill="${background}" />
+      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="${fontSize}px" font-weight="${fontWeight}" fill="${textColor}">
+        ${initials.toUpperCase()}
+      </text>
+    </svg>`;
 
-  // Convert the SVG string to a Blob
-  const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
-  return svgBlob;
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
 }
-
 
 
 function getRandomColor(): string {
