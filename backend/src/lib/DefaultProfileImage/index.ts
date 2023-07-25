@@ -7,7 +7,7 @@ class DefaultProfileImage {
   private fontWeight: string;
   private background: string;
   private textColor: string;
-  private resultSVG: string;
+  private resultSVG: Buffer;
 
   /**
    * Create a DefaultProfileImage instance with the specified initials.
@@ -40,13 +40,16 @@ class DefaultProfileImage {
     return luminance > 0.5 ? '#000' : '#FFF';
   }
 
-  private generateSvgContent(): string {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${this.size}" height="${this.size}" viewBox="0 0 ${this.size} ${this.size}">
+  private generateSvgContent(): Buffer {
+    const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${this.size}" height="${this.size}" viewBox="0 0 ${this.size} ${this.size}">
       <rect width="100%" height="100%" fill="${this.background}" />
       <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="${this.fontSize}px" font-weight="${this.fontWeight}" fill="${this.textColor}">
         ${this.initials}
       </text>
     </svg>`;
+
+    // Convert the SVG content to a Buffer
+    return Buffer.from(svgContent, 'utf8');
   }
 
   /**
@@ -54,8 +57,7 @@ class DefaultProfileImage {
    * @param filePath - The file path to save the profile image.
    */
   public write(filePath: string): void {
-    FileWriter.write(filePath, this.resultSVG)
+    FileWriter.write(filePath, this.resultSVG);
   }
 }
-
 export { DefaultProfileImage };

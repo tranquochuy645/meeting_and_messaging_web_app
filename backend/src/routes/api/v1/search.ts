@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { verifyToken } from '../../middlewares/express/jwt';
-import {chatAppDbController as dc} from '../../controllers/mongodb';
+import { verifyToken } from '../../../middlewares/express/jwt';
+import {chatAppDbController as dc} from '../../../controllers/mongodb';
 const router = Router();
 
 router.get('/:query', verifyToken, async (req, res) => {

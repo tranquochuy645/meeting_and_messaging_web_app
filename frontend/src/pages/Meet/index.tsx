@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { FC, useEffect, useRef, useState } from 'react';
-import { getSocket } from '../../SocketController';
+import { getSocket } from '../../lib/SocketController';
 import { Socket } from 'socket.io-client';
 import RemoteVideoScreen from '../../components/RemoteVideoScreen';
 import './style.css';

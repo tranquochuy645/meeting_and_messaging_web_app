@@ -7,7 +7,7 @@ import {
   useMemo
 } from 'react';
 import './style.css';
-import { getSocket } from '../../SocketController';
+import { getSocket } from '../../lib/SocketController';
 import { ProfileData } from '../../pages/Main';
 import { useNavigate } from 'react-router-dom';
 import ThemeSwitch from '../ThemeSwitch';

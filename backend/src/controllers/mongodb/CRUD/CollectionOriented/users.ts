@@ -139,7 +139,9 @@ export default class UsersController extends CollectionReference {
  * Get the password of a user.
  * @param username - The username of the user (optional).
  * @param userId - The ID of the user (optional).
- * @returns A Promise resolving to the user's password. Will reject if both the username and userId are missing
+ * @returns A Promise resolving to the user's _id and password.
+ *  Will reject if both the username and userId are missing
+ * 
  */
   public getPassword(username?: string, userId?: string): Promise<any> {
     if (userId) {

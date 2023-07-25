@@ -1,8 +1,5 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import conf from '../../../config';
-
+import { getTokenPayload } from "../../../lib/getTokenPayload";
 const verifyToken = (req: any, res: any, next: any) => {
-    const secretKey = conf.jwt_key;
     let type;
     try {
         type = req.headers.authorization.split(' ')[0];
@@ -18,12 +15,11 @@ const verifyToken = (req: any, res: any, next: any) => {
         return res.status(401).json({ message: 'Access denied, token missing' });
     };
     try {
-        const { userId, fullname } = jwt.verify(token, secretKey) as JwtPayload;
+        const { userId } = getTokenPayload(token)
         req.headers.userId = userId;
-        req.headers.fullname = fullname;
         next();
-    } catch (error:any) {
-        return res.status(401).json({ message:error.message });
+    } catch (error: any) {
+        return res.status(401).json({ message: error.message });
     }
 }
 

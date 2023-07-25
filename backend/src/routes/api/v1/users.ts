@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { verifyToken } from '../../middlewares/express/jwt';
-import { chatAppDbController as dc } from '../../controllers/mongodb';
+import { verifyToken } from '../../../middlewares/express/jwt';
+import { chatAppDbController as dc } from '../../../controllers/mongodb';
 import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt'
-import { handleUpdatePassword } from '../../middlewares/express/handleUpdatePassword';
+import { handleUpdatePassword } from '../../../middlewares/express/handleUpdatePassword';
+import { FileWriter } from '../../../../FileWriter';
 const router = Router();
 
 // GET /api/v1/users
@@ -54,6 +55,9 @@ router.put('/', verifyToken, handleUpdatePassword, async (req, res) => {
         return res.status(403).json({ message: "Password mismatch" });
       }
     }
+    // if (updateData.avatar) {
+    //   FileWriter.write(`${req.headers.userId as string}/avatar`, updateData.avatar)
+    // }
     const result = await dc.users.updateUser(req.headers.userId as string, updateData)
     if (result) {
       return res.status(200).json({ message: 'User updated successfully' });

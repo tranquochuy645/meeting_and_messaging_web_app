@@ -1,8 +1,9 @@
 import { FC, memo, useState, useEffect, useRef } from "react";
 import { ProfileData } from "../../pages/Main";
-import { getSocket } from "../../SocketController";
+import { getSocket } from "../../lib/SocketController";
 import { Socket } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
+// import { processImage } from "../../lib/processImage";
 import "./style.css";
 
 interface ProfileProps {
@@ -15,7 +16,7 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   const [showInvitation, setShowInvitation] = useState<boolean>(false);
   const [showProfileEditor, setShowProfileEditor] = useState<boolean>(false);
   const fileRef = useRef<any>(null);
-  const imageDataRef = useRef<any>(null);
+  const avatarUrlRef = useRef<any>(null);
   const socketRef = useRef<Socket | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -88,8 +89,8 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         return alert("Please enter current password");
       }
     }
-    if (imageDataRef.current) {
-      body.avatar = imageDataRef.current;
+    if (avatarUrlRef.current) {
+      body.avatar = avatarUrlRef.current;
     }
     if (!body.bio && !body.fullname && !body.password && !body.avatar) {
       return alert("Empty form");
@@ -150,52 +151,30 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
       }
     }
   };
-
   const handleUploadImage = () => {
-    if (fileRef?.current && fileRef.current.length > 0) {
-      const file = fileRef.current.files[0];
-      const reader = new FileReader();
-
-      reader.onload = async (event) => {
-        if (event.target?.result) {
-          const image = new Image();
-          image.onload = async () => {
-            const canvas = document.createElement("canvas");
-            const maxWidth = 200; // Set the desired maximum width
-            const maxHeight = 200; // Set the desired maximum height
-            let width = image.width;
-            let height = image.height;
-
-            // Determine the new dimensions while maintaining aspect ratio
-            if (width > maxWidth) {
-              height *= maxWidth / width;
-              width = maxWidth;
-            }
-            if (height > maxHeight) {
-              width *= maxHeight / height;
-              height = maxHeight;
-            }
-
-            // Resize the image using the canvas
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext("2d");
-            ctx?.drawImage(image, 0, 0, width, height);
-
-            // Convert the resized image back to base64
-            const resizedBase64Data = canvas.toDataURL("image/jpeg");
-            imageDataRef.current = resizedBase64Data;
-          };
-
-          // Load the image
-          image.src = event.target.result as string;
+    if (fileRef.current && fileRef.current.files?.length > 0) {
+      const formData = new FormData();
+      formData.append('file', fileRef.current.files[0])
+      fetch(
+        `/media/${profileData?._id}/public?token=${token}`,
+        {
+          method: 'POST',
+          body: formData
         }
-      };
-
-      // Read the file as a data URL
-      reader.readAsDataURL(file);
+      )
+        .then(response => response.json())
+        .then(data => {
+          console.log('File upload response:', data);
+          avatarUrlRef.current = data.url;
+          handleSubmit();
+        })
+        .catch(error => {
+          console.error('Error uploading file:', error);
+        });
     }
-  };
+  }
+
+
 
   return (
     <div id="profile">

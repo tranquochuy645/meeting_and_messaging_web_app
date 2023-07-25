@@ -1,7 +1,7 @@
 import { FC, useEffect, useState, useMemo, useRef } from 'react';
 import Room from '../Room';
 import './style.css';
-import { getSocket } from '../../SocketController';
+import { getSocket } from '../../lib/SocketController';
 import { Socket } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 export interface Participant {

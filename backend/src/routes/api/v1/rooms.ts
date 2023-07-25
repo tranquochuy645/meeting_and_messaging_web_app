@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { ObjectId } from 'mongodb';
-import { verifyToken } from '../../middlewares/express/jwt';
-import { chatAppDbController as dc } from '../../controllers/mongodb';
+import { verifyToken } from '../../../middlewares/express/jwt';
+import { chatAppDbController as dc } from '../../../controllers/mongodb';
 const router = Router();
 
 // GET /api/v1/rooms/ 
