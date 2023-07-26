@@ -72,21 +72,27 @@ export default class RoomsController extends CollectionReference {
 
   /**
    * Retrieve the participant lists for rooms matching the filter.
-   * @param filter - The filter criteria to find rooms.
+   * @param roomIds - An array of room IDs to retrieve information for.
    * @returns A Promise resolving to an array of room objects.
    * @throws Error if the room is not found or the user is not a member of the room.
    */
-  public async getParticipantLists(filter: any): Promise<any> {
+  public async getRoomsInfo(roomIds: ObjectId[]): Promise<any> {
     try {
-      const result = await this._collection?.find(filter, {
-        projection: {
-          _id: 1,
-          participants: 1
+      // Use the $in operator to find rooms with matching _id in the provided array of roomIds
+      const result = await this._collection?.find(
+        { _id: { $in: roomIds } }, // Use $in operator to match any of the provided roomIds
+        {
+          projection: {
+            _id: 1,
+            participants: 1,
+            isMeeting: 1,
+            meeting_uuid: 1
+          }
         }
-      }).toArray();
+      ).toArray();
 
-      if (!result) {
-        throw new Error("Room not found || Not a member of the room");
+      if (!result || result.length === 0) {
+        throw new Error("Room not found or user is not a member of the room");
       }
 
       return result;
@@ -94,7 +100,6 @@ export default class RoomsController extends CollectionReference {
       throw err;
     }
   }
-
   /**
    * Retrieve the room details for the given room ID and user.
    * @param whoSearch - The user searching for the room.
@@ -104,7 +109,7 @@ export default class RoomsController extends CollectionReference {
    * @returns A Promise resolving to the room details object.
    * @throws Error if the room is not found or the user is not a member of the room.
    */
-  public async getRoom(whoSearch: string, roomId: string, messagesLimit: number, skip?: number): Promise<any> {
+  public async getMessages(whoSearch: string, roomId: string, messagesLimit: number, skip?: number): Promise<any> {
     try {
       const room = await this._collection?.findOne(
         {
@@ -114,13 +119,10 @@ export default class RoomsController extends CollectionReference {
         {
           projection: {
             _id: 0,
-            participants: 1,
             messages: {
               $slice: Number.isInteger(skip) ? [skip, messagesLimit] : -messagesLimit
             },
-            conversationLength: { $cond: { if: { $isArray: "$messages" }, then: { $size: "$messages" }, else: "NA" } },
-            isMeeting: 1,
-            meeting_uuid: 1
+            conversationLength: { $cond: { if: { $isArray: "$messages" }, then: { $size: "$messages" }, else: "NA" } }
           }
         }
       );
@@ -269,6 +271,41 @@ export default class RoomsController extends CollectionReference {
       { _id: new ObjectId(roomId) },
       { $set: { isMeeting: false, meeting_uuid: null } }
     )
+  }
+
+
+  /**
+ * Check the meeting status and UUID for a room.
+ * @param roomId - The ID of the room.
+ * @returns A Promise resolving to an object containing meeting information.
+ *          If the room is not found, it will return null.
+ */
+  public async checkMeeting(roomId: string): Promise<{ isMeeting: boolean; meeting_uuid: string | null } | null> {
+    try {
+      const result = await this._collection?.findOne(
+        { _id: new ObjectId(roomId) },
+        {
+          projection: {
+            _id: 0,
+            isMeeting: 1,
+            meeting_uuid: 1
+          }
+        }
+      );
+
+      if (!result) {
+        // If the room is not found, return null
+        return null;
+      }
+
+      // Otherwise, return the meeting information
+      return {
+        isMeeting: !!result.isMeeting,
+        meeting_uuid: result.meeting_uuid || null
+      };
+    } catch (err) {
+      throw err;
+    }
   }
 
   /**

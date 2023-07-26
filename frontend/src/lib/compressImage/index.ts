@@ -1,4 +1,4 @@
-export const processImage = (file: Blob, callback: (data: string) => void) => {
+export const compressImage = (file: Blob, callback: (data: string) => void) => {
     const reader = new FileReader();
 
     reader.onload = async (event) => {

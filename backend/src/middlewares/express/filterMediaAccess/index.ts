@@ -22,12 +22,10 @@ export const filterMediaAccess = async (req: any, res: any, next: any) => {
     }
     try {
         const { userId } = getTokenPayload(req.query.token as string);
-        const data = await dc.users.getRooms(userId)
-        let { rooms } = data;
+        const rooms = await dc.users.getRoomsList(userId)
         if (!rooms || rooms.length == 0) {
             throw new Error("Not a member of the room")
         }
-        rooms = rooms.map((room: ObjectId) => room.toString())
         if (rooms.includes(req.params.roomId)) {
             return next()
         }

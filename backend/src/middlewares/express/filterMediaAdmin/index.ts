@@ -21,12 +21,10 @@ export const filterMediaAdmin = async (req: any, res: any, next: any) => {
         if(req.params.roomId==='public'){
             return next()
         }
-        const data = await dc.users.getRooms(userId)
-        let { rooms } = data;
+        const rooms = await dc.users.getRoomsList(userId)
         if (!rooms || rooms.length == 0) {
             throw new Error("Not a member of the room")
         }
-        rooms = rooms.map((room: ObjectId) => room.toString())
         if (rooms.includes(req.params.roomId)) {
             return next()
         }

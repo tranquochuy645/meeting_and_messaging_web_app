@@ -178,13 +178,21 @@ export default class UsersController extends CollectionReference {
   /**
    * Get the rooms of a user.
    * @param id - The ID of the user.
-   * @returns A Promise resolving to the user's rooms object. { rooms: ObjectId[] }
+   * @returns A Promise resolving to the user's rooms oid array: ObjecId[] 
    */
-  public getRooms(id: string): Promise<any> {
-    return this._collection?.findOne(
-      { _id: new ObjectId(id) },
-      { projection: { _id: 0, rooms: 1 } }
-    );
+  public async getRoomsList(id: string): Promise<ObjectId[]> {
+    try {
+      const result = await this._collection?.findOne(
+        { _id: new ObjectId(id) },
+        { projection: { _id: 0, rooms: 1 } }
+      );
+      if (!result) {
+        return []
+      }
+      return result.rooms
+    } catch (err) {
+      throw err
+    }
   }
 
   /**

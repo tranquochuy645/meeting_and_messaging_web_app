@@ -16,12 +16,13 @@ const setupSocketIO = (server: HTTPServer) => {
       return socket.disconnect();
     }
 
-    let rooms: string[];
+    let rooms: any[];
     try {
-      const user = await dc.users.getRooms(userId)
-      rooms = user.rooms.map(
-        (room: ObjectId) => room.toString()
-      );
+      rooms = await dc.users.getRoomsList(userId) || []
+      rooms = rooms.map(room => room.toString())
+      if (!rooms) {
+        throw new Error()
+      }
     } catch (e) {
       return socket.disconnect();
     }
@@ -30,8 +31,7 @@ const setupSocketIO = (server: HTTPServer) => {
     socket.emit("ok");
     console.log("A user connected");
     // Handle join meeting event
-    socket.on("join_meet", (initData: string[]) => {
-      console.log("A user has joined meeting");
+    socket.on("join_meet", async (initData: string[]) => {
 
       //initData: [ original chat room id , meeting uuid]
       if (!initData || initData.length != 2
@@ -41,14 +41,16 @@ const setupSocketIO = (server: HTTPServer) => {
         return socket.disconnect()
       }
       socket.join(initData[1]);
+      console.log("A user has joined meeting");
 
       socket.on("disconnect", () => {
         io.to(initData[1]).emit('off_peer', socket.id);
+        console.log("A user has left meeting");
         //if there is still user in this meeting, return
         console.log(io.sockets.adapter.rooms.get(initData[1])?.size)
         if (io.sockets.adapter.rooms.get(initData[1])?.size) return
         //else if all users has left the meeting
-        io.to(initData[0]).emit("end_meet");
+        io.to(initData[0]).emit("end_meet", initData);
         dc.rooms.setMeeting(initData[0]);
       })
       socket.on('offer', (msg: any[]) => {
@@ -67,19 +69,21 @@ const setupSocketIO = (server: HTTPServer) => {
       // Announce that they have joined
       socket.to(initData[1]).emit('new_peer', socket.id);
       // Check if this is the first user in the meeting
-      if (io.sockets.adapter.rooms.get(initData[1])?.size == 1) {
-        //anounce the room
-        console.log("first user")
-        socket.to(initData[0]).emit("meet", [userId, initData[0], initData[1], new Date()]);
-
-        // Set isMeeting to true and save uuid in db
-        dc.rooms.setMeeting(initData[0], initData[1]);
+      if (io.sockets.adapter.rooms.get(initData[1])?.size === 1) {
+        const meetingState = await dc.rooms.checkMeeting(initData[0]);
+        if (meetingState?.isMeeting === false && meetingState?.meeting_uuid === null) {
+          //This is the first user in the meeting
+          //anounce the room
+          socket.to(initData[0]).emit("meet", [userId, initData[0], initData[1], new Date()]);
+          // Set isMeeting to true and save uuid in db
+          dc.rooms.setMeeting(initData[0], initData[1]);
+        }
       }
     });
     // Handle join chat event
     socket.on('join_chat', async () => {
       console.log("A user has joined chat");
-      rooms && rooms.length > 0 && rooms.forEach(
+      rooms.length > 0 && rooms.forEach(
         (room: string) => {
           socket.join(room)
         }
@@ -102,15 +106,24 @@ const setupSocketIO = (server: HTTPServer) => {
         });
 
         // Handle call event
-        socket.on("meet", (msg) => {
+        socket.on("meet", async (msg) => {
           //msg: [room id, date]
           console.log("meet:", msg);
+          const meetingState = await dc.rooms.checkMeeting(msg[0])
+          if (meetingState?.isMeeting && meetingState.meeting_uuid) {
+            //Just tell the client to refresh because something went wrong
+            //A meeting of that room is allready in progress
+            return socket.emit("room")
+          }
+          //Init a new meeting
           const meeting_uuid = uuidv4();
+          //Tell the client
           socket.emit("meet", [userId, msg[0], meeting_uuid]);
 
         });
 
         socket.on("disconnect", async () => {
+          console.log("A user has left chat");
           // If the user has other socket connected,return
           if (io.sockets.adapter.rooms.get(userId)?.size) return
           // All sockets of the user have been disconnected

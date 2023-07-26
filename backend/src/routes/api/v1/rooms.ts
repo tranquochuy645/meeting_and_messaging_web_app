@@ -34,7 +34,7 @@ router.get(
     const limit = parseInt(req.query.limit as string, 10) || 30; // Parse the 'limit' parameter from the query string or set default to 30
 
     try {
-      const data = await dc.rooms.getRoom(req.headers.userId as string, req.params.id as string, limit, skip); // Pass the 'limit' and 'skip' parameters to the getRoom function
+      const data = await dc.rooms.getMessages(req.headers.userId as string, req.params.id as string, limit, skip); // Pass the 'limit' and 'skip' parameters to the getRoom function
       res.status(200).json(data);
     } catch (err) {
       console.error(err);
@@ -65,7 +65,7 @@ router.post('/', verifyToken, async (req, res) => {
       }
     )
 
-    const insertedRoom = await dc.rooms.createRoom(req.headers.userId as string,req.body.invited);
+    const insertedRoom = await dc.rooms.createRoom(req.headers.userId as string, req.body.invited);
     // return modified count
     if (!insertedRoom) {
       throw new Error("Deo biet sao bug luon");

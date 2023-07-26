@@ -1,8 +1,6 @@
-import { FC, useEffect, useState, useMemo, useRef } from 'react';
+import { FC, useEffect, useState, useMemo } from 'react';
 import Room from '../Room';
 import './style.css';
-// import { getSocket } from '../../lib/SocketConnectionManager';
-// import { Socket } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../SocketProvider';
 export interface Participant {
@@ -15,8 +13,8 @@ export interface Participant {
 export interface ChatRoom {
     _id: string;
     participants: Participant[];
-    isMeeting?: boolean;
-    meeting_uuid?: string | null;
+    isMeeting: boolean;
+    meeting_uuid: string | null;
 }
 interface RoomsListProps {
     userId: string;
@@ -56,15 +54,10 @@ const getRoomsInfo = (token: string): Promise<any> => {
 
 const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoomChange, onUpdateStatus }) => {
     const [roomsInfo, setRoomsInfo] = useState<ChatRoom[]>([]);
-    const preventDuplicateRenderRef = useRef("")
     const socket = useSocket()
     const navigate = useNavigate();
     const handleOnlineUpdate = (msg: string) => {
         const senderId = msg;
-        if ("onl" + senderId == preventDuplicateRenderRef.current) {
-            return
-        }
-        preventDuplicateRenderRef.current = "onl" + senderId;
         setRoomsInfo(prevRoomsInfo => {
             if (!prevRoomsInfo) {
                 return prevRoomsInfo;
@@ -80,17 +73,12 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
                     }
                     return participant;
                 });
-
                 return { ...room, participants: updatedParticipants };
             });
         });
     };
     const handleOfflineUpdate = (msg: string) => {
         const senderId = msg;
-        if ("off" + senderId == preventDuplicateRenderRef.current) {
-            return
-        }
-        preventDuplicateRenderRef.current = "off" + senderId;
         setRoomsInfo((prevRoomsInfo) => {
             if (!prevRoomsInfo) {
                 return prevRoomsInfo;
@@ -112,6 +100,46 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
                         });
 
                 return { ...room, participants: updatedParticipants };
+            });
+        });
+    };
+    const handleMeetUpdate = (msg: string[]) => {
+        // msg : [ senderId, roomId , meetingId , date]
+        console.log("set meet")
+        setRoomsInfo((prevRoomsInfo) => {
+            if (!prevRoomsInfo) {
+                return prevRoomsInfo;
+            }
+            return prevRoomsInfo.map((room) => {
+                if (room._id === msg[1]) {
+                    return {
+                        ...room,
+                        isMeeting: true,
+                        meeting_uuid: msg[2],
+                    };
+                }
+                return room;
+            });
+        });
+    };
+
+    const handleEndMeetUpdate = (msg: string[]) => {
+        // msg : [  roomId ]
+        console.log("set end meet")
+
+        setRoomsInfo((prevRoomsInfo) => {
+            if (!prevRoomsInfo) {
+                return prevRoomsInfo;
+            }
+            return prevRoomsInfo.map((room) => {
+                if (room._id === msg[0] && room.isMeeting) {
+                    return {
+                        ...room,
+                        isMeeting: false,
+                        meeting_uuid: null,
+                    };
+                }
+                return room;
             });
         });
     };
@@ -146,10 +174,14 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
         if (socket) {
             socket.on("onl", handleOnlineUpdate);
             socket.on("off", handleOfflineUpdate);
+            socket.on("meet", handleMeetUpdate);
+            socket.on("end_meet", handleEndMeetUpdate);
             socket.on("room", handleRoomRefresh);
             return (() => {
                 socket.off("onl", handleOnlineUpdate);
                 socket.off("off", handleOfflineUpdate);
+                socket.off("meet", handleMeetUpdate);
+                socket.off("end_meet", handleEndMeetUpdate);
                 socket.off("room", handleRoomRefresh);
             })
         }
