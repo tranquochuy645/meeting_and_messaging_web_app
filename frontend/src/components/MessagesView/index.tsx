@@ -1,4 +1,3 @@
-import './style.css'
 import { FC, memo } from 'react'
 import { OwnMessage, GuestMessage } from '../ChatMessage';
 import { Message } from '../MessagesContainer';

@@ -1,0 +1,16 @@
+#chat-box_topbar {
+    height: 6rem;
+    padding: 1rem;
+    justify-content: space-between;
+    background-color: var(--background-color);
+    border-bottom: 1px solid var(--theme-color);
+}
+
+#chat-box_topbar_left {
+    width: auto;
+    display: flex;
+}
+
+#chat-box_topbar_left .btn {
+    margin-left: 1rem;
+}

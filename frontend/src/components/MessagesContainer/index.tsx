@@ -6,6 +6,7 @@ import { useSocket } from '../SocketProvider';
 import { ChatRoom } from '../RoomsList';
 import { ChatRoomData } from '../ChatBox';
 import PendingFigure from '../PendingFigure';
+import './style.css'
 
 export interface Message {
     sender: string;
@@ -87,8 +88,6 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
                     return [{ sender, content, timestamp }];
                 }
             });
-        } else {
-            console.log("New message, room: " + msg[1]) // do something
         }
     }
 

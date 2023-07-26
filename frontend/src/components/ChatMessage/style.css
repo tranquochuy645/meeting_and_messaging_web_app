@@ -1,0 +1,78 @@
+.inchat-avatar {
+  margin-right: 30px;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+}
+
+.message {
+  display: flex;
+  width: 100%;
+  position: relative;
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.message p {
+  word-wrap: break-word;
+  white-space: pre-line;
+  max-width: 300px;
+}
+
+.message.guest::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -12px;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(225deg,
+      color-mix(in srgb, var(--background-color) 60%, var(--theme-color) 40%) 0%,
+      color-mix(in srgb, var(--background-color) 60%, var(--theme-color) 40%) 50%,
+      transparent 50%,
+      transparent);
+}
+
+.message.own {
+  justify-content: flex-end;
+}
+
+.message.own::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -12px;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg,
+      var(--theme-color) 0%,
+      var(--theme-color) 50%,
+      transparent 50%,
+      transparent);
+}
+
+.message_wrapper {
+  display: flex;
+  background: color-mix(in srgb,
+      var(--background-color) 60%,
+      var(--theme-color) 40%);
+  width: fit-content;
+  border-radius: 0px 0 10px 10px;
+  padding: 0.5rem;
+}
+
+.message.own .message_wrapper {
+  background-color: var(--theme-color);
+}
+
+.message_timestamp {
+  bottom: 0;
+  position: absolute;
+  opacity: 0;
+  transition: 0.5s;
+}
+
+.message:hover .message_timestamp {
+  opacity: 1;
+}

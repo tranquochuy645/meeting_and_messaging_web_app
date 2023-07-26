@@ -3,6 +3,7 @@ import { FC, memo, useEffect } from "react";
 import { useSocket } from "../SocketProvider";
 import Room from "../Room";
 import { ChatRoom } from "../RoomsList";
+import './style.css'
 interface ChatBoxTopBarProps {
     token: string;
     room: ChatRoom;

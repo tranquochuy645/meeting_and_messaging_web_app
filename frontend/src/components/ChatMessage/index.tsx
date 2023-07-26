@@ -1,4 +1,5 @@
 import { FC } from "react";
+import './style.css'
 interface OwnMessageProps {
     content: string;
     timestamp: string;
