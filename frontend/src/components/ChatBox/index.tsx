@@ -7,7 +7,6 @@ import {
   useMemo
 } from 'react';
 import './style.css';
-import { getSocket } from '../../lib/SocketController';
 import { ProfileData } from '../../pages/Main';
 import { useNavigate } from 'react-router-dom';
 import ThemeSwitch from '../ThemeSwitch';
@@ -15,6 +14,8 @@ import Room from '../Room';
 import { ChatRoom } from '../RoomsList';
 import VisibilitySensor from 'react-visibility-sensor';
 import PendingFigure from '../PendingFigure';
+import { OwnMessage, GuestMessage } from '../ChatMessage';
+import { useSocket } from '../SocketProvider';
 interface Message {
   sender: string;
   content: string;
@@ -37,7 +38,6 @@ interface ChatBoxProps {
 }
 
 
-let socket: any;
 let justSent: boolean;
 let bottomIsVisible: boolean;
 let conversationLength: number;
@@ -81,6 +81,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   const btnScrollRef = useRef<HTMLButtonElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   // const roomProfileRef = useRef<ReactNode | null>(null);
+  const socket = useSocket();
   const navigate = useNavigate();
 
 
@@ -252,13 +253,17 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
     }, [token, room._id]
   )
   useEffect(() => {
-    if (token) {
-      socket = getSocket(token);
-      socket?.on("msg", handleReceiveMessage);
-      socket?.on("meet", handleReceiveCall);
-      socket?.on("end_meet", handleEndCall)
+    if (socket) {
+      socket.on("msg", handleReceiveMessage);
+      socket.on("meet", handleReceiveCall);
+      socket.on("end_meet", handleEndCall)
+      return (() => {
+        socket.off("msg", handleReceiveMessage);
+        socket.off("meet", handleReceiveCall);
+        socket.off("end_meet", handleEndCall)
+      })
     }
-  }, [token])
+  }, [socket])
 
   useEffect(() => {
     roomIdRef.current = room._id;
@@ -308,27 +313,26 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
         {
           Array.isArray(messages) &&
           messages.map((message: Message, index: number) => {
-            let avatarSRC: string;
             if (message.sender && message.sender == profile?._id) {
-              avatarSRC = profile.avatar
+              return (
+                <OwnMessage
+                  key={index}
+                  content={message.content}
+                  timestamp={message.timestamp}
+                />)
             } else {
               const sender = room.participants.find(
                 (participant) => participant._id === message.sender
               );
-              avatarSRC = sender ? sender.avatar : "";
+              const avatarSRC = sender ? sender.avatar : "";
+              return (
+                <GuestMessage
+                  key={index}
+                  avatarSRC={avatarSRC}
+                  content={message.content}
+                  timestamp={message.timestamp}
+                />)
             }
-            return (
-              <div key={index}
-                className={`message ${message.sender == profile?._id ? 'own' : 'guest'}`}>
-                <div className='message_wrapper'>
-                  {message.sender != profile?._id && avatarSRC && (
-                    <img className="inchat-avatar" src={avatarSRC} alt="Sender Avatar" />
-                  )}
-                  <p>{message.content}</p>
-                </div>
-                <p className='message_timestamp'>{message.timestamp}</p>
-              </div>
-            );
           })
         }
       </>

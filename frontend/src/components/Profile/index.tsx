@@ -1,9 +1,8 @@
 import { FC, memo, useState, useEffect, useRef } from "react";
 import { ProfileData } from "../../pages/Main";
-import { getSocket } from "../../lib/SocketController";
-import { Socket } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
-// import { processImage } from "../../lib/processImage";
+import { useSocket } from "../SocketProvider";
+import FileInput from "../FileInput";
 import "./style.css";
 
 interface ProfileProps {
@@ -11,27 +10,26 @@ interface ProfileProps {
   profileData: ProfileData | null;
   onRefresh: () => void;
 }
-
-const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
+// let socket:Socket;
+const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
+  // const [folded, setFolded] = useState(true);
   const [showInvitation, setShowInvitation] = useState<boolean>(false);
   const [showProfileEditor, setShowProfileEditor] = useState<boolean>(false);
-  const fileRef = useRef<any>(null);
+  // const fileRef = useRef<any>(null);
   const avatarUrlRef = useRef<any>(null);
-  const socketRef = useRef<Socket | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
+  const socket = useSocket()
 
   useEffect(() => {
-    if (token) {
-      const socket = getSocket(token);
+    if (socket) {
       socket.on("inv", onRefresh);
-      socketRef.current = socket;
+      return () => {
+        socket.off("inv", onRefresh);
+      }
     }
-    return () => {
-      socketRef.current?.disconnect();
-    };
-  }, [token]);
+  }, [socket]);
   useEffect(() => {
     if (editorRef.current) {
       if (showProfileEditor) {
@@ -151,27 +149,27 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
       }
     }
   };
-  const handleUploadImage = () => {
-    if (fileRef.current && fileRef.current.files?.length > 0) {
-      const formData = new FormData();
-      formData.append('file', fileRef.current.files[0])
-      fetch(
-        `/media/${profileData?._id}/public?token=${token}`,
-        {
-          method: 'POST',
-          body: formData
-        }
-      )
-        .then(response => response.json())
-        .then(data => {
-          console.log('File upload response:', data);
-          avatarUrlRef.current = data.url;
-          handleSubmit();
-        })
-        .catch(error => {
-          console.error('Error uploading file:', error);
-        });
-    }
+  const handleUploadImage = (file: any) => {
+    // if (fileRef.current && fileRef.current.files?.length > 0) {
+    const formData = new FormData();
+    formData.append('file', file)
+    fetch(
+      `/media/${profileData?._id}/public?token=${token}`,
+      {
+        method: 'POST',
+        body: formData
+      }
+    )
+      .then(response => response.json())
+      .then(data => {
+        console.log('File upload response:', data);
+        avatarUrlRef.current = data.url;
+        handleSubmit();
+      })
+      .catch(error => {
+        console.error('Error uploading file:', error);
+      });
+    // }
   }
 
 
@@ -187,16 +185,16 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         />
         {
           showProfileEditor ?
-            (<label id="btn_upload-img" htmlFor="upload-img">
-              <i className='bx bxs-camera'></i>
-              <input
-                id="upload-img"
-                type="file"
+            (
+              <FileInput
                 accept="image/*"
-                ref={fileRef}
                 onChange={handleUploadImage}
+                id="upload-img"
+                icon={
+                  <i className='bx bxs-camera'></i>
+                }
               />
-            </label>)
+            )
             :
             (<div>
               <h3>{profileData?.fullname}</h3>
@@ -289,4 +287,4 @@ const TopBar: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   );
 };
 
-export default memo(TopBar);
+export default memo(Profile);

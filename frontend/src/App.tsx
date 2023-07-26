@@ -27,7 +27,7 @@ function App() {
       <Route path="/"
         element={
           <Suspense fallback={<PendingFigure size={500} />}>
-            <Main token={token} />
+              <Main token={token} />
           </Suspense>
         }
       />
@@ -41,7 +41,7 @@ function App() {
       <Route path="/meet/:meetId"
         element={
           <Suspense fallback={<PendingFigure size={500} />}>
-            <Meet/>
+            <Meet />
           </Suspense>
         }
       />

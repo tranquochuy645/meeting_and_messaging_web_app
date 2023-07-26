@@ -1,9 +1,10 @@
 import { FC, useEffect, useState, useMemo, useRef } from 'react';
 import Room from '../Room';
 import './style.css';
-import { getSocket } from '../../lib/SocketController';
-import { Socket } from 'socket.io-client';
+// import { getSocket } from '../../lib/SocketConnectionManager';
+// import { Socket } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
+import { useSocket } from '../SocketProvider';
 export interface Participant {
     _id: string;
     fullname: string;
@@ -56,7 +57,7 @@ const getRoomsInfo = (token: string): Promise<any> => {
 const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoomChange, onUpdateStatus }) => {
     const [roomsInfo, setRoomsInfo] = useState<ChatRoom[]>([]);
     const preventDuplicateRenderRef = useRef("")
-    const socketRef = useRef<Socket | null>(null);
+    const socket = useSocket()
     const navigate = useNavigate();
     const handleOnlineUpdate = (msg: string) => {
         const senderId = msg;
@@ -141,26 +142,27 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
             }
         }, [roomsInfo])
 
-
     useEffect(() => {
-        if (token) {
-            getRoomsInfo(token)
-                .then((data) => {
-                    setRoomsInfo(data);
-                    const socket = getSocket(token);
-                    socket.on("onl", handleOnlineUpdate);
-                    socket.on("off", handleOfflineUpdate);
-                    socket.on("room", handleRoomRefresh);
-                    socketRef.current = socket;
-                })
-                .catch(() => {
-                    navigate("/auth");
-                });
+        if (socket) {
+            socket.on("onl", handleOnlineUpdate);
+            socket.on("off", handleOfflineUpdate);
+            socket.on("room", handleRoomRefresh);
+            return (() => {
+                socket.off("onl", handleOnlineUpdate);
+                socket.off("off", handleOfflineUpdate);
+                socket.off("room", handleRoomRefresh);
+            })
         }
-        return () => {
-            socketRef.current?.disconnect();
-        }
-    }, [token]);
+    }, [socket])
+    useEffect(() => {
+        getRoomsInfo(token)
+            .then((data) => {
+                setRoomsInfo(data);
+            })
+            .catch(() => {
+                navigate("/auth");
+            });
+    }, []);
 
     const roomList = useMemo(() => {
         return roomsInfo.map(

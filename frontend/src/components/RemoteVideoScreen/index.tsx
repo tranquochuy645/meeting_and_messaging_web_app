@@ -1,5 +1,6 @@
 import { FC, useEffect, useRef, useState, memo } from 'react';
 import './style.css';
+import { useSocket } from '../SocketProvider';
 
 const peerConnectionConfig: RTCConfiguration = {
     iceServers: [
@@ -16,16 +17,16 @@ interface RemoteVideoScreenProps {
     answer: any;
     ice: any;
     localStream: MediaStream | null;
-    onSendToPeer: (type: string, msg: any) => void;
 }
 const RemoteVideoScreen: FC<RemoteVideoScreenProps> = (
-    { peerId, offer, answer, ice, localStream, onSendToPeer }
+    { peerId, offer, answer, ice, localStream }
 ) => {
     console.log("render remote video screen")
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
     const remoteStreamRef = useRef<MediaStream | null>(null);
     const remoteVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
     const localDescriptionRef = useRef<any>(null);
+    const socket = useSocket();
     const [muted, setMuted] = useState(false);
 
     const createPeerConnection = async (peerId: string) => {
@@ -69,7 +70,7 @@ const RemoteVideoScreen: FC<RemoteVideoScreenProps> = (
         }
         peerConnectionRef.current.onicecandidate = async (e) => {
             e.candidate &&
-                onSendToPeer("ice_candidate", [peerId, e.candidate]);
+                socket.emit("ice_candidate", [peerId, e.candidate]);
         }
     }
 
@@ -77,14 +78,14 @@ const RemoteVideoScreen: FC<RemoteVideoScreenProps> = (
         await createPeerConnection(peerId);
         localDescriptionRef.current = await peerConnectionRef.current?.createOffer();
         await peerConnectionRef.current?.setLocalDescription(localDescriptionRef.current);
-        onSendToPeer("offer", [peerId, localDescriptionRef.current]);
+        socket.emit("offer", [peerId, localDescriptionRef.current]);
     }
     const createAnswer = async (peerId: string, offer: any) => {
         await createPeerConnection(peerId);
         await peerConnectionRef.current?.setRemoteDescription(offer);
         localDescriptionRef.current = await peerConnectionRef.current?.createAnswer()
         await peerConnectionRef.current?.setLocalDescription(localDescriptionRef.current);
-        onSendToPeer("answer", [peerId, localDescriptionRef.current]);
+        socket.emit("answer", [peerId, localDescriptionRef.current]);
     }
 
 

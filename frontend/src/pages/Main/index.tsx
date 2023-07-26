@@ -6,6 +6,7 @@ import ChatBox from "../../components/ChatBox";
 import Profile from "../../components/Profile";
 import RoomMaker from "../../components/RoomMaker";
 import BackGround from "../../components/BackGround";
+import { SocketProvider } from "../../components/SocketProvider";
 interface MainProps {
   token: string;
 }
@@ -75,7 +76,7 @@ const Main: FC<MainProps> = ({ token }) => {
   return (
     <div id="main-page" className="flex">
       {profileData ? (
-        <>
+        <SocketProvider token={token}>
           <div id="main-page_container">
             <section id="section-left">
               <Profile
@@ -103,7 +104,7 @@ const Main: FC<MainProps> = ({ token }) => {
             </section>
           </div>
           <BackGround />
-        </>
+        </SocketProvider>
       ) : (
         <div>Loading skeleton ...</div>
       )}

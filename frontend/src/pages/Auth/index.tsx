@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import "./style.css";
-import { isWeakPassword } from "./e2eEncrypt/isWeakPassword";
+import { isWeakPassword } from "../../lib/e2eEncrypt/isWeakPassword";
 
 interface AuthPageProps {
   onLogin: (token: string) => void;
