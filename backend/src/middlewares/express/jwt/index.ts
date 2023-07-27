@@ -15,8 +15,8 @@ const verifyToken = (req: any, res: any, next: any) => {
         return res.status(401).json({ message: 'Access denied, token missing' });
     };
     try {
-        const { userId } = getTokenPayload(token)
-        req.headers.userId = userId;
+        const { uid } = getTokenPayload(token)
+        req.headers.userId = uid;
         next();
     } catch (error: any) {
         return res.status(401).json({ message: error.message });

@@ -21,8 +21,8 @@ export const filterMediaAccess = async (req: any, res: any, next: any) => {
         });
     }
     try {
-        const { userId } = getTokenPayload(req.query.token as string);
-        const rooms = await dc.users.getRoomsList(userId)
+        const { uid } = getTokenPayload(req.query.token as string);
+        const rooms = await dc.users.getRoomsList(uid)
         if (!rooms || rooms.length == 0) {
             throw new Error("Not a member of the room")
         }
