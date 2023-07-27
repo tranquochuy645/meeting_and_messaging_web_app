@@ -7,6 +7,7 @@ import Profile from "../../components/Profile";
 import RoomMaker from "../../components/RoomMaker";
 import BackGround from "../../components/BackGround";
 import { SocketProvider } from "../../components/SocketProvider";
+
 interface MainProps {
   token: string;
 }

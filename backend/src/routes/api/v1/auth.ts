@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { generateAuthToken_v2 } from '../../../lib/generateAuthToken';
+import { generateAuthToken } from '../../../lib/generateAuthToken';
 import { DefaultProfileImage } from '../../../lib/DefaultProfileImage';
 import { handleRegPassword } from '../../../middlewares/express/handleRegPassword';
 import { chatAppDbController as dc } from '../../../controllers/mongodb';
@@ -64,7 +64,7 @@ router.post('/login', async (req, res) => {
     const compResult = await bcrypt.compare(password, user.password);
 
     if (compResult) {
-      const access_token = generateAuthToken_v2(user._id);
+      const access_token = generateAuthToken(user._id);
       return res.status(200).json({ access_token });
     } else {
       return res.status(401).json({ message: 'Invalid credentials' });

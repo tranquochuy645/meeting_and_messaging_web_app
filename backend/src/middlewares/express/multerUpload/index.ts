@@ -13,6 +13,7 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix + file.originalname);
   },
 });
-
 const multerUpload = multer({ storage: storage }).single('file');
-export { multerUpload };
+const multerUploadMany = multer({ storage: storage }).array('files', 5);
+
+export { multerUpload, multerUploadMany };

@@ -99,10 +99,10 @@ const setupSocketIO = (server: HTTPServer) => {
         }
         // Handle message event
         socket.on("msg", (msg) => {
-          //msg: [room id, content, date]
+          //msg: [room id, content, date, [urls] ]
           console.log("msg:", msg);
-          io.to(msg[0]).emit("msg", [userId, msg[0], msg[1], msg[2]]);
-          dc.rooms.saveMessage(userId, msg[0], msg[1], msg[2]);
+          io.to(msg[0]).emit("msg", [userId, msg[0], msg[1], msg[2]], msg[3]);
+          dc.rooms.saveMessage(userId, msg[0], msg[1], msg[2], msg[3]);
         });
 
         // Handle call event

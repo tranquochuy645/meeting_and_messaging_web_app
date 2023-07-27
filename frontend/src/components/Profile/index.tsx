@@ -2,6 +2,7 @@ import { FC, memo, useState, useEffect, useRef } from "react";
 import { ProfileData } from "../../pages/Main";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../SocketProvider";
+import { deleteAccount } from "../../lib/deleteAccount";
 import FileInput from "../FileInput";
 import "./style.css";
 
@@ -112,68 +113,33 @@ const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
     }
     alert("Error updating profile");
   };
-  const handleDeleteAccount = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete your account?"
-    );
-    if (confirmed) {
-      const password = window.prompt("Enter your password:");
 
-      if (password !== null) {
-        try {
-          const body = { password };
-          const response = await fetch(`/api/v1/users/`, {
-            method: "DELETE",
-            headers: {
-              "content-type": "application/json",
-              authorization: "Bearer " + token,
-            },
-            body: JSON.stringify(body),
-          });
-
-          if (response.ok) {
-            sessionStorage.removeItem("token");
-            alert("You deleted your account successfully");
-            navigate("/auth");
-          } else {
-            const data = await response.json();
-            if (data.message) {
-              alert(data.message);
-            } else {
-              alert("Wrong password!");
-            }
-          }
-        } catch (error) {
-          console.error("Error deleting account:", error);
-        }
-      }
-    }
-  };
-  const handleUploadImage = (file: any) => {
-    // if (fileRef.current && fileRef.current.files?.length > 0) {
+  const handleUploadImage = async (file: any) => {
     const formData = new FormData();
     formData.append('file', file)
-    fetch(
-      `/media/${profileData?._id}/public?token=${token}`,
+    const res = await fetch(
+      `/media/${profileData?._id}/public?token=${token}&count=1`,
       {
         method: 'POST',
         body: formData
       }
     )
-      .then(response => response.json())
-      .then(data => {
-        console.log('File upload response:', data);
-        avatarUrlRef.current = data.url;
-        handleSubmit();
-      })
-      .catch(error => {
-        console.error('Error uploading file:', error);
-      });
-    // }
+    const data = await res.json();
+    !res.ok && data.message && alert(data.message);
+    if (data.urls) {
+      avatarUrlRef.current = data.urls[0];
+      handleSubmit();
+    }
   }
-
-
-
+  const handleDeleteAccount = async () => {
+    try {
+      const message = await deleteAccount(token);
+      alert(message)
+      navigate('/auth')
+    } catch (message) {
+      alert(message)
+    }
+  }
   return (
     <div id="profile">
       <div id="profile_topbar">

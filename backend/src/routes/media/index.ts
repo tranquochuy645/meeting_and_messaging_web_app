@@ -1,7 +1,7 @@
 import { MulterError } from 'multer';
 import { filterMediaAccess } from '../../middlewares/express/filterMediaAccess';
 import { filterMediaAdmin } from '../../middlewares/express/filterMediaAdmin';
-import { multerUpload } from '../../middlewares/express/multerUpload';
+import { multerUpload, multerUploadMany } from '../../middlewares/express/multerUpload';
 import { Router } from 'express';
 import { resolve } from 'path';
 const router = Router();
@@ -29,29 +29,49 @@ router.get('/*', (req, res) => {
     res.status(404).json({ message: "Media file not found" })
 })
 
-// POST /media/upload
-// This endpoint handles file uploads
-router.post('/:userId/:roomId',
-    filterMediaAdmin,
-    multerUpload,
-    async (req, res) => {
-        try {
-            if (!req.file) {
-                return res.status(400).json({ message: 'No file uploaded' });
-            }
-            // Check for any errors during file upload
-            if (req.file instanceof MulterError) {
-                return res.status(400).json({ message: 'File upload error', error: req.file.message });
-            }
 
-            // Process the uploaded file using FileWriter or save it to a database
-            // Respond with success message
-            res.status(200).json({ message: 'File uploaded successfully', url: req.file.path });
+// POST /media/:userId/:roomId
+router.post(
+    '/:userId/:roomId',
+    filterMediaAdmin,
+    (req, res) => {
+        try {
+            const count = Number(req.query.count);
+            if (count === 1) {
+                multerUpload(req, res, (error) => {
+                    if (error) {
+                        return res.status(400).json({ message: 'Error uploading the file.', error: error.message });
+                    }
+                    if (!req.file) {
+                        throw new Error("Missing file path");
+                    }
+                    // File uploaded successfully
+                    res.status(200).json({ message: 'File uploaded successfully', urls: [req.file.path] });
+                });
+            } else if (count > 1) {
+                multerUploadMany(req, res, (error) => {
+                    if (error) {
+                        return res.status(400).json({ message: 'Error uploading files.', error: error.message });
+                    }
+                    const fileUrls = Array.isArray(req.files) && req.files.map((file: any) => file.path);
+                    if (!fileUrls) {
+                        throw new Error("Missing files path");
+                    }
+                    // Files uploaded successfully
+                    res.status(200).json({ message: 'Files uploaded successfully', urls: fileUrls });
+                });
+            } else {
+                // Invalid 'count' value
+                res.status(400).json({ message: 'Invalid "count" value. It should be a positive integer.' });
+            }
         } catch (error) {
-            console.error('Error uploading file:', error);
+            console.error('Error uploading file(s):', error);
             res.status(500).json({ message: 'Internal Server Error' });
         }
-    });
+    }
+);
 
 
 export default router;
+
+

@@ -11,10 +11,10 @@ import './style.css'
 export interface Message {
     sender: string;
     content: string;
-    avatar?: string;
     timestamp: string;
+    urls: string[];
+    avatar?: string;
 }
-
 interface MessagesContainerProps {
     token: string;
     room: ChatRoom;
@@ -52,7 +52,7 @@ const getMessages = (
 const DEFAULT_MESSAGES_LIMIT: number = 30; // limit on how many messages fetched in one request
 
 const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, justSent }) => {
-    const [messages, setMessages] = useState<Message[] | null>(null)
+    const [messages, setMessages] = useState<Message[]>([])
     const [conversationLength, setConversationLength] = useState(0)
     const topRef = useRef<HTMLDivElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -62,7 +62,7 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
     const navigate = useNavigate();
     console.log("Render container")
 
-    const handleReceiveMessage = (msg: string[]) => {
+    const handleReceiveMessage = (msg: any[]) => {
         //msg: [sender, content, date, room id]
         if (msg[1] === room._id) {
             const sender = msg[0];
@@ -79,13 +79,14 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
             }
             const content = msg[2];
             const timestamp = msg[3];
+            const urls: string[] = msg[4];
             setConversationLength((prev) => prev++);
             // Update the messages state to include the received message
             setMessages((prevMessages) => {
                 if (prevMessages !== null) {
-                    return [...prevMessages, { sender, content, timestamp }];
+                    return [...prevMessages, { sender, content, timestamp, urls }];
                 } else {
-                    return [{ sender, content, timestamp }];
+                    return [{ sender, content, timestamp, urls }];
                 }
             });
         }
@@ -119,12 +120,11 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
                 if (messagesContainerRef.current) {
                     messagesContainerRef.current.scrollTop = 300;
                 }
-                setMessages(
-                    (prev) => {
-                        if (prev)
-                            return data.messages.concat(prev)
-                        return data.messages
-                    });
+                setMessages((prev) => {
+                    if (prev)
+                        return data.messages.concat(prev)
+                    return data.messages
+                });
                 if (data.conversationLength) {
                     setConversationLength(data.conversationLength);
                 }
@@ -215,6 +215,7 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
                 </VisibilitySensor>
                 {messages &&
                     <MessagesView
+                        token={token}
                         messages={messages}
                         userId={userId}
                         participants={room.participants}

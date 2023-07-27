@@ -316,12 +316,18 @@ export default class RoomsController extends CollectionReference {
  * @param timestamp - The timestamp of the message.
  * @throws Error if there's an issue while saving the message.
  */
-  public async saveMessage(sender: string, roomId: string, content: string, timestamp: string): Promise<void> {
+  public async saveMessage(
+    sender: string,
+    roomId: string,
+    content: string,
+    timestamp: string,
+    urls?: string[]): Promise<void> {
     try {
       const data = {
         sender: new ObjectId(sender),
         content,
-        timestamp
+        timestamp,
+        urls
       };
 
       const result = await this._collection?.updateOne(

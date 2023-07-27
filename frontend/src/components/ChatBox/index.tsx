@@ -4,14 +4,10 @@ import { ChatRoom } from '../RoomsList';
 import InputBar from '../InputBar';
 import ChatBoxTopBar from '../ChatBoxTopBar';
 import MessagesContainer from '../MessagesContainer';
+import { Message } from '../MessagesContainer';
 import './style.css';
 
-export interface Message {
-  sender: string;
-  content: string;
-  avatar?: string;
-  timestamp: string;
-}
+
 
 export interface ChatRoomData {
   messages: Message[];
@@ -44,6 +40,8 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
         userId={profile._id}
       />
       <InputBar
+        token={token}
+        userId={profile._id}
         roomId={room._id}
         onJustSent={() => { setJustSent(true) }}
       />

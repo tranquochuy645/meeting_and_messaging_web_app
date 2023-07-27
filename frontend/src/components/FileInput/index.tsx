@@ -9,6 +9,7 @@ interface FileInputProps {
 const FileInput: FC<FileInputProps> = ({ onChange, accept, id, icon }) => {
     const fileInputRef = useRef(null);
 
+
     const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         if (event.target.files) {
             const file = event.target.files[0];
