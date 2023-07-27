@@ -1,4 +1,5 @@
 import { ChangeEventHandler, FC, useRef, ReactNode } from "react";
+import './style.css'
 interface FileInputProps {
     id: string;
     accept: string;//".txt, .pdf, .doc, .docx, .jpg, .jpeg, .png"
@@ -16,10 +17,11 @@ const FileInput: FC<FileInputProps> = ({ onChange, accept, id, icon }) => {
     };
 
     return (
-        <label id={`btn_${id}`} htmlFor={id}>
+        <label id={`btn_${id}`} className='btn_fileinput' htmlFor={id}>
             {icon}
             <input
                 id={id}
+                className="fileinput"
                 type="file"
                 accept={accept}
                 ref={fileInputRef}

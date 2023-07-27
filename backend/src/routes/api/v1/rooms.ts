@@ -9,7 +9,7 @@ const router = Router();
 router.get('/', verifyToken, async (req, res) => {
   try {
     const userId = req.headers.userId as string;
-    const roomsInfo = await dc.roomsExtractor.exec(userId);
+    const roomsInfo = await dc.users.extractRoomsList(userId)
     if (!roomsInfo) {
       return res.status(404).json({ message: "User not found" });
     }

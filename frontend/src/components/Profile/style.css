@@ -48,15 +48,7 @@
   margin-left: 2rem;
 }
 
-#btn_upload-img:hover,
-#btn_upload-img:focus {
-  cursor: pointer;
-  box-shadow: 0 0 3px 3px var(--text-color);
-}
 
-#upload-img {
-  display: none;
-}
 
 #notify-container {
   position: absolute;

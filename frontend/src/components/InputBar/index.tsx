@@ -1,6 +1,7 @@
 import { FC, useState, memo } from "react"
 import { useSocket } from "../SocketProvider"
 import { ChangeEvent } from "react";
+import FileInput from "../FileInput";
 import './style.css'
 interface InputBarProps {
     roomId: string
@@ -21,8 +22,24 @@ const InputBar: FC<InputBarProps> = ({ roomId, onJustSent }) => {
             setTextInputValue('');
         }
     };
+    const handleUploadImage = (file: any) => { console.log(file) }
+    const handleUploadFile = (file: any) => { console.log(file) }
     return (
         <div id='chat-box_input-container'>
+            <FileInput
+                accept="image/*"
+                onChange={handleUploadImage}
+                id="chatbox_upload-img"
+                icon={
+                    <i className='bx bx-image-add' ></i>
+                } />
+            <FileInput
+                accept="*"
+                onChange={handleUploadFile}
+                id="chatbox_upload-file"
+                icon={
+                    <i className='bx bx-paperclip'></i>
+                } />
             <input
                 type="text"
                 value={textInputValue}

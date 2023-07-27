@@ -1,10 +1,9 @@
 import DatabaseSetup from './Setup';
 import DBConnection from './Connection';
 import { DbOptions, Db } from 'mongodb';
-import UsersController from './CRUD/CollectionOriented/users';
-import RoomsController from './CRUD/CollectionOriented/rooms';
-import MediaController from './CRUD/CollectionOriented/media';
-import RoomsExtractor from './CRUD/Combined/roomsExtractor';
+import UsersController from './CRUD/users';
+import RoomsController from './CRUD/rooms';
+import MediaController from './CRUD/media';
 import Watcher from './Watcher';
 
 /**
@@ -18,7 +17,6 @@ class DatabaseController extends DatabaseSetup {
   private _users: UsersController | undefined;
   private _rooms: RoomsController | undefined;
   private _media: MediaController | undefined;
-  private _roomsExtractor: RoomsExtractor | undefined;
   private _watcher: Watcher | undefined
 
   private constructor() {
@@ -50,7 +48,6 @@ class DatabaseController extends DatabaseSetup {
     this._users = new UsersController(this.db.collection("users"));
     this._rooms = new RoomsController(this.db.collection("rooms"));
     this._media = new MediaController(this.db.collection("media"));
-    this._roomsExtractor = new RoomsExtractor(this._users, this._rooms);
   }
 
   /**
@@ -97,15 +94,6 @@ class DatabaseController extends DatabaseSetup {
     return this._media;
   }
 
-  /**
-   * Get the RoomsExtractor instance for extracting rooms data based on user ID.
-   * @throws Error if the RoomsExtractor instance is not initialized.
-   * @returns The RoomsExtractor instance.
-   */
-  public get roomsExtractor() {
-    if (!this._roomsExtractor) throw new Error("RoomsExtractor NOT INITIALIZED");
-    return this._roomsExtractor;
-  }
 }
 
 const chatAppDbController = DatabaseController.getInstance();

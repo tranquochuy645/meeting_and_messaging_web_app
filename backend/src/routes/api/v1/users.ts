@@ -55,9 +55,6 @@ router.put('/', verifyToken, handleUpdatePassword, async (req, res) => {
         return res.status(403).json({ message: "Password mismatch" });
       }
     }
-    // if (updateData.avatar) {
-    //   FileWriter.write(`${req.headers.userId as string}/avatar`, updateData.avatar)
-    // }
     const result = await dc.users.updateUser(req.headers.userId as string, updateData)
     if (result) {
       return res.status(200).json({ message: 'User updated successfully' });
