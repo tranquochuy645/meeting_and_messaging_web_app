@@ -51,9 +51,5 @@
 }
 
 .btn :hover {
-  color: color-mix(
-    in srgb,
-    var(--background-color) 50%,
-    var(--theme-color) 50%
-  );
+  color: color-mix(in srgb, var(--text-color) 50%, var(--theme-color) 50%);
 }
