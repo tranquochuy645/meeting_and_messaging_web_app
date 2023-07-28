@@ -8,6 +8,13 @@
     padding: 0 15px;
 }
 
+#chosenList {
+    background-color: color-mix(in srgb, var(--theme-color) 50%, #fff 50%);
+    width: 400px;
+    z-index: 100;
+    order: 0;
+    position: as;
+}
 .chosenUser {
     border: solid purple;
 }
@@ -15,4 +22,8 @@
 .chosenUser>span {
     margin-left: 10px;
     border: solid red;
+}
+
+#search-bar .btn {
+    color: var(--theme-color);
 }
