@@ -28,10 +28,11 @@
 }
 
 .checkbox:checked~.chat-room_opts {
-  display: block !important;
+  display: block ;
 }
 
 .checkbox:checked~.checkbox_label {
   /* Apply styles to the label when checkbox is checked */
   background-color: red;
+  
 }
