@@ -50,23 +50,14 @@
 
 
 
-#notify-container {
-  position: absolute;
-  bottom: -50px;
-  right: -10px;
-  z-index: 100;
-  color: var(--text-color);
-  background-color: var(--background-color);
-}
-
-#profile_editor {
+.profile_dropdown {
   height: 0px;
   opacity: 0;
   overflow-y: hidden;
   transition: 1s;
 }
 
-#profile_editor.active {
+.profile_dropdown.active {
   height: 230px;
   opacity: 1;
 }

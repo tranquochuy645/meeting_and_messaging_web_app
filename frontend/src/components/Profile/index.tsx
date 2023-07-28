@@ -18,7 +18,6 @@ const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   const [showProfileEditor, setShowProfileEditor] = useState<boolean>(false);
   // const fileRef = useRef<any>(null);
   const avatarUrlRef = useRef<any>(null);
-  const editorRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
   const socket = useSocket()
@@ -31,15 +30,7 @@ const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
       }
     }
   }, [socket]);
-  useEffect(() => {
-    if (editorRef.current) {
-      if (showProfileEditor) {
-        editorRef.current.classList.add("active");
-      } else {
-        editorRef.current.classList.remove("active");
-      }
-    }
-  }, [showProfileEditor])
+
 
   const handleLogout = () => {
     sessionStorage.removeItem("token");
@@ -168,22 +159,16 @@ const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
             </div>)
         }
         <div className="flex">
-          {showProfileEditor ? (
-            <button className="btn" onClick={() => setShowProfileEditor(false)}>
+          <button className="btn" onClick={() => { setShowInvitation(false); setShowProfileEditor((prev) => !prev) }}>
+            {showProfileEditor ? (
               <i className='bx bxs-message-square-x' ></i>
-            </button>
-          ) : (
-            <button
-              className="btn"
-              onClick={() => setShowProfileEditor(true)}
-            >
+            ) : (
               <i className="bx bxs-pencil"></i>
-            </button>
-          )}
-
+            )}
+          </button>
           <button
             className="btn"
-            onClick={() => setShowInvitation((prev) => !prev)}
+            onClick={() => { setShowProfileEditor(false); setShowInvitation((prev) => !prev) }}
           >
             {showInvitation ? (
               <i className='bx bxs-message-square-x' ></i>
@@ -197,31 +182,29 @@ const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
               </div>
             )}
           </button>
-          {showInvitation && (
-            <div id="notify-container">
-              {profileData && profileData.invitations.length > 0 ? (
-                profileData.invitations.map((invitation: string) => (
-                  <div key={invitation}>
-                    <p>{invitation}</p>
-                    <button onClick={() => handleAcceptInvitation(invitation)}>
-                      Accept
-                    </button>
-                    <button onClick={() => handleRefuseInvitation(invitation)}>
-                      Refuse
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <p>No invitations</p>
-              )}
-            </div>
-          )}
           <button id="logout-btn" className="btn" onClick={handleLogout}>
             <i className="bx bx-log-in"></i>
           </button>
         </div>
       </div>
-      <div ref={editorRef} id="profile_editor">
+      <div id="notify-container" className={`profile_dropdown ${showInvitation ? "active" : ""}`}>
+        {profileData && profileData.invitations.length > 0 ? (
+          profileData.invitations.map((invitation: string) => (
+            <div key={invitation}>
+              <p>{invitation}</p>
+              <button onClick={() => handleAcceptInvitation(invitation)}>
+                Accept
+              </button>
+              <button onClick={() => handleRefuseInvitation(invitation)}>
+                Refuse
+              </button>
+            </div>
+          ))
+        ) : (
+          <p>No invitations</p>
+        )}
+      </div>
+      <div className={`profile_dropdown ${showProfileEditor ? "active" : ""}`} id="profile_editor">
         <form id="profile_form" ref={formRef}>
           <div>
             <label htmlFor="fullname">Your name:</label>
