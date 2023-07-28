@@ -195,10 +195,8 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
             });
     }, []);
 
-    const handleChange = async (event: any, roomId: string) => {
-        event.preventDefault();
-        const selectedOption = event.target.value;
-        switch (selectedOption) {
+    const handleAction = async (action: string, roomId: string) => {
+        switch (action) {
             case 'leave':
                 return fetch(`/api/v1/rooms/${roomId}`,
                     {
@@ -209,7 +207,7 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
                         },
                         body: JSON.stringify(
                             {
-                                action: selectedOption
+                                action
                             }
                         )
                     }
@@ -224,10 +222,7 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
                         }
                     }
                 )
-
         }
-
-
     }
     const roomList = useMemo(() => {
         return roomsInfo.map(
@@ -237,11 +232,14 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
                     <div onClick={() => handleRoomClick(index)}>
                         <Room userId={userId} participants={room.participants} />
                     </div>
-                    <select onChange={(e) => handleChange(e, room._id)} defaultValue="">
-                        <option value="" disabled>Select an option</option>
-                        <option value="delete">Delete</option>
-                        <option value="leave">Leave</option>
-                    </select>
+                    <input className='checkbox' type="checkbox" id={`${room._id}_opts`} />
+                    <label className='checkbox_label' htmlFor={`${room._id}_opts`}>
+                        <i className='bx bx-dots-vertical-rounded'></i>
+                    </label>
+                    <div className='chat-room_opts'>
+                        <button onClick={() => handleAction('leave', room._id)}>Leave</button>
+                        <button onClick={() => handleAction('delete', room._id)}>Delete</button>
+                    </div>
                 </div>
             ))
     }, [roomsInfo])
