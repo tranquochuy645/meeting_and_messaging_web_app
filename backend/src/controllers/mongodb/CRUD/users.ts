@@ -108,6 +108,7 @@ export default class UsersController extends CollectionReference {
 
   /**
    * Update a user's information.
+   * This method accepts dynamic update by $set operator, so use it carefully.
    * @param id - The ID of the user.
    * @param data - The updated data for the user.
    * @returns A Promise resolving to the result of the update operation.
@@ -196,25 +197,67 @@ export default class UsersController extends CollectionReference {
   }
 
   /**
-   * Remove a room ID from the invitation list of a user.
-   * @param userId - The ID of the user.
-   * @param roomId - The ID of the room to remove from the invitation list.
-   * @returns A Promise resolving to the count of modified documents.
-   */
-  public async pullFromInvitaionList(userId: string, roomId: string): Promise<number | undefined> {
+  * Remove room IDs from the rooms list of multiple users.
+  * @param userIds - An array of user IDs.
+  * @param roomId - The ID of the room to remove from the rooms lists.
+  * @returns A Promise resolving to the count of modified documents.
+  */
+  public async pullFromRoomsLists(userIds: string[], roomId: string): Promise<number | undefined> {
     try {
-      const result = await this._collection?.updateOne(
-        { _id: new ObjectId(userId) },
-        {
-          $pull: { invitations: new ObjectId(roomId) }
-        }
-      );
+      const userIdObjects = userIds.map(id => new ObjectId(id));
+      let modifiedCount = 0;
 
-      return result?.modifiedCount;
+      // Use Promise.all to await all updateOne calls concurrently
+      const updatePromises = userIdObjects.map(async oid => {
+        const result = await this._collection?.updateOne(
+          { _id: oid },
+          {
+            $pull: { rooms: new ObjectId(roomId) }
+          }
+        );
+        modifiedCount += result?.modifiedCount || 0;
+      });
+
+      // Wait for all updateOne calls to complete
+      await Promise.all(updatePromises);
+
+      return modifiedCount;
     } catch (e) {
       throw e;
     }
   }
+
+  /**
+   * Remove room IDs from the invitation list of multiple users.
+   * @param userIds - An array of user IDs.
+   * @param roomId - The ID of the room to remove from the invitations lists.
+   * @returns A Promise resolving to the count of modified documents.
+   */
+  public async pullFromInvitationsLists(userIds: string[], roomId: string): Promise<number | undefined> {
+    try {
+      const userIdObjects = userIds.map(id => new ObjectId(id));
+      let modifiedCount = 0;
+
+      // Use Promise.all to await all updateOne calls concurrently
+      const updatePromises = userIdObjects.map(async oid => {
+        const result = await this._collection?.updateOne(
+          { _id: oid },
+          {
+            $pull: { invitations: new ObjectId(roomId) }
+          }
+        );
+        modifiedCount += result?.modifiedCount || 0;
+      });
+
+      // Wait for all updateOne calls to complete
+      await Promise.all(updatePromises);
+
+      return modifiedCount;
+    } catch (e) {
+      throw e;
+    }
+  }
+
 
   /**
    * Invite a user to a room.

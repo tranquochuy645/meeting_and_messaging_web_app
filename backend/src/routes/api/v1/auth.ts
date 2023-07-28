@@ -6,7 +6,14 @@ import { chatAppDbController as dc } from '../../../controllers/mongodb';
 import bcrypt from 'bcrypt';
 const router = Router();
 
-// POST /api/v1/auth/register
+/**
+ * Route for user registration.
+ * @route POST /api/v1/auth/register
+ * @middleware handleRegPassword - Middleware for handling registration password validation.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<Object>} - A Promise that resolves to a response object with status and message.
+ */
 router.post('/register', handleRegPassword, async (req, res) => {
   try {
     if (Object.keys(req.body).length === 0) {
@@ -39,8 +46,13 @@ router.post('/register', handleRegPassword, async (req, res) => {
   }
 });
 
-
-// POST /api/v1/auth/login
+/**
+ * Route for user login.
+ * @route POST /api/v1/auth/login
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<Object>} - A Promise that resolves to a response object with status and access_token.
+ */
 router.post('/login', async (req, res) => {
   try {
     if (Object.keys(req.body).length === 0) {
@@ -64,6 +76,7 @@ router.post('/login', async (req, res) => {
     const compResult = await bcrypt.compare(password, user.password);
 
     if (compResult) {
+      // Generate an access token and send it in the response.
       const access_token = generateAuthToken(user._id);
       return res.status(200).json({ access_token });
     } else {
@@ -75,10 +88,18 @@ router.post('/login', async (req, res) => {
   }
 });
 
-
-// POST /api/v1/auth/logout
+/**
+ * Route for user logout.
+ * @route POST /api/v1/auth/logout
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {void}
+ */
 router.post('/logout', (req, res) => {
-  // Logout logic here
+  // Logout logic here (if needed).
+  // This route doesn't require authentication middleware since logging out doesn't involve token verification.
+  // You can handle any necessary logout tasks here, such as clearing sessions or invalidating tokens.
+  // Return an appropriate response or status if needed.
 });
 
 // Other authentication-related routes...

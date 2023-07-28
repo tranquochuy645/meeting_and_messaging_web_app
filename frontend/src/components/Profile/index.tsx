@@ -54,7 +54,7 @@ const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         authorization: "Bearer " + token,
       },
       body: JSON.stringify({
-        accept: true,
+        action: 'join',
       }),
     });
   };
@@ -67,7 +67,7 @@ const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         authorization: "Bearer " + token,
       },
       body: JSON.stringify({
-        accept: false,
+        action: 'refuse',
       }),
     });
   };

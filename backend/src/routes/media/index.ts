@@ -5,10 +5,12 @@ import { Router } from 'express';
 import { resolve } from 'path';
 import { Stream } from 'stream';
 import { createReadStream } from 'fs';
+
 const router = Router();
+
 // GET /media/:userId/:roomId/:filename?token=<token>
 router.get('/:userId/:roomId/:filename',
-    filterMediaAccess,
+    filterMediaAccess, // Middleware to check access to the media
     (req, res) => {
         // Ensure that the filename is properly sanitized to prevent directory traversal attacks
         // Remove any ".." to prevent traversal
@@ -30,15 +32,12 @@ router.get('/:userId/:roomId/:filename',
     }
 );
 
-router.get('/*', (req, res) => {
-    res.status(404).send("Media file not found")
-})
 
 
 // POST /media/:userId/:roomId
 router.post(
     '/:userId/:roomId',
-    filterMediaAdmin,
+    filterMediaAdmin, // Middleware to check if user has admin access
     (req, res) => {
         try {
             const count = Number(req.query.count);
@@ -77,6 +76,9 @@ router.post(
 );
 
 
+// Route to handle all other all requests to /media/* (if doesnt match all routes above)
+router.all('/*', (req, res) => {
+    res.status(404).send("Media file not found")
+})
+
 export default router;
-
-

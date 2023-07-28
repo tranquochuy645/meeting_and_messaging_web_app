@@ -42,9 +42,8 @@ const getRoomsInfo = (token: string): Promise<any> => {
                 if (response.status == 401) {
                     alert("Token expired");
                     sessionStorage.removeItem('token');
+                    throw new Error()
                 }
-                throw new Error('Failed to fetch rooms information');
-
             })
             .catch((error) => {
                 reject(error);
@@ -196,13 +195,53 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
             });
     }, []);
 
+    const handleChange = async (event: any, roomId: string) => {
+        event.preventDefault();
+        const selectedOption = event.target.value;
+        switch (selectedOption) {
+            case 'leave':
+                return fetch(`/api/v1/rooms/${roomId}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'content-type': 'application/json',
+                            'authorization': 'Bearer ' + token
+                        },
+                        body: JSON.stringify(
+                            {
+                                action: selectedOption
+                            }
+                        )
+                    }
+                )
+            case 'delete':
+                return fetch(`/api/v1/rooms/${roomId}`,
+                    {
+                        method: 'DELETE',
+                        headers: {
+                            'content-type': 'application/json',
+                            'authorization': 'Bearer ' + token
+                        }
+                    }
+                )
+
+        }
+
+
+    }
     const roomList = useMemo(() => {
         return roomsInfo.map(
             (room: ChatRoom, index: number) => (
                 <div className={`chat-room ${index == currentRoomIndex ? 'active' : ''}`}
-                    key={room._id}
-                    onClick={() => handleRoomClick(index)}>
-                    <Room userId={userId} participants={room.participants} />
+                    key={room._id}>
+                    <div onClick={() => handleRoomClick(index)}>
+                        <Room userId={userId} participants={room.participants} />
+                    </div>
+                    <select onChange={(e) => handleChange(e, room._id)} defaultValue="">
+                        <option value="" disabled>Select an option</option>
+                        <option value="delete">Delete</option>
+                        <option value="leave">Leave</option>
+                    </select>
                 </div>
             ))
     }, [roomsInfo])

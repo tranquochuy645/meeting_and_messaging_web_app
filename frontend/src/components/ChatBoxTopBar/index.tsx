@@ -53,7 +53,7 @@ const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
             });
         }
     };
-    useEffect(() => {
+    room && useEffect(() => {
         if (socket) {
             socket.on("meet", handleReceiveCall);
             return (() => {
@@ -63,12 +63,10 @@ const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
     }, [socket, room._id])
     return (
         <div id="chat-box_topbar" className='flex'>
-            <div id="chat-box_topbar_left">
-                <Room userId={userId} participants={room.participants} />
-                <button className="btn" onClick={handleMakeCall}>
-                    <i className='bx bxs-video' ></i>
-                </button>
-                {room.isMeeting && room.meeting_uuid && (
+            {room && <div id="chat-box_topbar_left">
+                <Room  userId={userId} participants={room.participants} />
+
+                {room.isMeeting && room.meeting_uuid ? (
                     <>
                         <p>This room is in a meeting</p>
                         <button
@@ -77,9 +75,13 @@ const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
                             }
                         >Join
                         </button>
-                    </>
-                )}
-            </div>
+                    </>)
+                    :
+                    (<button className="btn" onClick={handleMakeCall}>
+                        <i className='bx bxs-video' ></i>
+                    </button>)
+                }
+            </div>}
             <ThemeSwitch />
         </div>
     )

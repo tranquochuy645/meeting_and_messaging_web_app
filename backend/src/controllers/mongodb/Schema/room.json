@@ -17,6 +17,9 @@
           "default"
         ]
       },
+      "admin": {
+        "bsonType": "objectId"
+      },
       "isMeeting": {
         "bsonType": "bool"
       },

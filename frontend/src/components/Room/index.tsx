@@ -1,4 +1,4 @@
-import { FC, memo } from 'react';
+import {  FC, memo } from 'react';
 import './style.css';
 
 interface Participant {
@@ -15,11 +15,14 @@ interface RoomProps {
 
 const Room: FC<RoomProps> = ({ participants, userId }) => {
     participants = participants.filter(user => user._id !== userId)
-    if (participants.length == 0) {
+    if (participants.length === 0) {
         return null;
     }
+
     const isGroup = participants.length > 1;
     const groupMembers = participants.slice(0, 4); // Get up to four group members
+ 
+
     return (
         <div className="card">
             {isGroup ? (

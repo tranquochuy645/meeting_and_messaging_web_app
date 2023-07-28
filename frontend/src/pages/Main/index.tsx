@@ -96,13 +96,11 @@ const Main: FC<MainProps> = ({ token }) => {
               />
             </section>
             <section id="section-right">
-              {roomsInfo.length > 0 && (
-                <ChatBox
-                  profile={profileData}
-                  token={token}
-                  room={roomsInfo[currentRoomIndex]}
-                />
-              )}
+              <ChatBox
+                profile={profileData}
+                token={token}
+                room={roomsInfo[currentRoomIndex]}
+              />
             </section>
           </div>
           <BackGround />
