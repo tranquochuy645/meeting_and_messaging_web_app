@@ -1,11 +1,14 @@
-import SearchBar from '../SearchBar';
-import { FC, useState } from 'react';
+import { FC, useState, useRef, useEffect, KeyboardEvent } from 'react';
+
 import './style.css'
 interface RoomMakerProps {
     token: string;
 }
 const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
     const [usersList, setUsersList] = useState<any[]>([])
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const searchInputRef = useRef<HTMLInputElement>(null);
+
     const handleChooseUser = (user: any) => {
         if (usersList.some(el => el._id == user._id)) {
             return alert("already selected this user")
@@ -50,33 +53,106 @@ const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
         }
     }
 
+    const handleSearch = () => {
+        const searchTerm = searchInputRef.current?.value;
+        if (!searchTerm) {
+            return;
+        }
+
+        fetch(
+            `/api/v1/search/${searchTerm}`,
+            {
+                headers: {
+                    'content-type': 'application/json',
+                    'authorization': 'Bearer ' + token
+                }
+            }
+        )
+            .then(response => {
+                if (response.ok) {
+                    return response.json().then(
+                        data => {
+                            setSearchResults(data);
+                        }
+                    );
+                }
+                console.log(response.status);
+            });
+    };
+
+    const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
+    const handleClickOutside = (event: MouseEvent) => {
+        if (
+            searchInputRef.current &&
+            !searchInputRef.current.contains(event.target as Node)
+        ) {
+            setSearchResults([]);
+            searchInputRef.current.value = "";
+        }
+    };
+    useEffect(() => {
+        document.addEventListener('click', handleClickOutside);
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, []);
+
     return (
         <div id="room-maker">
-            <SearchBar token={token} onChoose={handleChooseUser} />
-            {
-                usersList.length > 0 && (
-                    <div className='flex'>
-                        <div id="chosenList" className='flex'>{usersList.map(
-                            (user, index) => {
-                                return (
-                                    <div className='chosenUser flex' key={user.fullname}>
-                                        <p> {user.fullname}</p>
-                                        <span onClick={
-                                            () => removeUserFromUsersList(index)
-                                        }>X</span>
-                                    </div >
-                                )
-                            }
+            <div className='flex'>
+                <div id="search-bar">
+                    <button className='btn' onClick={handleSearch}><i className='bx bx-search' ></i></button>
+                    <div id="chosenList" className='flex'>{usersList.map(
+                        (user, index) => {
+                            return (
+                                <div className='chosenUser flex' key={user.fullname}>
+                                    <p> {user.fullname}</p>
+                                    <span onClick={
+                                        () => removeUserFromUsersList(index)
+                                    }>X</span>
+                                </div >
+                            )
+                        }
 
-                        )}
-                        </div>
-                        <button className='btn' onClick={handleCreateNewRoom}>
-                            <i className='bx bxs-message-square-add' ></i>
-                        </button>
+                    )}
                     </div>
-                )
-            }
-
+                    <input
+                        type="text"
+                        placeholder="Search for users..."
+                        ref={searchInputRef}
+                        onKeyPress={handleKeyPress}
+                    />
+                </div>
+                {
+                    usersList.length > 0 && (
+                        <div className='flex'>
+                            <button className='btn' onClick={handleCreateNewRoom}>
+                                <i className='bx bxs-message-square-add' ></i>
+                            </button>
+                        </div>
+                    )
+                }
+            </div>
+            {searchResults.length > 0 && (
+                <div id="search_dropdown">
+                    {searchResults.map(result => (
+                        <div
+                            key={result._id}
+                            onClick={
+                                () => {
+                                    handleChooseUser({ _id: result._id, fullname: result.fullname })
+                                }}>
+                            <img className='profile-picture' src={result.avatar} alt="Avatar" />
+                            {result.fullname}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
