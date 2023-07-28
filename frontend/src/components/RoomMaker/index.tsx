@@ -106,7 +106,7 @@ const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
         <div id="room-maker">
             <div className='flex'>
                 <div id="search-bar">
-                    <button className='btn' onClick={handleSearch}><i className='bx bx-search' ></i></button>
+                    {/* <button className='btn' onClick={handleSearch}><i className='bx bx-search' ></i></button> */}
                     <div id="chosenList" className='flex'>{usersList.map(
                         (user, index) => {
                             return (
@@ -114,7 +114,7 @@ const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
                                     <p> {user.fullname}</p>
                                     <span onClick={
                                         () => removeUserFromUsersList(index)
-                                    }>X</span>
+                                    }><i className='bx bx-x-circle' ></i></span>
                                 </div >
                             )
                         }
@@ -132,7 +132,7 @@ const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
                     usersList.length > 0 && (
                         <div className='flex'>
                             <button className='btn' onClick={handleCreateNewRoom}>
-                                <i className='bx bxs-message-square-add' ></i>
+                                <i className='bx bxs-message-square-add ' id='btn_createroom' ></i>
                             </button>
                         </div>
                     )

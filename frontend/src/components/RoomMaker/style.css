@@ -1,26 +1,52 @@
 #room-maker {
-    position: relative;
-    width: 100%;
-    height: 50px;
-    justify-content: center;
-    align-items: center;
-    padding: 0 15px;
+  position: relative;
+  width: 100%;
+  height: 50px;
+  justify-content: center;
+  align-items: center;
+  padding: 0 15px;
 }
 
 #search-bar {
-    display: flex;
-    border: solid red;
+  display: flex;
+  position: relative;
+  flex-wrap: wrap;
 }
 
-#chosenList {
-    width: 100%;
+#search-bar button {
+  position: absolute;
+  left: 30px;
+  top: 10px;
+  font-size: 1.2rem;
 }
 
+#search-bar input {
+  border: solid var(--theme-color);
+  border-radius: 50px;
+  width: 100%;
+  padding: 6px 20px;
+  height: 38px;
+  border-radius: 30px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.bx-x-circle{
+    margin-left: 0%;
+    color: var(--text-color);
+    cursor: pointer;
+    list-style: none;
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+}
 .chosenUser {
-    border: solid purple;
+  border: var(--text-color);
+  border-radius: 15px;
+  padding: 2px;
+  background-color: var(--theme-color);
+  margin: 2px;
 }
-
-.chosenUser>span {
-    margin-left: 10px;
-    border: solid red;
+.chosenUser > span {
+  margin-left: 5px;
 }

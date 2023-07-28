@@ -2,7 +2,7 @@
   position: relative;
   height: 100%;
   padding: 0.5rem;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .chat-room {

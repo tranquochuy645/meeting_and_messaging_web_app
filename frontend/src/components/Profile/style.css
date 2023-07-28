@@ -50,11 +50,12 @@
 .profile_dropdown {
   height: 0px;
   opacity: 0;
-  overflow-y: hidden;
+  overflow-y: auto;
   transition: 0.5s;
-  width: 400px;
+  width: 90%;
   position: absolute;
   border-radius: 10px;
+  padding: 5px;
 }
 
 .profile_dropdown.active {
@@ -122,4 +123,11 @@
 #profile_editor .flex {
   height: 2rem;
   justify-content: space-between;
+}
+
+#search_dropdown {
+  position: absolute;
+background-color: #fff;
+z-index:100;
+width: 400px;
 }
