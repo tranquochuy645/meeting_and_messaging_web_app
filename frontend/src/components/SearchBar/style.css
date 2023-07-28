@@ -29,5 +29,5 @@
   background-color: var(--background-color);
   width: 100%;
   box-shadow: 5px 5px 5px;
-  z-index: 50;
+  z-index: 110;
 }
