@@ -217,6 +217,25 @@ export default class UsersController extends CollectionReference {
   }
 
   /**
+   * Invite a user to a room.
+   * @param userId - The ID of the user to invite.
+   * @param roomId - The ID of the room to invite the user to.
+   * @returns A Promise resolving to the count of modified documents (1 if the invitation was successful, 0 otherwise).
+   * @throws If any error occurs during the database query or data processing.
+   */
+  public async inviteToRoom(userId: string, roomId: string): Promise<number | undefined> {
+    try {
+      const result = await this._collection?.updateOne(
+        { _id: new ObjectId(userId) },
+        { $addToSet: { invitations: new ObjectId(roomId) } }
+      );
+      return result?.modifiedCount;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /**
    * Add a room ID to the rooms list of a user and remove it from the invitation list.
    * @param userId - The ID of the user.
    * @param roomId - The ID of the room to join.
@@ -227,7 +246,7 @@ export default class UsersController extends CollectionReference {
       const result = await this._collection?.updateOne(
         { _id: new ObjectId(userId) },
         {
-          $push: { rooms: new ObjectId(roomId) },
+          $addToSet: { rooms: new ObjectId(roomId) },
           $pull: { invitations: new ObjectId(roomId) }
         }
       );

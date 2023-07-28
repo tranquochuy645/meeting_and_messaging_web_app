@@ -83,6 +83,7 @@ const InputBar: FC<InputBarProps> = ({ token, userId, roomId, onJustSent }) => {
                 icon={
                     <i className='bx bx-image-add' ></i>
                 } />
+
             <FileInput
                 accept="*"
                 onChange={handleUploadFile}
@@ -90,6 +91,24 @@ const InputBar: FC<InputBarProps> = ({ token, userId, roomId, onJustSent }) => {
                 icon={
                     <i className='bx bx-paperclip'></i>
                 } />
+            {/* Display selected media file names */}
+            {mediaInput.length > 0 &&
+                <div>
+                    {mediaInput.map((file, index) => (
+                        <span key={index}>{file.name}</span>
+                    ))}
+                </div>
+            }
+
+            {/* Display selected files names */}
+            {filesInput.length > 0 &&
+                <div>
+                    {filesInput.map((file, index) => (
+                        <span key={index}>{file.name}</span>
+                    ))}
+                </div>
+            }
+
             <input
                 type="text"
                 value={textInputValue}

@@ -145,14 +145,14 @@ export default class RoomsController extends CollectionReference {
    * @param roomId - The ID of the room.
    * @returns A Promise resolving to the count of modified documents.
    */
-  public async pushToInvitedList(userId: string, roomId: string): Promise<number | undefined> {
+  public async addToInvitedList(userId: string, roomId: string): Promise<number | undefined> {
     try {
       const result = await this._collection?.updateOne(
         {
           _id: new ObjectId(roomId)
         },
         {
-          $push: {
+          $addToSet: {
             invited: new ObjectId(userId)
           }
         }
@@ -202,7 +202,7 @@ export default class RoomsController extends CollectionReference {
           _id: new ObjectId(roomId)
         },
         {
-          $push: { participants: new ObjectId(whoAsked) },
+          $addToSet: { participants: new ObjectId(whoAsked) },
           $pull: { invited: new ObjectId(whoAsked) }
         }
       );

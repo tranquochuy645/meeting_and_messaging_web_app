@@ -1,9 +1,10 @@
-import { MulterError } from 'multer';
 import { filterMediaAccess } from '../../middlewares/express/filterMediaAccess';
 import { filterMediaAdmin } from '../../middlewares/express/filterMediaAdmin';
 import { multerUpload, multerUploadMany } from '../../middlewares/express/multerUpload';
 import { Router } from 'express';
 import { resolve } from 'path';
+import { Stream } from 'stream';
+import { createReadStream } from 'fs';
 const router = Router();
 // GET /media/:userId/:roomId/:filename?token=<token>
 router.get('/:userId/:roomId/:filename',
@@ -13,20 +14,24 @@ router.get('/:userId/:roomId/:filename',
         // Remove any ".." to prevent traversal
         const filename = req.params.filename.replace(/\.\.\//g, '');
         const filePath = resolve('./media', req.params.userId, req.params.roomId, filename);
-        res.sendFile(filePath, (err: any) => {
-            if (err) {
-                if (err.code === 'ENOENT') {
-                    // File not found
-                    res.status(404).json({ message: 'Media file not found' });
-                } else {
-                    // Other errors (e.g., file read error)
-                    res.status(500).json({ message: 'Internal Server Error' });
+        const r = createReadStream(filePath) // get a readable stream
+        const ps = new Stream.PassThrough()
+        Stream.pipeline(
+            r,
+            ps,
+            (err) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(404).send("Media file not found");
                 }
             }
-        });
-    });
+        )
+        ps.pipe(res)
+    }
+);
+
 router.get('/*', (req, res) => {
-    res.status(404).json({ message: "Media file not found" })
+    res.status(404).send("Media file not found")
 })
 
 

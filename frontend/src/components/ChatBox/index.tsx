@@ -1,4 +1,4 @@
-import { FC, useState, } from 'react';
+import { FC, useState, useCallback } from 'react';
 import { ProfileData } from '../../pages/Main';
 import { ChatRoom } from '../RoomsList';
 import InputBar from '../InputBar';
@@ -26,6 +26,9 @@ interface ChatBoxProps {
 const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   const [justSent, setJustSent] = useState<boolean>(false);
 
+  const handleJustSent = useCallback(() => {
+    setJustSent(true);
+  }, []);
   return (
     <div id="chat-box">
       <ChatBoxTopBar
@@ -43,7 +46,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
         token={token}
         userId={profile._id}
         roomId={room._id}
-        onJustSent={() => { setJustSent(true) }}
+        onJustSent={handleJustSent}
       />
     </div>
   );

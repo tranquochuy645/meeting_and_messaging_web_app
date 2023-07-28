@@ -29,7 +29,7 @@ router.post('/register', handleRegPassword, async (req, res) => {
           avatar: path
         }
       )
-      await dc.rooms.pushToInvitedList(insertedUser.toString(), dc.globalChatId.toString());
+      await dc.rooms.addToInvitedList(insertedUser.toString(), dc.globalChatId.toString());
       return res.status(200).json({ message: 'Created account successfully' });
     }
     return res.status(409).json({ message: 'Username already exists' });

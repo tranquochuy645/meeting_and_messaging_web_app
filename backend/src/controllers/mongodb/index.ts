@@ -95,7 +95,7 @@ class DatabaseController extends DatabaseSetup {
   }
 
 }
-
+// Object.freeze(DatabaseController);
 const chatAppDbController = DatabaseController.getInstance();
 export default DatabaseController;
 export { chatAppDbController };

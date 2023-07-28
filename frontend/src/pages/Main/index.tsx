@@ -48,6 +48,7 @@ const Main: FC<MainProps> = ({ token }) => {
   const navigate = useNavigate();
   const handleReFreshProfile = async () => {
     try {
+      console.log("Loading profile again...");
       const newData = await getProfile(token);
       setProfileData(newData);
     } catch (err) {

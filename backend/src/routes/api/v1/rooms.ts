@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { ObjectId } from 'mongodb';
 import { verifyToken } from '../../../middlewares/express/jwt';
 import { chatAppDbController as dc } from '../../../controllers/mongodb';
+import { ioController as ic } from '../../../controllers/socket';
 const router = Router();
 
 // GET /api/v1/rooms/ 
@@ -55,7 +56,6 @@ router.post('/', verifyToken, async (req, res) => {
     if (!ObjectId.isValid(creator_userId)) {
       throw new Error("Invalid id")
     }
-    const creator_userOId = new ObjectId(creator_userId)
     const oIdList = req.body.invited.map(
       (id: string) => {
         if (ObjectId.isValid(id)) {
@@ -74,15 +74,22 @@ router.post('/', verifyToken, async (req, res) => {
       creator_userId,
       insertedRoom.toString()
     );
+
     if (!updateCreatorRoomsList) {
       throw new Error("Error updating creator rooms list")
     }
     // return modified count
     const updateUsersInvitationList = await dc.users.updateMany(
       { _id: { $in: oIdList } },
-      { $push: { invitations: insertedRoom } }
+      { $addToSet: { invitations: insertedRoom } }
     )
     if (updateUsersInvitationList == oIdList.length) {
+      //add this first user to socket io room
+      ic.addToRoom(creator_userId, insertedRoom.toString())
+      // signal this user to refresh rooms list
+      // this is not really necessary because we will send a http response 200, too
+      // the frontend should only refresh rooms list on the socket io signal
+      ic.io.to(creator_userId).emit('room')
       return res.status(200).json({ message: "Created Room Successfully" });
     }
     res.status(500).json({ message: 'Internal Server Error' });
@@ -104,7 +111,7 @@ router.put('/:id',
       message: "ID passed in must be a string of 12 bytes or a string of 24 hex characters or an integer",
     });
     try {
-      if (req.body.accept == true) {
+      if (req.body.accept === true) {
         const joinOk = await dc.users.joinRoom(req.headers.userId as string, req.params.id as string)
         if (!joinOk) {
           throw new Error("Couldn't add to rooms list")
@@ -113,6 +120,11 @@ router.put('/:id',
         if (!addOk) {
           throw new Error("Couldn't add to participants list")
         }
+        //add this first user to socket io room
+        ic.addToRoom(req.headers.userId as string, req.params.id as string)
+        // signal this user to refresh rooms list
+        ic.io.to(req.headers.userId as string).emit('room')
+
       } else {
         const roomPullCount = await dc.rooms.pullFromInvitedList(req.headers.userId as string, req.params.id as string)
         if (!roomPullCount) {
@@ -127,6 +139,7 @@ router.put('/:id',
       }
       res.status(200).json({ message: "ok" });
     } catch (err: any) {
+      console.error(err);
       res.status(500).json({ message: err.message });
     }
   });
