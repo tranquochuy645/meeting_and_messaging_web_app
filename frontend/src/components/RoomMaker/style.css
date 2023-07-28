@@ -10,7 +10,7 @@
 
 #chosenList {
     background-color: color-mix(in srgb, var(--theme-color) 50%, #fff 50%);
-    width: 400px;
+    width: 100px;
     z-index: 100;
     order: 0;
     position: as;
