@@ -104,9 +104,15 @@ export default class SocketIOController {
           socket.on("msg", (msg) => {
             //msg: [room id, content, date, [urls] ]
             console.log("msg:", msg);
-            io.to(msg[0]).emit("msg", [userId, msg[0], msg[1], msg[2]], msg[3]);
+            io.to(msg[0]).emit("msg", [userId, msg[0], msg[1], msg[2], msg[3]]);
             dc.rooms.saveMessage(userId, msg[0], msg[1], msg[2], msg[3]);
           });
+
+          socket.on("seen", (msg) => {
+            //msg: [room id, date]
+            io.to(msg[0]).emit("seen", [msg[0], userId, msg[1]]);
+            dc.rooms.updateReadCursor(msg[0], userId, msg[1])
+          })
 
           // Handle call event
           socket.on("meet", async (msg) => {

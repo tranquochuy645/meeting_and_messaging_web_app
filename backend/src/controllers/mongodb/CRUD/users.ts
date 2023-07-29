@@ -380,16 +380,6 @@ export default class UsersController extends CollectionReference {
             as: "userRooms"
           }
         },
-        // Project to exclude the "messages" field from the userRooms data, as it can be large
-        {
-          $project: {
-            "userRooms._id": 1,
-            "userRooms.participants": 1,
-            "userRooms.isMeeting": 1,
-            "userRooms.meeting_uuid": 1,
-            "userRooms.type": 1
-          }
-        },
         // Unwind the "userRooms" array to prepare for the next stage
         {
           $unwind: "$userRooms"
@@ -416,7 +406,9 @@ export default class UsersController extends CollectionReference {
             },
             "userRooms.isMeeting": 1,
             "userRooms.meeting_uuid": 1,
-            "userRooms.type": 1
+            "userRooms.type": 1,
+            "userRooms.readCursors": 1,
+            "userRooms.latestMessage": { $lastN: { n: 1, input: "$userRooms.messages" } } // last message
           }
         },
         // Group the documents back to the original structure using $group
@@ -429,7 +421,9 @@ export default class UsersController extends CollectionReference {
                 participants: "$userRooms.participantsInfo",
                 isMeeting: "$userRooms.isMeeting",
                 meeting_uuid: "$userRooms.meeting_uuid",
-                type: "$userRooms.type"
+                type: "$userRooms.type",
+                readCursors: "$userRooms.readCursors",
+                latestMessage: "$userRooms.latestMessage"
               }
             }
           }
@@ -460,6 +454,7 @@ interface Room {
   type: string; // 'global' or 'defautt'
   isMeeting: boolean;
   meeting_uuid: string | null;
+  readCursors: any[]
 }
 
 // Define the array of Room objects
