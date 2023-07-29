@@ -55,6 +55,15 @@
             "null"
           ]
         }
+      },
+      "readCursors": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": [
+            "object",
+            "null"
+          ]
+        }
       }
     }
   }

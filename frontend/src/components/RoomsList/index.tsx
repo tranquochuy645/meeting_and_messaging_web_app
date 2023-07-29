@@ -15,6 +15,8 @@ export interface ChatRoom {
     participants: Participant[];
     isMeeting: boolean;
     meeting_uuid: string | null;
+    latestMessage: any[];
+    readCursors: any[];
 }
 interface RoomsListProps {
     userId: string;
@@ -154,6 +156,7 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
             })
     };
     const handleRoomClick = (index: number) => {
+        // I do this to prevent re-rendering the whole list
         const rooms = document.querySelectorAll('.chat-room')
         rooms?.forEach(
             (room) => { room.classList?.remove('active') }
@@ -161,6 +164,10 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
         rooms[index]?.classList?.add('active')
         onRoomChange(index);
     }
+    // const handleReceiveMessage = (msg: string[]) => {
+    //     //msg: [sender, content, date, room id]
+
+    // }
 
     useEffect(
         () => {
@@ -226,22 +233,29 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
     }
     const roomList = useMemo(() => {
         return roomsInfo.map(
-            (room: ChatRoom, index: number) => (
-                <div className={`chat-room ${index == currentRoomIndex ? 'active' : ''}`}
-                    key={room._id}>
-                    <div onClick={() => handleRoomClick(index)}>
-                        <Room userId={userId} participants={room.participants} />
+            (room: ChatRoom, index: number) => {
+                const myCursor = room?.readCursors?.find((cursor) => cursor._id == userId)
+                return (
+                    <div className={`chat-room ${index == currentRoomIndex ? 'active' : ''}`}
+                        key={room._id}>
+                        <div onClick={() => handleRoomClick(index)}>
+                            <Room userId={userId} participants={room.participants} />
+                            <p>{room?.latestMessage[0]?.content}</p>
+                            <p>{
+                                room?.latestMessage[0]?.timestamp > myCursor?.lastReadTimeStamp ? "Unread" : "All Read"
+                            }</p>
+                        </div>
+                        <input className='checkbox' type="checkbox" id={`${room._id}_opts`} />
+                        <label className='checkbox_label' htmlFor={`${room._id}_opts`}>
+                            <i className='bx bx-dots-vertical-rounded'></i>
+                        </label>
+                        <div className='chat-room_opts'>
+                            <button onClick={() => handleAction('leave', room._id)}>Leave</button>
+                            <button onClick={() => handleAction('delete', room._id)}>Delete</button>
+                        </div>
                     </div>
-                    <input className='checkbox' type="checkbox" id={`${room._id}_opts`} />
-                    <label className='checkbox_label' htmlFor={`${room._id}_opts`}>
-                        <i className='bx bx-dots-vertical-rounded'></i>
-                    </label>
-                    <div className='chat-room_opts'>
-                        <button onClick={() => handleAction('leave', room._id)}>Leave</button>
-                        <button onClick={() => handleAction('delete', room._id)}>Delete</button>
-                    </div>
-                </div>
-            ))
+                )
+            })
     }, [roomsInfo])
 
     return (

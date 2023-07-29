@@ -74,9 +74,9 @@ router.get('/:id', verifyToken, async (req, res) => {
     if (!data || data.length === 0) {
       throw new Error('Room not found or not a member of this room');
     }
-
     // Respond with a 200 status and the retrieved room messages.
     res.status(200).json(data);
+    dc.rooms.updateReadCursor(req.params.id as string, req.headers.userId as string, new Date())
   } catch (err) {
     console.error(err);
     // If an error occurs during the process, respond with a 404 status and an error message.
@@ -200,18 +200,16 @@ router.put('/:id', verifyToken, async (req, res) => {
     // Get the action requested by the user from the request body.
     switch (req.body.action) {
       case 'join':
+        // Add the user to the room's participants list using the 'dc.rooms.addParticipant' method.
+        const addOk = await dc.rooms.addParticipant(req.headers.userId as string, req.params.id as string);
+        if (!addOk) {
+          return res.status(403).json({ message: "Not invited" });
+        }
         // Add the user to the room's participants list.
         const joinOk = await dc.users.joinRoom(req.headers.userId as string, req.params.id as string);
         if (!joinOk) {
           throw new Error("Couldn't add to rooms list");
         }
-
-        // Add the user to the room's participants list using the 'dc.rooms.addParticipant' method.
-        const addOk = await dc.rooms.addParticipant(req.headers.userId as string, req.params.id as string);
-        if (!addOk) {
-          throw new Error("Couldn't add to participants list");
-        }
-
         // Add the user to the socket.io room for the room.
         ic.addToRoom(req.headers.userId as string, req.params.id as string);
 

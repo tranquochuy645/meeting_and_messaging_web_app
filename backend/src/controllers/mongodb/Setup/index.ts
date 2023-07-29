@@ -99,8 +99,21 @@ class DatabaseSetup {
 
         if (!collectionInfo) {
           await this.createCollection(db, collectionName, this.validators[index]);
-        } else if (collectionName === 'rooms') {
-          await this.findOrCreateGlobalChatRoom(db, collectionName);
+        } else {
+          await db.command(
+            {
+              collMod: collectionName,
+              validator: this.validators[index],
+              validationLevel: "strict",
+              validationAction: "error"
+            }
+          );
+          console.log("Collmod successfully")
+          if (collectionName === 'rooms') {
+            // Use collMod to update the collection with the new validator
+
+            await this.findOrCreateGlobalChatRoom(db, collectionName);
+          }
         }
       }
       await this.resetOnlineState(db);
