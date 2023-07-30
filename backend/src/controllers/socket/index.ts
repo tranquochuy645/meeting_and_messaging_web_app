@@ -110,7 +110,8 @@ export default class SocketIOController {
 
           socket.on("seen", (msg) => {
             //msg: [room id, date]
-            io.to(msg[0]).emit("seen", [msg[0], userId, msg[1]]);
+            console.log("Seen", msg)
+            socket.to(msg[0]).emit("seen", [msg[0], userId, msg[1]]);
             dc.rooms.updateReadCursor(msg[0], userId, msg[1])
           })
 

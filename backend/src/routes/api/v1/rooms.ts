@@ -61,21 +61,23 @@ router.get('/:id', verifyToken, async (req, res) => {
   }
 
   // Parse the 'skip' parameter from the query string. Default to 0 if not provided or invalid.
-  const skip = parseInt(req.query.skip as string, 10) || 0;
+  const skip = parseInt(req.query.skip as string, 10);
 
   // Parse the 'limit' parameter from the query string. Default to 30 if not provided or invalid.
   const limit = parseInt(req.query.limit as string, 10) || 30;
 
   try {
     // Retrieve the messages for the specified room, limited by 'limit' and skipped by 'skip', using the data controller.
-    const data = await dc.rooms.getMessages(req.headers.userId as string, req.params.id as string, limit, skip);
+    const data = await dc.rooms.getConversationData(req.headers.userId as string, req.params.id as string, limit, skip);
 
     // If the user is not a member of this room or the room is not found, respond with a 404 status and a corresponding message.
-    if (!data || data.length === 0) {
+    if (!data) {
       throw new Error('Room not found or not a member of this room');
     }
     // Respond with a 200 status and the retrieved room messages.
     res.status(200).json(data);
+    //signal for client to refresh this room data
+    ic.io.to(req.params.id as string).emit('seen', [req.params.id as string, req.headers.userId as string, new Date()]);
     dc.rooms.updateReadCursor(req.params.id as string, req.headers.userId as string, new Date())
   } catch (err) {
     console.error(err);

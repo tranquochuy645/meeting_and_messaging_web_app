@@ -12,6 +12,12 @@
     border: solid red;
 }
 
+#search_dropdown {
+    position: absolute;
+    z-index: 100;
+    background-color: bisque;
+}
+
 #chosenList {
     width: 100%;
 }

@@ -1,4 +1,4 @@
-import {  FC, memo } from 'react';
+import { FC, memo } from 'react';
 import './style.css';
 
 interface Participant {
@@ -8,20 +8,24 @@ interface Participant {
     isOnline: boolean;
     bio?: string;
 }
-interface RoomProps {
+interface RoomProfileProps {
     participants: Participant[];
     userId: string;
 }
 
-const Room: FC<RoomProps> = ({ participants, userId }) => {
+const RoomProfile: FC<RoomProfileProps> = ({ participants, userId }) => {
     participants = participants.filter(user => user._id !== userId)
     if (participants.length === 0) {
-        return null;
+        return (
+            <div className="card">
+                <h3>No other participants in this room.</h3>
+            </div>
+        );
     }
 
     const isGroup = participants.length > 1;
     const groupMembers = participants.slice(0, 4); // Get up to four group members
- 
+
 
     return (
         <div className="card">
@@ -59,4 +63,4 @@ const Room: FC<RoomProps> = ({ participants, userId }) => {
     );
 };
 
-export default memo(Room);
+export default memo(RoomProfile);

@@ -3,8 +3,7 @@ import MessagesView from "../MessagesView"
 import { FC, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../SocketProvider';
-import { ChatRoom } from '../RoomsList';
-import { ChatRoomData } from '../ChatBox';
+import { ChatRoom } from '../RoomsNav';
 import PendingFigure from '../PendingFigure';
 import './style.css'
 
@@ -14,6 +13,18 @@ export interface Message {
     timestamp: string;
     urls: string[];
     avatar?: string;
+}
+
+export interface ReadCursor {
+    _id: string;
+    lastReadTimeStamp: string;
+}
+interface ChatRoomData {
+    messages: Message[];
+    conversationLength: number;
+    readCursors: ReadCursor[]
+    isMeeting?: boolean;
+    meeting_uuid?: string | null;
 }
 interface MessagesContainerProps {
     token: string;
@@ -54,6 +65,7 @@ const DEFAULT_MESSAGES_LIMIT: number = 30; // limit on how many messages fetched
 const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, justSent }) => {
     const [messages, setMessages] = useState<Message[]>([])
     const [conversationLength, setConversationLength] = useState(0)
+    const [readCursors, setReadCursors] = useState<any[]>([])
     const topRef = useRef<HTMLDivElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
     const btnScrollRef = useRef<HTMLButtonElement>(null);
@@ -63,7 +75,7 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
     console.log("Render container")
 
     const handleReceiveMessage = (msg: any[]) => {
-        //msg: [sender, content, date, room id]
+        //msg: [sender,  room id,content, date, [urls]]
         if (msg[1] === room._id) {
             const sender = msg[0];
             if (
@@ -71,15 +83,14 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
                 sender !== userId
                 && !room.participants.some(
                     (participant) => participant._id === sender)
-            ) {
-                return
-            }
+            ) return
             if (btnScrollRef.current) {
                 btnScrollRef.current.style.display = "block"
             }
             const content = msg[2];
             const timestamp = msg[3];
             const urls: string[] = msg[4];
+            socket.emit("seen", [room._id, new Date()])
             setConversationLength((prev) => prev++);
             // Update the messages state to include the received message
             setMessages((prevMessages) => {
@@ -125,9 +136,8 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
                         return data.messages.concat(prev)
                     return data.messages
                 });
-                if (data.conversationLength) {
-                    setConversationLength(data.conversationLength);
-                }
+                data.conversationLength && setConversationLength(data.conversationLength);
+                data.readCursors && setReadCursors(data.readCursors)
             })
             .catch(
                 () => {
@@ -135,6 +145,7 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
                 });
 
     }
+
 
     useEffect(
         () => {
@@ -144,10 +155,9 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
                 }
                 getMessages(room._id, token)
                     .then((data: ChatRoomData) => {
-                        setMessages(data.messages);
-                        if (data.conversationLength) {
-                            setConversationLength(data.conversationLength);
-                        }
+                        data.messages && setMessages(data.messages);
+                        data.conversationLength && setConversationLength(data.conversationLength);
+                        data.readCursors && setReadCursors(data.readCursors)
                     })
                     .catch(
                         () => {
@@ -215,8 +225,10 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
                 </VisibilitySensor>
                 {messages &&
                     <MessagesView
+                        readCursors={readCursors}
                         token={token}
                         messages={messages}
+                        roomId={room._id}
                         userId={userId}
                         participants={room.participants}
                     />

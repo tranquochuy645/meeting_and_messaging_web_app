@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import { CollectionReference } from "./generic";
+import { ConversationData } from "../interfaces";
 
 
 /**
@@ -18,10 +19,10 @@ interface Room {
 
 class ReadCursor {
   public _id: ObjectId;
-  public lastReadTimestamp: Date | null;
+  public lastReadTimeStamp: Date | null;
   constructor(id: string, date?: Date) {
     this._id = new ObjectId(id);
-    this.lastReadTimestamp = date || null;
+    this.lastReadTimeStamp = date || null;
   }
 }
 /**
@@ -124,7 +125,7 @@ export default class RoomsController extends CollectionReference {
    * @returns A Promise resolving to the room details object.
    * @throws Error if the room is not found or the user is not a member of the room.
    */
-  public async getMessages(whoSearch: string, roomId: string, messagesLimit: number, skip?: number): Promise<any> {
+  public async getConversationData(whoSearch: string, roomId: string, messagesLimit: number, skip?: number): Promise<ConversationData | null> {
     try {
       const room = await this._collection?.findOne(
         {
@@ -137,16 +138,13 @@ export default class RoomsController extends CollectionReference {
             messages: {
               $slice: Number.isInteger(skip) ? [skip, messagesLimit] : -messagesLimit
             },
-            conversationLength: { $cond: { if: { $isArray: "$messages" }, then: { $size: "$messages" }, else: "NA" } }
+            conversationLength: { $cond: { if: { $isArray: "$messages" }, then: { $size: "$messages" }, else: "NA" } },
+            readCursors: 1
           }
         }
       );
 
-      if (!room) {
-        throw new Error("Room not found or user is not a member of the room");
-      }
-
-      return room;
+      return room as ConversationData;
     } catch (err: any) {
       const errStacked = new Error(`Error in getMessages: ${err.message}`);
       throw errStacked;
@@ -434,10 +432,10 @@ export default class RoomsController extends CollectionReference {
  * Update the read cursor for a user in a room.
  * @param roomId - The ID of the room.
  * @param userId - The ID of the user whose read cursor will be updated.
- * @param lastReadTimestamp - The new last read timestamp for the user.
+ * @param lastReadTimeStamp - The new last read timestamp for the user.
  * @returns A Promise resolving to the count of modified documents (1 if successful, 0 otherwise).
  */
-  public async updateReadCursor(roomId: string, userId: string, lastReadTimestamp: Date): Promise<number> {
+  public async updateReadCursor(roomId: string, userId: string, lastReadTimeStamp: Date): Promise<number> {
     try {
       const result = await this._collection?.updateOne(
         {
@@ -445,7 +443,7 @@ export default class RoomsController extends CollectionReference {
           "readCursors._id": new ObjectId(userId)
         },
         {
-          $set: { "readCursors.$.lastReadTimestamp": lastReadTimestamp }
+          $set: { "readCursors.$.lastReadTimeStamp": lastReadTimeStamp }
         }
       );
 

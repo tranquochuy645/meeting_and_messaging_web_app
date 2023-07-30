@@ -20,7 +20,7 @@
   max-width: 300px;
 }
 
-.message.guest::before {
+.message.in::before {
   content: "";
   position: absolute;
   top: 0;
@@ -34,11 +34,11 @@
       transparent);
 }
 
-.message.own {
+.message.out {
   justify-content: flex-end;
 }
 
-.message.own::before {
+.message.out::before {
   content: "";
   position: absolute;
   top: 0;
@@ -62,7 +62,7 @@
   padding: 0.5rem;
 }
 
-.message.own .message_wrapper {
+.message.out .message_wrapper {
   background-color: var(--theme-color);
 }
 
