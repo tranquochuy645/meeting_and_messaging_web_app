@@ -1,20 +1,10 @@
 import { FC, useState, useCallback } from 'react';
 import { ProfileData } from '../../pages/Main';
-import { ChatRoom } from '../RoomsList';
+import { ChatRoom } from '../RoomsNav';
 import InputBar from '../InputBar';
 import ChatBoxTopBar from '../ChatBoxTopBar';
 import MessagesContainer from '../MessagesContainer';
-import { Message } from '../MessagesContainer';
 import './style.css';
-
-
-
-export interface ChatRoomData {
-  messages: Message[];
-  conversationLength: number;
-  isMeeting?: boolean;
-  meeting_uuid?: string | null;
-}
 
 interface ChatBoxProps {
   token: string;

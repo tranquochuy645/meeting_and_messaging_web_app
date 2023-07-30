@@ -1,36 +1,47 @@
 import { FC } from "react";
 import './style.css';
 import LazyLoadMediaDetector from "../LazyLoadMediaDetector";
-interface OwnMessageProps {
+interface OutGoingMessageProps {
     token: string;
     content: string;
     timestamp: string;
     urls?: string[] | null;
+    seenList?: string[];
 }
 
-const OwnMessage: FC<OwnMessageProps> = ({ token, content, timestamp, urls }) => {
+const OutGoingMessage: FC<OutGoingMessageProps> = ({ token, content, timestamp, urls, seenList }) => {
     return (
-        <div className='message own'>
+        <div className='message out'>
             <div className='message_wrapper'>
                 <p>{content}</p>
             </div>
             <p className='message_timestamp'>{timestamp}</p>
-            {urls &&
+            {
+                urls &&
                 urls.length > 0 &&
                 urls.map((url, index) => {
                     return <LazyLoadMediaDetector key={timestamp + index} token={token} url={url} />
                 })}
+            {
+                seenList && seenList.length > 0 && (
+                    <p>Seen by:
+                        {seenList.map((e) =>
+                            <span>{e}</span>)
+                        }
+                    </p>
+                )
+            }
         </div>
     );
 };
 
-interface GuestMessageProps extends OwnMessageProps {
+interface InComingMessageProps extends OutGoingMessageProps {
     avatarSRC: string;
 }
 
-const GuestMessage: FC<GuestMessageProps> = ({ token, avatarSRC, content, timestamp, urls }) => {
+const InComingMessage: FC<InComingMessageProps> = ({ token, avatarSRC, content, timestamp, urls, seenList }) => {
     return (
-        <div className='message guest'>
+        <div className='message in'>
             <div className='message_wrapper'>
                 <img className="inchat-avatar" src={avatarSRC} alt="Sender Avatar" />
                 <p>{content}</p>
@@ -41,8 +52,17 @@ const GuestMessage: FC<GuestMessageProps> = ({ token, avatarSRC, content, timest
                     })}
             </div>
             <p className='message_timestamp'>{timestamp}</p>
+            {
+                seenList && seenList.length > 0 && (
+                    <p>Seen by:
+                        {seenList.map((e) =>
+                            <span>{e}</span>)
+                        }
+                    </p>
+                )
+            }
         </div>
     );
 };
 
-export { OwnMessage, GuestMessage };
+export { OutGoingMessage, InComingMessage };

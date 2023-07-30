@@ -1,6 +1,8 @@
 import { ObjectId } from "mongodb";
 import { CollectionReference } from "./generic";
 
+import { RoomList } from "../interfaces";
+
 class User {
   username: string;
   password: string;
@@ -354,7 +356,6 @@ export default class UsersController extends CollectionReference {
    */
   public async extractRoomsList(userId: string): Promise<RoomList> {
     try {
-      // Use the MongoDB aggregation pipeline to efficiently retrieve the rooms list
       const allRoomsOfUser = await this._collection?.aggregate([
         // Match the user with the specified ObjectId
         {
@@ -407,8 +408,22 @@ export default class UsersController extends CollectionReference {
             "userRooms.isMeeting": 1,
             "userRooms.meeting_uuid": 1,
             "userRooms.type": 1,
-            "userRooms.readCursors": 1,
-            "userRooms.latestMessage": { $lastN: { n: 1, input: "$userRooms.messages" } } // last message
+            "userRooms.lastReadTimeStamp": {
+              $reduce: {
+                input: "$userRooms.readCursors",
+                initialValue: null,
+                in: {
+                  $cond: [
+                    { $eq: ["$$this._id", new ObjectId(userId)] },
+                    "$$this.lastReadTimeStamp",
+                    "$$value"
+                  ]
+                }
+              }
+            },
+            "userRooms.latestMessage": {
+              $arrayElemAt: ["$userRooms.messages", -1] // Get the last message from the "messages" array
+            }
           }
         },
         // Group the documents back to the original structure using $group
@@ -422,7 +437,7 @@ export default class UsersController extends CollectionReference {
                 isMeeting: "$userRooms.isMeeting",
                 meeting_uuid: "$userRooms.meeting_uuid",
                 type: "$userRooms.type",
-                readCursors: "$userRooms.readCursors",
+                lastReadTimeStamp: "$userRooms.lastReadTimeStamp",
                 latestMessage: "$userRooms.latestMessage"
               }
             }
@@ -432,30 +447,11 @@ export default class UsersController extends CollectionReference {
 
       // Return the rooms array of the first document (user) in the result
       return allRoomsOfUser[0]?.rooms || [];
-    } catch (e) {
-      throw e;
+    } catch (err: any) {
+      const errStacked = new Error(`Error in extractRoom: ${err.message}`);
+      throw errStacked;
     }
   }
 
 }
 
-
-interface RoomParticipant {
-  _id: ObjectId;
-  fullname: string;
-  avatar: string;
-  isOnline: boolean;
-  bio?: string; // Optional field, as it might not be present in all participants
-}
-
-interface Room {
-  _id: ObjectId;
-  participants: RoomParticipant[];
-  type: string; // 'global' or 'defautt'
-  isMeeting: boolean;
-  meeting_uuid: string | null;
-  readCursors: any[]
-}
-
-// Define the array of Room objects
-interface RoomList extends Array<Room> { }

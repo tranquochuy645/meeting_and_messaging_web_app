@@ -1,12 +1,12 @@
-import { FC, useState, useEffect } from "react";
+import { FC, useState, useEffect, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import "./style.css";
-import RoomsList from "../../components/RoomsList";
+import RoomsList from "../../components/RoomsNav";
 import ChatBox from "../../components/ChatBox";
 import Profile from "../../components/Profile";
 import RoomMaker from "../../components/RoomMaker";
 import BackGround from "../../components/BackGround";
-import { SocketProvider } from "../../components/SocketProvider";
+import SocketProvider from "../../components/SocketProvider";
 
 interface MainProps {
   token: string;
@@ -112,4 +112,4 @@ const Main: FC<MainProps> = ({ token }) => {
   );
 };
 
-export default Main;
+export default memo(Main);

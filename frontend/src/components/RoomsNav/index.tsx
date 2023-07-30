@@ -1,8 +1,10 @@
 import { FC, useEffect, useState, useMemo } from 'react';
-import Room from '../Room';
+import RoomProfile from '../RoomProfile';
+import RoomOpts from '../RoomOpts';
 import './style.css';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../SocketProvider';
+import { Message } from '../MessagesContainer';
 export interface Participant {
     _id: string;
     fullname: string;
@@ -15,8 +17,8 @@ export interface ChatRoom {
     participants: Participant[];
     isMeeting: boolean;
     meeting_uuid: string | null;
-    latestMessage: any[];
-    readCursors: any[];
+    latestMessage: Message;
+    lastReadTimeStamp: string | null;
 }
 interface RoomsListProps {
     userId: string;
@@ -53,7 +55,7 @@ const getRoomsInfo = (token: string): Promise<any> => {
     });
 };
 
-const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoomChange, onUpdateStatus }) => {
+const RoomsNav: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoomChange, onUpdateStatus }) => {
     const [roomsInfo, setRoomsInfo] = useState<ChatRoom[]>([]);
     const socket = useSocket()
     const navigate = useNavigate();
@@ -144,8 +146,8 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
             });
         });
     };
-    const handleRoomRefresh = () => {
-        // Received a ping from the server to resfresh room information
+    const handleRoomsRefresh = () => {
+        // Received a ping from the server to resfresh rooms information
         getRoomsInfo(token)
             .then(
                 (data) => {
@@ -164,10 +166,42 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
         rooms[index]?.classList?.add('active')
         onRoomChange(index);
     }
-    // const handleReceiveMessage = (msg: string[]) => {
-    //     //msg: [sender, content, date, room id]
+    const handleReceiveMessage = (msg: any[]) => {
+        //msg: [sender, room id, content, date, [urls]]
+        console.log(msg);
+        setRoomsInfo(prevRoomsInfo => {
+            if (!prevRoomsInfo) {
+                return prevRoomsInfo;
+            }
+            return prevRoomsInfo.map(room => {
+                if (room._id === msg[1]) {
+                    return {
+                        ...room,
+                        latestMessage:
+                        {
+                            sender: msg[0],
+                            content: msg[2],
+                            timestamp: msg[3],
+                            urls: msg[4],
+                        }
+                    };
+                }
+                return room; // Return 'room' if the condition is not met
+            });
+        });
+    };
 
-    // }
+    const handleSeen = (msg: string[]) => {
+        //msg: [room id, user id , date] 
+        if (msg[1] !== userId) return
+        setRoomsInfo((prev) => {
+            return prev.map((room) => {
+                if (room._id === msg[0])
+                    return { ...room, lastReadTimeStamp: msg[2] }
+                return room
+            })
+        })
+    }
 
     useEffect(
         () => {
@@ -182,13 +216,17 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
             socket.on("off", handleOfflineUpdate);
             socket.on("meet", handleMeetUpdate);
             socket.on("end_meet", handleEndMeetUpdate);
-            socket.on("room", handleRoomRefresh);
+            socket.on("room", handleRoomsRefresh);
+            socket.on("msg", handleReceiveMessage);
+            socket.on("seen", handleSeen);
             return (() => {
                 socket.off("onl", handleOnlineUpdate);
                 socket.off("off", handleOfflineUpdate);
                 socket.off("meet", handleMeetUpdate);
                 socket.off("end_meet", handleEndMeetUpdate);
-                socket.off("room", handleRoomRefresh);
+                socket.off("room", handleRoomsRefresh);
+                socket.off("msg", handleReceiveMessage)
+                socket.off("seen", handleSeen);
             })
         }
     }, [socket])
@@ -234,25 +272,23 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
     const roomList = useMemo(() => {
         return roomsInfo.map(
             (room: ChatRoom, index: number) => {
-                const myCursor = room?.readCursors?.find((cursor) => cursor._id == userId)
+                const myCursor = room?.lastReadTimeStamp;
+                const latestMessageContent = room?.latestMessage?.content;
+                const latestMessageTimestamp = room?.latestMessage?.timestamp;
+                const isUnread =
+                    latestMessageTimestamp &&
+                    myCursor &&
+                    new Date(latestMessageTimestamp) > new Date(myCursor) &&
+                    index !== currentRoomIndex;
                 return (
                     <div className={`chat-room ${index == currentRoomIndex ? 'active' : ''}`}
                         key={room._id}>
                         <div onClick={() => handleRoomClick(index)}>
-                            <Room userId={userId} participants={room.participants} />
-                            <p>{room?.latestMessage[0]?.content}</p>
-                            <p>{
-                                room?.latestMessage[0]?.timestamp > myCursor?.lastReadTimeStamp ? "Unread" : "All Read"
-                            }</p>
+                            <RoomProfile userId={userId} participants={room.participants} />
+                            <p>{latestMessageContent}</p>
+                            <p>{isUnread ? 'Unread' : 'All Read'}</p>
                         </div>
-                        <input className='checkbox' type="checkbox" id={`${room._id}_opts`} />
-                        <label className='checkbox_label' htmlFor={`${room._id}_opts`}>
-                            <i className='bx bx-dots-vertical-rounded'></i>
-                        </label>
-                        <div className='chat-room_opts'>
-                            <button onClick={() => handleAction('leave', room._id)}>Leave</button>
-                            <button onClick={() => handleAction('delete', room._id)}>Delete</button>
-                        </div>
+                        <RoomOpts handleAction={handleAction} roomId={room._id} />
                     </div>
                 )
             })
@@ -271,4 +307,4 @@ const RoomsList: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoom
     );
 };
 
-export default RoomsList;
+export default RoomsNav;

@@ -1,8 +1,8 @@
 import ThemeSwitch from "../ThemeSwitch"
 import { FC, memo, useEffect } from "react";
 import { useSocket } from "../SocketProvider";
-import Room from "../Room";
-import { ChatRoom } from "../RoomsList";
+import Room from "../RoomProfile";
+import { ChatRoom } from "../RoomsNav";
 import './style.css'
 interface ChatBoxTopBarProps {
     token: string;
