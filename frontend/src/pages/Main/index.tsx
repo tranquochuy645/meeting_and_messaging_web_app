@@ -1,4 +1,4 @@
-import { FC, useState, useEffect, memo } from "react";
+import { FC, useState, useEffect, memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./style.css";
 import RoomsList from "../../components/RoomsNav";
@@ -55,12 +55,14 @@ const Main: FC<MainProps> = ({ token }) => {
       navigate("/auth");
     }
   };
-  const handleRoomChange = (index: number) => {
-    setCurrentRoomIndex(index);
-  };
-  const handleUpdate = (rooms: any) => {
-    setRoomsInfo(rooms);
-  };
+  const handleRoomChange = useCallback(
+    (index: number) => {
+      setCurrentRoomIndex(index);
+    }, []);
+  const handleUpdate = useCallback(
+    (rooms: any) => {
+      setRoomsInfo(rooms);
+    }, [])
 
   useEffect(() => {
     if (token) {

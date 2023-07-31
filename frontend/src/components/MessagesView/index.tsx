@@ -1,4 +1,4 @@
-import { FC, useEffect, useState, useRef, memo } from 'react';
+import { FC, useEffect, useState, useRef, memo, useMemo } from 'react';
 import { OutGoingMessage, InComingMessage } from '../ChatMessage';
 import { Message, ReadCursor } from '../MessagesContainer';
 import { useSocket } from '../SocketProvider';
@@ -12,21 +12,28 @@ interface MessagesViewProps {
     participants: any[];
 }
 
+
+
+const getSenderAvatar = (id: string, participantLookup: { [key: string]: any }): string => {
+    const sender = participantLookup[id];
+    return sender ? sender.avatar : '';
+};
+
+
 const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roomId, userId, participants }) => {
     const [cursorsMap, setCursorsMap] = useState<{ [key: string]: number }>({});
-    const participantLookup: { [key: string]: any } = {};
-    const currentMessagesLengthRef = useRef(messages.length)
+    const lengthRef = useRef(messages.length);
     const socket = useSocket();
-    // Create a participant lookup map for quick access
 
-    participants.forEach((participant) => {
-        participantLookup[participant._id] = participant;
-    });
+    // Create a participant lookup map for quick access
+    const participantsLookupRef = useRef<{ [key: string]: any }>({})
+    participantsLookupRef.current = useMemo(() => {
+        return Object.fromEntries(
+            participants.map((participant) => [participant._id, participant])
+        );
+    }, [participants])
+
     // Function to get the sender's avatar based on message's sender
-    const getSenderAvatar = (id: string): string => {
-        const sender = participantLookup[id];
-        return sender ? sender.avatar : '';
-    };
 
     const handleSeen = (msg: string[]) => {
         //msg: [room id, user id , date] 
@@ -34,13 +41,14 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
         setCursorsMap((prevCursorsMap) => {
             return {
                 ...prevCursorsMap,
-                [msg[1]]: currentMessagesLengthRef.current - 1
+                [msg[1]]: lengthRef.current - 1
             };
         });
     }
     useEffect(() => {
-        currentMessagesLengthRef.current = messages.length;
-    }, [messages])
+        lengthRef.current = messages.length
+    }, [messages.length])
+
     useEffect(() => {
         if (socket) {
             socket.on("seen", handleSeen);
@@ -52,7 +60,7 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
 
 
     useEffect(() => {
-        const updatedCursorsMap: { [key: string]: number } = {};
+        const updatedCursorsMap: { [key: string]: number } = {}
         readCursors
             .filter((cursor) => cursor._id !== userId)
             .forEach((cursor) => {
@@ -69,10 +77,10 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
     }, [readCursors]);
 
 
+
     return (
         <>
             {
-                Array.isArray(messages) &&
                 messages.map((message: Message, index: number) => {
                     let seenList: string[] = []
                     participants.forEach((p: any) => {
@@ -96,7 +104,7 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
                         <InComingMessage
                             token={token}
                             key={index}
-                            avatarSRC={getSenderAvatar(message.sender)}
+                            avatarSRC={getSenderAvatar(message.sender, participantsLookupRef.current)}
                             content={message.content}
                             timestamp={message.timestamp}
                             urls={message.urls}
