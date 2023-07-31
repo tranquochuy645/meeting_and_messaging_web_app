@@ -1,7 +1,7 @@
 import ThemeSwitch from "../ThemeSwitch"
 import { FC, memo, useEffect } from "react";
 import { useSocket } from "../SocketProvider";
-import Room from "../RoomProfile";
+import RoomProfile from "../RoomProfile";
 import { ChatRoom } from "../RoomsNav";
 import './style.css'
 interface ChatBoxTopBarProps {
@@ -9,15 +9,16 @@ interface ChatBoxTopBarProps {
     room: ChatRoom;
     userId: string;
 }
+const handleJoinCall = (token: string, uuid: string, roomId: string) => {
+    const url = `/meet/${uuid}?token=${token}&room=${roomId}`;
+    window.open(url)
+}
 const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
     const socket = useSocket();
     const handleMakeCall = () => {
         socket.emit("meet", [room._id, new Date()]);
     }
-    const handleJoinCall = (uuid: string) => {
-        const url = `/meet/${uuid}?token=${token}&room=${room._id}`;
-        window.open(url)
-    }
+
     const handleReceiveCall = (msg: string[]) => {
         console.log(msg);
         // msg: [sender id,room ID, meeting UUID, date]
@@ -27,7 +28,7 @@ const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
                 //already joined
                 return
             }
-            return handleJoinCall(msg[2]);
+            return handleJoinCall(token, msg[2], msg[1]);
         }
 
         // Show a notification
@@ -41,7 +42,7 @@ const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
             // Handle user's response to the notification
             notification.addEventListener("click", () => {
                 // Open a new tab and pass the UUID to it
-                handleJoinCall(msg[2])
+                handleJoinCall(token, msg[2], msg[1])
             });
         } else if (Notification.permission !== "denied") {
             // Request permission to show notifications
@@ -53,25 +54,25 @@ const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
             });
         }
     };
-    room && useEffect(() => {
-        if (socket) {
+    useEffect(() => {
+        if (room && socket) {
             socket.on("meet", handleReceiveCall);
             return (() => {
                 socket.off("meet", handleReceiveCall);
             })
         }
-    }, [socket, room._id])
+    }, [socket, room])
     return (
         <div id="chat-box_topbar" className='flex'>
             {room && <div id="chat-box_topbar_left">
-                <Room  userId={userId} participants={room.participants} />
+                <RoomProfile userId={userId} participants={room.participants} />
 
                 {room.isMeeting && room.meeting_uuid ? (
                     <>
                         <p>This room is in a meeting</p>
                         <button
                             onClick={
-                                () => handleJoinCall(room.meeting_uuid as string)
+                                () => handleJoinCall(token, room.meeting_uuid as string, room._id)
                             }
                         >Join
                         </button>

@@ -7,29 +7,8 @@ interface MeetingWindowProps {
 }
 const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
     const localVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
-    const [peersList, setPeersList] = useState<any[]>([])
     const socket = useSocket()
-    useEffect(() => {
-        if (localVideoPlayerRef.current)
-            localVideoPlayerRef.current.srcObject = localStream
-    }, [localStream])
-    useEffect(() => {
-        if (socket) {
-            socket.on('new_peer', handleNewPeer);
-            socket.on('off_peer', handleOffPeer);
-            socket.on('offer', handleOffer);
-            socket.on('answer', handleAnswer);
-            socket.on('ice_candidate', handleIceCandidate);
-            return (() => {
-                socket.off('new_peer', handleNewPeer);
-                socket.off('off_peer', handleOffPeer);
-                socket.off('offer', handleOffer);
-                socket.off('answer', handleAnswer);
-                socket.off('ice_candidate', handleIceCandidate);
-            })
-        }
-    }, [socket])
-
+    const [peersList, setPeersList] = useState<any[]>([])
 
     const handleToggleCamera = () => {
         // Make sure there is a local stream and a peer connection
@@ -69,6 +48,7 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
 
 
     const handleNewPeer = (peerId: string) => {
+        console.log(peerId)
         setPeersList(
             (prev) => {
                 const peer = {
@@ -112,8 +92,30 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
             });
         });
     }
+    useEffect(() => {
+        if (localVideoPlayerRef.current && localStream instanceof MediaStream) {
+            localVideoPlayerRef.current.srcObject = localStream
+        }
+    }, [localStream])
 
-
+    useEffect(() => {
+        if (socket && localStream) {
+            console.log('setup listeners')
+            socket.on('new_peer', handleNewPeer);
+            socket.on('off_peer', handleOffPeer);
+            socket.on('offer', handleOffer);
+            socket.on('answer', handleAnswer);
+            socket.on('ice_candidate', handleIceCandidate);
+            return (() => {
+                console.log('clean up listeners');
+                socket.off('new_peer', handleNewPeer);
+                socket.off('off_peer', handleOffPeer);
+                socket.off('offer', handleOffer);
+                socket.off('answer', handleAnswer);
+                socket.off('ice_candidate', handleIceCandidate);
+            })
+        }
+    }, [socket, localStream])
     return (
         <>
             <section id="meeting-page_section_local" className={`${peersList.length > 0 ? " aside" : ""}`}>

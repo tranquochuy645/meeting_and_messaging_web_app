@@ -1,6 +1,7 @@
 import { lazy, useState, Suspense, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import PendingFigure from './components/PendingFigure';
+const SocketProvider = lazy(() => import('./components/SocketProvider'))
 const Auth = lazy(() => import('./pages/Auth'));
 const Main = lazy(() => import('./pages/Main'));
 const Meet = lazy(() => import('./pages/Meet'));
@@ -27,7 +28,9 @@ function App() {
       <Route path="/"
         element={
           <Suspense fallback={<PendingFigure size={500} />}>
+            <SocketProvider token={token}>
               <Main token={token} />
+            </SocketProvider >
           </Suspense>
         }
       />

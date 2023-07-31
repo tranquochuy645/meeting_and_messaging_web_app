@@ -1,4 +1,4 @@
-import { FC, createContext, useContext, useEffect, useRef } from "react";
+import { FC, createContext, useContext, useMemo } from "react";
 import { Socket } from "socket.io-client";
 import SocketController from "../../lib/SocketController";
 interface JoinMeetingRequirement {
@@ -14,26 +14,21 @@ interface SocketProviderProps {
 const SocketContext = createContext<Socket | undefined>(undefined);
 
 const SocketProvider: FC<SocketProviderProps> = ({ token, joinMeet, children }) => {
-    const socketRef: any = useRef(null)
-    socketRef.current = SocketController;
-    useEffect(() => {
+    const socketInit = useMemo(() => {
         if (token) {
             if (joinMeet) {
-                socketRef.current.connect(token, joinMeet)
+                SocketController.connect(token, joinMeet)
             } else {
-                socketRef.current.connect(token)
+                SocketController.connect(token)
             }
         } else {
-            socketRef.current.disconnect()
+            SocketController.disconnect()
         }
-    }, [joinMeet])
-    useEffect(() => {
-        if (!token) {
-            socketRef.current.disconnect()
-        }
-    }, [token])
+        return SocketController.instance;
+    }, [token, joinMeet])
+
     return (
-        <SocketContext.Provider value={socketRef.current.instance}>
+        <SocketContext.Provider value={socketInit}>
             {children}
         </SocketContext.Provider>
     );

@@ -6,7 +6,6 @@ import ChatBox from "../../components/ChatBox";
 import Profile from "../../components/Profile";
 import RoomMaker from "../../components/RoomMaker";
 import BackGround from "../../components/BackGround";
-import SocketProvider from "../../components/SocketProvider";
 
 interface MainProps {
   token: string;
@@ -45,6 +44,7 @@ const Main: FC<MainProps> = ({ token }) => {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [roomsInfo, setRoomsInfo] = useState<any[]>([]);
   const [currentRoomIndex, setCurrentRoomIndex] = useState<number>(0);
+  console.log("render main")
   const navigate = useNavigate();
   const handleReFreshProfile = async () => {
     try {
@@ -80,7 +80,7 @@ const Main: FC<MainProps> = ({ token }) => {
   return (
     <div id="main-page" className="flex">
       {profileData ? (
-        <SocketProvider token={token}>
+        <>
           <div id="main-page_container">
             <section id="section-left">
               <Profile
@@ -106,7 +106,7 @@ const Main: FC<MainProps> = ({ token }) => {
             </section>
           </div>
           <BackGround />
-        </SocketProvider>
+        </>
       ) : (
         <div>Loading skeleton ...</div>
       )}

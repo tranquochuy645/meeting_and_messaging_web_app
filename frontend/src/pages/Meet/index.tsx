@@ -9,25 +9,24 @@ const Meet: FC = () => {
     const { meetId } = useParams();
     const [localStream, setLocalStream] = useState<MediaStream | null>(null)
     const navigate = useNavigate();
+    console.log("meet page render")
     // Try to find token & roomId in session storage first
     let token = sessionStorage.getItem('token');
     let originalRoomId = sessionStorage.getItem('room');
-    useEffect(() => {
-        if (!meetId) {
-            return navigate('/auth');
-        }
-        if (!token || !originalRoomId) {
-            //This if happen when token || originalRoomId is not set in session storage
-            const urlParams = new URLSearchParams(window.location.search);
-            const pr_1 = urlParams.get('token');
-            const pr_2 = urlParams.get('room');
-            //Try to find on url params
+    if (!meetId) {
+        navigate('/auth');
+    } else if (!token || !originalRoomId) {
+        //This if happen when token || originalRoomId is not set in session storage
+        const urlParams = new URLSearchParams(window.location.search);
+        const pr_1 = urlParams.get('token');
+        const pr_2 = urlParams.get('room');
+        //Try to find on url params
 
-            if (!pr_1 || !pr_2) {
-                //If still not found
-                //Navigate to auth page
-                return navigate('/auth');
-            }
+        if (!pr_1 || !pr_2) {
+            //If still not found
+            //Navigate to auth page
+            navigate('/auth');
+        } else {
             // Remove the 'token' parameter from the URL
             urlParams.delete('token');
             urlParams.delete('room');
@@ -38,8 +37,9 @@ const Meet: FC = () => {
             sessionStorage.setItem('token', pr_1);
             sessionStorage.setItem('room', pr_2);
         }
-        console.log('render');
-    }, []);
+
+    }
+    console.log('render');
 
     return (
         <div id="meeting-page">
