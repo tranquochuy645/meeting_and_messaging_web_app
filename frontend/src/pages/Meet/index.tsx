@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { FC, useEffect, useState } from 'react';
+import { FC,  useState } from 'react';
 import SocketProvider from '../../components/SocketProvider';
 import AskForMediaDevices from '../../components/AskForMediaDevices';
 import MeetingWindow from '../../components/MeetingWindow';

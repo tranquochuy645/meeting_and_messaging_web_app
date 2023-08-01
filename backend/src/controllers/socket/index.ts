@@ -46,6 +46,15 @@ export default class SocketIOController {
         socket.join(initData[1]);
         console.log("A user has joined meeting");
 
+        socket.on('terminate_offer', () => {
+          socket.to(initData[1]).emit('terminate_offer', socket.id);
+          console.log("terminate offer");
+        })
+        socket.on('terminate_answer', () => {
+          socket.to(initData[1]).emit('terminate_answer', socket.id);
+          console.log("terminate answer");
+        })
+
         socket.on("disconnect", () => {
           io.to(initData[1]).emit('off_peer', socket.id);
           console.log("A user has left meeting");
@@ -58,17 +67,17 @@ export default class SocketIOController {
         })
         socket.on('offer', (msg: any[]) => {
           //msg: [ target socket id, offer data]
-          console.log("offer:", msg);
+          console.log("offer");
           socket.to(msg[0]).emit('offer', [socket.id, msg[1]]);
         })
         socket.on('answer', (msg: any[]) => {
           //msg: [ target socket id, answer data]
-          console.log("answer:", msg)
+          console.log("answer")
           socket.to(msg[0]).emit('answer', [socket.id, msg[1]]);
         })
         socket.on('ice_candidate', (msg: any[]) => {
           //msg: [ target socket id, ice data]
-          console.log("ice:", msg)
+          console.log("ice")
           socket.to(msg[0]).emit('ice_candidate', [socket.id, msg[1]]);
         })
         // When a user completed setup camera, they send "ok"

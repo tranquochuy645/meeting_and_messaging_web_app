@@ -1,4 +1,4 @@
-import { FC, createContext, useContext, useMemo } from "react";
+import { FC, createContext, useContext, useEffect, memo, useState } from "react";
 import { Socket } from "socket.io-client";
 import SocketController from "../../lib/SocketController";
 interface JoinMeetingRequirement {
@@ -14,33 +14,46 @@ interface SocketProviderProps {
 const SocketContext = createContext<Socket | undefined>(undefined);
 
 const SocketProvider: FC<SocketProviderProps> = ({ token, joinMeet, children }) => {
-    const socketInit = useMemo(() => {
+    const [connected, setConnected] = useState<boolean>(false);
+    console.log("provider exec")
+    useEffect(() => {
+        console.log("socket effect")
         if (token) {
             if (joinMeet) {
                 SocketController.connect(token, joinMeet)
             } else {
                 SocketController.connect(token)
             }
+            setConnected(true)
         } else {
             SocketController.disconnect()
+            setConnected(false)
         }
-        return SocketController.instance;
-    }, [token, joinMeet])
-
+        return (() => {
+            console.log("unmounted socket provider")
+            SocketController.disconnect()
+            setConnected(false)
+        })
+    }, [])
+    // No need for dependenciesin this useEffect because this component is memoized and only run when token or joinMeet changes
     return (
-        <SocketContext.Provider value={socketInit}>
-            {children}
+        <SocketContext.Provider value={SocketController.instance}>
+            {connected ? children : (<>Socket connecting...</>)}
         </SocketContext.Provider>
     );
 };
 
 const useSocket = () => {
     const socket = useContext(SocketContext);
-    if (!socket) {
-        throw new Error("useSocket must be used within a SocketProvider.");
-    }
     return socket;
 };
 
+const MemoizedSocketProvider = memo(SocketProvider, (prevProps, nextProps) => {
+    return (
+        prevProps.token === nextProps.token &&
+        JSON.stringify(prevProps.joinMeet) === JSON.stringify(nextProps.joinMeet)
+    );
+});
+
 export { useSocket };
-export default SocketProvider
+export default MemoizedSocketProvider

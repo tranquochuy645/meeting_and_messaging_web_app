@@ -215,8 +215,8 @@ router.put('/:id', verifyToken, async (req, res) => {
         // Add the user to the socket.io room for the room.
         ic.addToRoom(req.headers.userId as string, req.params.id as string);
 
-        // Emit a 'room' event to the user's socket.io room to signal refreshing the rooms list.
-        ic.io.to(req.headers.userId as string).emit('room');
+        // Emit a 'room' event to signal refreshing the rooms list.
+        ic.io.to(req.params.id as string).emit('room');
 
         // Respond with a 200 status and a success message after successfully joining the room.
         return res.status(200).json({ message: "ok" });

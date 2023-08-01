@@ -1,14 +1,20 @@
 import { FC, useEffect, useRef, useState } from 'react';
 import { useSocket } from '../SocketProvider';
 import RemoteVideoScreen from '../../components/RemoteVideoScreen';
+import RTCClient from '../../lib/RTCClient';
 import './style.css';
 interface MeetingWindowProps {
     localStream: MediaStream;
 }
+
+interface Peer {
+    id: string;
+    client: RTCClient;
+}
 const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
     const localVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
     const socket = useSocket()
-    const [peersList, setPeersList] = useState<any[]>([])
+    const [peersList, setPeersList] = useState<Peer[]>([])
 
     const handleToggleCamera = () => {
         // Make sure there is a local stream and a peer connection
@@ -47,26 +53,42 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
     };
 
 
-    const handleNewPeer = (peerId: string) => {
-        console.log(peerId)
+    const handleNewPeer = async (peerId: string) => {
+        const newClient = new RTCClient(localStream,
+            (ice) => {
+                socket?.emit("ice_candidate", [peerId, ice])
+            })
+        const localDes = await newClient.createOffer();
+        socket?.emit("offer", [peerId, localDes])
         setPeersList(
             (prev) => {
+                const updated = prev.filter((peer) => peer.id !== peerId)
                 const peer = {
-                    id: peerId
+                    id: peerId,
+                    client: newClient
                 }
-                return [...prev, peer]
+                return [...updated, peer]
             }
         )
+
     }
     const handleOffer = async (msg: any[]) => {
         // msg: [peerId, offer]
+        const newClient = new RTCClient(
+            localStream,
+            (ice) => {
+                socket?.emit("ice_candidate", [msg[0], ice])
+            })
+        const localDes = await newClient.createAnswer(msg[1]);
+        socket?.emit("answer", [msg[0], localDes])
         setPeersList(
             (prev) => {
+                const updated = prev.filter((peer) => peer.id !== msg[0])
                 const peer = {
                     id: msg[0],
-                    offer: msg[1]
+                    client: newClient
                 }
-                return [...prev, peer]
+                return [...updated, peer]
             }
         )
     }
@@ -75,7 +97,7 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
         setPeersList(prev => {
             return prev.map(peer => {
                 if (peer.id === msg[0]) {
-                    return { ...peer, answer: msg[1] };
+                    peer.client.setRemoteDescription(msg[1])
                 }
                 return peer;
             });
@@ -86,21 +108,23 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
         setPeersList(prev => {
             return prev.map(peer => {
                 if (peer.id === msg[0]) {
-                    return { ...peer, ice: msg[1] };
+                    peer.client.addIce(msg[1])
                 }
                 return peer;
             });
         });
     }
+
     useEffect(() => {
         if (localVideoPlayerRef.current && localStream instanceof MediaStream) {
             localVideoPlayerRef.current.srcObject = localStream
         }
     }, [localStream])
-
     useEffect(() => {
         if (socket && localStream) {
             console.log('setup listeners')
+            // socket.on('terminate_offer', handleTerminateOffer);
+            // socket.on('terminate_answer', handleTerminateAnswer);
             socket.on('new_peer', handleNewPeer);
             socket.on('off_peer', handleOffPeer);
             socket.on('offer', handleOffer);
@@ -108,6 +132,8 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
             socket.on('ice_candidate', handleIceCandidate);
             return (() => {
                 console.log('clean up listeners');
+                // socket.off('terminate_offer', handleTerminateOffer);
+                // socket.off('terminate_answer', handleTerminateAnswer);
                 socket.off('new_peer', handleNewPeer);
                 socket.off('off_peer', handleOffPeer);
                 socket.off('offer', handleOffer);
@@ -130,15 +156,11 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
                 <section id="meeting-page_section_remote"
                     className={`${peersList.length > 1 ? "stacked" : ""}`}>
                     {peersList.map(
-                        (peer: any) =>
-                            <div className={`remote-peer-container ${peer.id}`}>
+                        (peer: Peer) =>
+                            <div key={peer.id} className={`remote-peer-container ${peer.id}`}>
                                 <RemoteVideoScreen
-                                    key={peer.id}
                                     peerId={peer.id}
-                                    localStream={localStream}
-                                    offer={peer.offer}
-                                    answer={peer.answer}
-                                    ice={peer.ice}
+                                    remoteStream={peer.client.remoteStream}
                                 />
                             </div>
                     )}
