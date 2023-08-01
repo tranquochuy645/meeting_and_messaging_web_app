@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState, useCallback } from 'react';
 import { useSocket } from '../SocketProvider';
 import RemoteVideoScreen from '../../components/RemoteVideoScreen';
 import RTCClient from '../../lib/RTCClient';
@@ -14,106 +14,101 @@ interface Peer {
 const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
     const localVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
     const socket = useSocket()
-    const [peersList, setPeersList] = useState<Peer[]>([])
+    const [peersList, setPeersList] = useState<{ [key: string]: Peer }>({});
 
-    const handleToggleCamera = () => {
-        // Make sure there is a local stream and a peer connection
+    const handleToggleCamera = useCallback(() => {
         if (localStream) {
-            // Get all the video tracks from the local stream
             const videoTracks = localStream.getVideoTracks();
-
-            // Toggle the state of each video track
             videoTracks.forEach((track) => {
-                // If the track is enabled, disable it (turn off the camera)
-                // If the track is disabled, enable it (turn on the camera)
                 track.enabled = !track.enabled;
             });
         }
-    }
-    const handleToggleSound = () => {
-        // Make sure there is a local stream and a peer connection
-        if (localStream) {
-            // Get all the audio tracks from the local stream
-            const audioTracks = localStream.getAudioTracks();
+    }, [localStream]);
 
-            // Toggle the state of each audio track
+    const handleToggleSound = useCallback(() => {
+        if (localStream) {
+            const audioTracks = localStream.getAudioTracks();
             audioTracks.forEach((track) => {
-                // If the track is enabled, disable it (turn off the microphone)
-                // If the track is disabled, enable it (turn on the microphone)
                 track.enabled = !track.enabled;
             });
         }
-    };
-    const handleOffPeer = (peerId: string) => {
+    }, [localStream]);
+
+    const handleOffPeer = useCallback((peerId: string) => {
         setPeersList((prev) => {
-            // Filter the previous peers list to exclude the peer with the specified peerId
-            const updatedPeersList = prev.filter((peer) => peer.id !== peerId);
+            const updatedPeersList = { ...prev };
+            delete updatedPeersList[peerId];
             return updatedPeersList;
         });
-    };
+    }, []);
 
+    const handleNewPeer = useCallback(
+        async (peerId: string) => {
+            const newClient = new RTCClient(localStream, (ice) => {
+                socket?.emit("ice_candidate", [peerId, ice]);
+            });
 
-    const handleNewPeer = async (peerId: string) => {
-        const newClient = new RTCClient(localStream,
-            (ice) => {
-                socket?.emit("ice_candidate", [peerId, ice])
-            })
-        const localDes = await newClient.createOffer();
-        socket?.emit("offer", [peerId, localDes])
-        setPeersList(
-            (prev) => {
-                const updated = prev.filter((peer) => peer.id !== peerId)
-                const peer = {
+            const localDes = await newClient.createOffer();
+            socket?.emit("offer", [peerId, localDes]);
+
+            setPeersList((prev) => ({
+                ...prev,
+                [peerId]: {
                     id: peerId,
-                    client: newClient
-                }
-                return [...updated, peer]
-            }
-        )
+                    client: newClient,
+                },
+            }));
+        },
+        [localStream, socket]
+    );
 
-    }
-    const handleOffer = async (msg: any[]) => {
-        // msg: [peerId, offer]
-        const newClient = new RTCClient(
-            localStream,
-            (ice) => {
-                socket?.emit("ice_candidate", [msg[0], ice])
-            })
-        const localDes = await newClient.createAnswer(msg[1]);
-        socket?.emit("answer", [msg[0], localDes])
-        setPeersList(
-            (prev) => {
-                const updated = prev.filter((peer) => peer.id !== msg[0])
-                const peer = {
-                    id: msg[0],
-                    client: newClient
-                }
-                return [...updated, peer]
-            }
-        )
-    }
-    const handleAnswer = async (msg: any[]) => {
-        // msg: [peerId, answer]
-        setPeersList(prev => {
-            return prev.map(peer => {
-                if (peer.id === msg[0]) {
-                    peer.client.setRemoteDescription(msg[1])
-                }
-                return peer;
+    const handleOffer = useCallback(
+        async (msg: any[]) => {
+            const [peerId, offer] = msg;
+            const newClient = new RTCClient(localStream, (ice) => {
+                socket?.emit("ice_candidate", [peerId, ice]);
             });
-        });
-    }
-    const handleIceCandidate = async (msg: any[]) => {
-        // msg: [peerId, iceCandidate]
-        setPeersList(prev => {
-            return prev.map(peer => {
-                if (peer.id === msg[0]) {
-                    peer.client.addIce(msg[1])
-                }
-                return peer;
+
+            const localDes = await newClient.createAnswer(offer);
+            socket?.emit("answer", [peerId, localDes]);
+
+            setPeersList((prev) => ({
+                ...prev,
+                [peerId]: {
+                    id: peerId,
+                    client: newClient,
+                },
+            }));
+        },
+        [localStream, socket]
+    );
+
+    const handleAnswer = useCallback(
+        async (msg: any[]) => {
+            const [peerId, answer] = msg;
+            setPeersList((prev) => {
+                const updatedPeer = { ...prev[peerId] };
+                updatedPeer.client.setRemoteDescription(answer);
+                return { ...prev, [peerId]: updatedPeer };
             });
-        });
-    }
+        },
+        []
+    );
+
+    const handleIceCandidate = useCallback(
+        async (msg: any[]) => {
+            const [peerId, iceCandidate] = msg;
+            setPeersList((prev) => {
+                const updatedPeer = { ...prev[peerId] };
+                if (!updatedPeer.client) {
+                    return prev
+                }
+                updatedPeer.client.addIce(iceCandidate);
+                return { ...prev, [peerId]: updatedPeer };
+            });
+        },
+        []
+    );
 
     useEffect(() => {
         if (localVideoPlayerRef.current && localStream instanceof MediaStream) {
@@ -141,10 +136,16 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
                 socket.off('ice_candidate', handleIceCandidate);
             })
         }
-    }, [socket, localStream])
+    }, [socket,
+        localStream,
+        handleNewPeer,
+        handleOffPeer,
+        handleOffer,
+        handleAnswer,
+        handleIceCandidate,])
     return (
         <>
-            <section id="meeting-page_section_local" className={`${peersList.length > 0 ? " aside" : ""}`}>
+            <section id="meeting-page_section_local" className={`${Object.keys(peersList).length > 0 ? " aside" : ""}`}>
                 <div className='flex meeting-page_ctrl'>
                     <button onClick={handleToggleCamera}>Toggle camera</button>
                     <button onClick={handleToggleSound}>Toggle sound</button>
@@ -152,10 +153,10 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
                 <video id="local-video" ref={localVideoPlayerRef} autoPlay playsInline muted />
             </section>
             {
-                peersList.length > 0 &&
+                Object.keys(peersList).length > 0 &&
                 <section id="meeting-page_section_remote"
-                    className={`${peersList.length > 1 ? "stacked" : ""}`}>
-                    {peersList.map(
+                    className={`${Object.keys(peersList).length > 1 ? "stacked" : ""}`}>
+                    {Object.values(peersList).map(
                         (peer: Peer) =>
                             <div key={peer.id} className={`remote-peer-container ${peer.id}`}>
                                 <RemoteVideoScreen
