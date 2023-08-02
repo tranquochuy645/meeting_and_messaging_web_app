@@ -108,7 +108,7 @@ const RoomsNav: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoomC
     };
     const handleMeetUpdate = (msg: string[]) => {
         // msg : [ senderId, roomId , meetingId , date]
-        console.log("set meet")
+        // console.log("set meet")
         setRoomsInfo((prevRoomsInfo) => {
             if (!prevRoomsInfo) {
                 return prevRoomsInfo;
@@ -128,7 +128,7 @@ const RoomsNav: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoomC
 
     const handleEndMeetUpdate = (msg: string[]) => {
         // msg : [  roomId ]
-        console.log("set end meet")
+        // console.log("set end meet")
 
         setRoomsInfo((prevRoomsInfo) => {
             if (!prevRoomsInfo) {
@@ -168,7 +168,7 @@ const RoomsNav: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoomC
     }
     const handleReceiveMessage = (msg: any[]) => {
         //msg: [sender, room id, content, date, [urls]]
-        console.log(msg);
+        // console.log(msg);
         setRoomsInfo(prevRoomsInfo => {
             if (!prevRoomsInfo) {
                 return prevRoomsInfo;
@@ -295,7 +295,7 @@ const RoomsNav: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoomC
     }, [roomsInfo])
 
     return (
-        <div id='rooms-list'>
+        <div id='rooms-nav'>
             {roomsInfo && roomsInfo.length > 0 ? (
                 <div>
                     {roomList}

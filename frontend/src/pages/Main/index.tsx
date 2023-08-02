@@ -1,7 +1,7 @@
 import { FC, useState, useEffect, memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./style.css";
-import RoomsList from "../../components/RoomsNav";
+import RoomsNav from "../../components/RoomsNav";
 import ChatBox from "../../components/ChatBox";
 import Profile from "../../components/Profile";
 import RoomMaker from "../../components/RoomMaker";
@@ -89,7 +89,7 @@ const Main: FC<MainProps> = ({ token }) => {
                 onRefresh={handleReFreshProfile}
               />
               <RoomMaker token={token} />
-              <RoomsList
+              <RoomsNav
                 userId={profileData._id}
                 currentRoomIndex={currentRoomIndex}
                 token={token}

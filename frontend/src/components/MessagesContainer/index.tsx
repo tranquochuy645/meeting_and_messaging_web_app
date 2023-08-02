@@ -72,7 +72,7 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
     const messagesContainerRef = useRef<HTMLDivElement>(null)
     const socket = useSocket();
     const navigate = useNavigate();
-    console.log("Render container")
+    // console.log("Render container")
 
     const handleReceiveMessage = (msg: any[]) => {
         //msg: [sender,  room id,content, date, [urls]]
@@ -176,7 +176,7 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
                 socket.off("msg", handleReceiveMessage);
             })
         }
-    }, [socket, room._id])
+    }, [socket, room])
 
     useEffect(() => {
         if (topRef.current) { topRef.current.style.display = "none"; }
@@ -203,7 +203,6 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
             return scrollBottom()
         }
         if (Math.abs(messagesContainerRef.current.scrollHeight - messagesContainerRef.current.scrollTop - messagesContainerRef.current.clientHeight) < 300) {
-            console.log("bottom")
             //currently at bottom
             return scrollBottom()
         }
