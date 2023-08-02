@@ -4,14 +4,13 @@
   "description": "",
   "scripts": {
     "build": "cd frontend && tsc && npm run build && cd ../backend && bash build.sh",
-    "test": "npm-run-all --parallel start test:run",
-    "test:run": "npx wait-on http://localhost:3000 && (cd tests && bash runtest.sh &) && wait $! && npm run stop",
+    "test": "cd tests && bash runtest.sh",
     "install": "cd frontend && npm i && cd ../backend && npm i && cd ../release && npm i",
     "dev": "npm-run-all --parallel dev:backend dev:frontend",
     "dev:backend": "cd backend && nodemon src/server.ts",
     "dev:frontend": "cd frontend && npm run dev",
     "start": "cd release && npm run start",
-    "stop": "kill $(lsof -t -i:3000) || true",
+    "stop": "kill $(lsof -t -i:$1) || true", 
     "acp": "git add . && git commit -m 'acp' && git push"
   },
   "author": "Huy Tran",

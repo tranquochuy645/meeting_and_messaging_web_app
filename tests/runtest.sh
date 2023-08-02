@@ -19,9 +19,9 @@ run_postman_tests() {
             # Execution failed
             ((error_counter++))
             # Write the error message to the error log
-            echo "Error in $file:" >> "$error_log"
-            echo "$output" >> "$error_log"
-            echo >> "$error_log"
+            echo "Error in $file:" >>"$error_log"
+            echo "$output" >>"$error_log"
+            echo >>"$error_log"
         fi
     done
 }
@@ -45,12 +45,29 @@ run_js_tests() {
             # Execution failed
             ((error_counter++))
             # Write the error message to the error log
-            echo "Error in $file:" >> "$error_log"
-            echo "$output" >> "$error_log"
-            echo >> "$error_log"
+            echo "Error in $file:" >>"$error_log"
+            echo "$output" >>"$error_log"
+            echo >>"$error_log"
         fi
     done
 }
+
+# Start the server in the background and redirect the output to a log file
+npm run start >server_log.txt 2>&1 &
+server_pid=$!
+
+# Wait for the server to be up and running
+npx wait-on http://localhost:3000
+
+# Check if the server started successfully or encountered an error
+if [ $? -eq 0 ]; then
+    echo "Server started successfully."
+else
+    echo "Error starting the server. Check 'server_log.txt' for details."
+    # Stop the server and exit the script
+    kill $server_pid
+    exit 1
+fi
 
 # Find all JSON files in the current folder and subfolders
 json_files=$(find . -type f -name "*.json" | grep -v "$0")
@@ -89,3 +106,6 @@ echo "JSON Error count: $json_error_count"
 # Display the results for JavaScript files
 echo "JavaScript Success count: $js_success_count"
 echo "JavaScript Error count: $js_error_count"
+
+# Stop the server
+kill $server_pid
