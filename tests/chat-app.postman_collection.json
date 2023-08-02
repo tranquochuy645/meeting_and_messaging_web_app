@@ -1,0 +1,289 @@
+{
+	"info": {
+		"_postman_id": "7f17b163-a566-487c-97e7-31137254d95c",
+		"name": "chat-app",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "27512356"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"pm.test(\"Response body contains expected data\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Hello, World!\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\":\"huyhotboy6g\",\n    \"password\":\"12345Kisss\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/auth/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"pm.test(\"Response body contains expected data\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Hello, World!\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\":\"admin\",\n    \"password\":\"150902Kid\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/auth/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Get user info",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGIwZWFmYWRjNGY0YWM3ZWYwNDgyZWQiLCJmdWxsbmFtZSI6ImFkbWluIiwiaWF0IjoxNjg5MzE4Njk4LCJleHAiOjE2ODkzMjU4OTh9.Z80j2xujJDSMlkdDSAQc7RuC3E-1hujtPF_p7Aek7d4"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "http://localhost:3000/api/v1/users"
+			},
+			"response": []
+		},
+		{
+			"name": "Get card info",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:3000/api/v1/users/64b0eafadc4f4ac7ef0482ed"
+			},
+			"response": []
+		},
+		{
+			"name": "Get one room",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGI5MGM3MDMzMDVlMmNjYjQ5ZGMyOTYiLCJyb2xlIjoib3duZXIiLCJpYXQiOjE2OTAxODE1MTMsImV4cCI6MTY5MDE4ODcxM30.wdUJ4-pGGx-_p9UFpTbFbG_GOz6CJGjsBDuoeapmBBY"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/v1/rooms/64b90134132f67e696f643f9?skip=30",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"rooms",
+						"64b90134132f67e696f643f9"
+					],
+					"query": [
+						{
+							"key": "skip",
+							"value": "30"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get rooms",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGNhNTQyMWI2YjgxYTE1N2NkNDQzNjciLCJpYXQiOjE2OTA5OTU0MDUsImV4cCI6MTY5MTAwMjYwNX0.0_Nbt33gwFprfS0gl8Quyfz4YRKNXyCXMSfm65LARe4"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:3000/api/v1/rooms"
+			},
+			"response": []
+		},
+		{
+			"name": "Search",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/v1/search/:query",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"search",
+						":query"
+					],
+					"variable": [
+						{
+							"key": "query",
+							"value": "he"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create room",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGIwZWFmYWRjNGY0YWM3ZWYwNDgyZWQiLCJmdWxsbmFtZSI6ImFkbWluIiwiaWF0IjoxNjg5NDY3MDM0LCJleHAiOjE2ODk0NzQyMzR9.BGIDoI32qa9zgvIZyEJxAiKVbYbym51PMI-VPq4hphU"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"invited\":[\"64b0eaaf39422e201dbb9c92\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/rooms/"
+			},
+			"response": []
+		},
+		{
+			"name": "Response invitation",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGIzOGNmOWRjOWVjOWZiMDllNmU0ZjEiLCJyb2xlIjoib3duZXIiLCJpYXQiOjE2ODk0ODg2NzEsImV4cCI6MTY4OTQ5NTg3MX0.jaj_rpV_boVqoT0JUv2uj-4pUe4K0pKw6FZTUKcJmUE"
+					}
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"accept\":true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/rooms/64b373ef5354ac5aab9c33d4"
+			},
+			"response": []
+		},
+		{
+			"name": "Get media",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGI5MGM3MDMzMDVlMmNjYjQ5ZGMyOTYiLCJyb2xlIjoib3duZXIiLCJpYXQiOjE2OTAxODU5NzYsImV4cCI6MTY5MDE5MzE3Nn0.0krrEeIvrMf19VdwsxuAJh6ZWamm6uai4qVA2TNjsWs"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/media/64beb7b4da9e21e10ed7ab51/64beb7b1da9e21e10ed7ab50/ffff?token=dfsdfs",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"media",
+						"64beb7b4da9e21e10ed7ab51",
+						"64beb7b1da9e21e10ed7ab50",
+						"ffff"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "dfsdfs"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
