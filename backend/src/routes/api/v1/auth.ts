@@ -79,9 +79,8 @@ router.post('/login', async (req, res) => {
       // Generate an access token and send it in the response.
       const access_token = generateAuthToken(user._id);
       return res.status(200).json({ access_token });
-    } else {
-      return res.status(401).json({ message: 'Invalid credentials' });
     }
+    return res.status(401).json({ message: 'Invalid credentials' });
   } catch (error) {
     console.error(error)
     return res.status(500).json({ message: 'Internal server error' });
