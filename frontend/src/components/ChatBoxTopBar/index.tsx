@@ -16,7 +16,7 @@ const handleJoinCall = (token: string, uuid: string, roomId: string) => {
 const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
     const socket = useSocket();
     const handleMakeCall = () => {
-        socket.emit("meet", [room._id, new Date()]);
+        socket?.emit("meet", [room._id, new Date()]);
     }
 
     const handleReceiveCall = (msg: string[]) => {

@@ -90,7 +90,7 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
             const content = msg[2];
             const timestamp = msg[3];
             const urls: string[] = msg[4];
-            socket.emit("seen", [room._id, new Date()])
+            socket?.emit("seen", [room._id, new Date()])
             setConversationLength((prev) => prev++);
             // Update the messages state to include the received message
             setMessages((prevMessages) => {
