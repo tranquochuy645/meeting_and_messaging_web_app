@@ -1,0 +1,14 @@
+Error in ./chat-app.postman_collection.json:
+newman
+
+chat-app
+
+→ Register
+  POST http://localhost:3000/api/v1/auth/register [409 Conflict, 361B, 185ms]
+  1. Status code is 200
+  ✓  Response time is less than 500ms
+  2. Response body contains expected data
+
+→ Login
+  POST http://localhost:3000/api/v1/auth/login 
+
