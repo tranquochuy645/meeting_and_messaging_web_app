@@ -3,6 +3,7 @@
   height: 100%;
   padding: 0.5rem;
   overflow-y: auto;
+  transition: 0.5s;
 }
 
 .chat-room {
@@ -11,6 +12,7 @@
   border-top-left-radius: 1rem;
   border-bottom-left-radius: 1rem;
   display: flex;
+  justify-content: space-between;
 }
 
 .chat-room.active {
@@ -19,20 +21,27 @@
       var(--theme-color) 20%);
 }
 
+.opts-wrapper {
+  display: flex;
+  align-items: center;
+}
+
 .chat-room_opts {
   display: none;
 }
 
 .checkbox_label {
   background-color: green;
+  order: 2;
 }
 
 .checkbox:checked~.chat-room_opts {
-  display: block ;
+  display: flex;
+  flex-direction: column;
 }
 
 .checkbox:checked~.checkbox_label {
   /* Apply styles to the label when checkbox is checked */
   background-color: red;
-  
+
 }

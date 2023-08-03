@@ -7,7 +7,7 @@ interface RoomOptsProps {
 
 const RoomOpts: FC<RoomOptsProps> = ({ roomId, handleAction }) => {
     return (
-        <>
+        <div className='opts-wrapper'>
             <input className='checkbox' type='checkbox' id={`${roomId}_opts`} />
             <label className='checkbox_label' htmlFor={`${roomId}_opts`}>
                 <i className='bx bx-dots-vertical-rounded'></i>
@@ -16,7 +16,7 @@ const RoomOpts: FC<RoomOptsProps> = ({ roomId, handleAction }) => {
                 <button onClick={() => handleAction('leave', roomId)}>Leave</button>
                 <button onClick={() => handleAction('delete', roomId)}>Delete</button>
             </div>
-        </>
+        </div>
     );
 };
 

@@ -1,4 +1,3 @@
-import ThemeSwitch from "../ThemeSwitch"
 import { FC, memo, useEffect } from "react";
 import { useSocket } from "../SocketProvider";
 import RoomProfile from "../RoomProfile";
@@ -83,7 +82,6 @@ const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
                     </button>)
                 }
             </div>}
-            <ThemeSwitch />
         </div>
     )
 }

@@ -34,7 +34,7 @@ const RoomProfile: FC<RoomProfileProps> = ({ participants, userId }) => {
                     <div className="group-pictures-container">
                         {groupMembers.map((profile, index) => (
                             <div key={index} className="profile">
-                                <img src={profile.avatar} alt="Profile" className="group-profile-picture" />
+                                <img src={profile.avatar} alt="img" className="group-profile-picture" />
                             </div>
                         ))}
                     </div>
@@ -49,7 +49,7 @@ const RoomProfile: FC<RoomProfileProps> = ({ participants, userId }) => {
                 </>
             ) : (
                 <>
-                    <img src={participants[0].avatar} alt="Profile" className="profile-picture" />
+                    <img src={participants[0].avatar} alt="img" className="profile-picture" />
                     <h3>
                         {participants[0].fullname + "  "}
                         <span className={participants[0].isOnline ? 'online' : 'offline'}>

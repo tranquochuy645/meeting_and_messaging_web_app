@@ -103,8 +103,8 @@ const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
     }, []);
 
     return (
-        <div id="room-maker">
-            <div className='flex'>
+        <div id="room-maker" className={`${searchResults.length > 0 ? "focus" : ""}`}>
+            <div id="search-bar-wrapper" className='flex'>
                 <div id="search-bar">
                     {/* <button className='btn' onClick={handleSearch}><i className='bx bx-search' ></i></button> */}
                     <div id="chosenList" className='flex'>{usersList.map(
@@ -120,6 +120,15 @@ const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
                         }
 
                     )}
+                        {
+                            usersList.length > 0 && (
+                                <div className='flex'>
+                                    <button className='btn' onClick={handleCreateNewRoom}>
+                                        <i className='bx bxs-message-square-add ' id='btn_createroom' ></i>
+                                    </button>
+                                </div>
+                            )
+                        }
                     </div>
                     <input
                         type="text"
@@ -128,27 +137,19 @@ const RoomMaker: FC<RoomMakerProps> = ({ token }) => {
                         onKeyPress={handleKeyPress}
                     />
                 </div>
-                {
-                    usersList.length > 0 && (
-                        <div className='flex'>
-                            <button className='btn' onClick={handleCreateNewRoom}>
-                                <i className='bx bxs-message-square-add ' id='btn_createroom' ></i>
-                            </button>
-                        </div>
-                    )
-                }
+
             </div>
             {searchResults.length > 0 && (
                 <div id="search_dropdown">
                     {searchResults.map(result => (
-                        <div
+                        <div className="search_dropdown_opts"
                             key={result._id}
                             onClick={
                                 () => {
                                     handleChooseUser({ _id: result._id, fullname: result.fullname })
                                 }}>
                             <img className='profile-picture' src={result.avatar} alt="Avatar" />
-                            {result.fullname}
+                            <h3>{result.fullname}</h3>
                         </div>
                     ))}
                 </div>

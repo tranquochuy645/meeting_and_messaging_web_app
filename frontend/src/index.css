@@ -1,10 +1,9 @@
 :root {
   /* Light Mode Colors default*/
-  --text-color: #000;
-  --background-color: #ffffff;
-  --theme-color: #0077b6;
-
-  /* Common Styles */
+  --text-color: #ffffff;
+  --background-color: #000;
+  --theme-color: #240063;
+  /* Common Styles */ 
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;

@@ -82,7 +82,7 @@ const Auth: FC<AuthPageProps> = ({ onLogin }) => {
         <form onSubmit={handleSubmit}>
           {/* Render login or register fields based on the current state */}
           {isLogin ? (
-            <div>
+            <div className={`form ${isLogin ? "login" : "register"} `}>
               <div className="input-box">
                 <input
                   type="text"
@@ -103,7 +103,7 @@ const Auth: FC<AuthPageProps> = ({ onLogin }) => {
               </div>
             </div>
           ) : (
-            <div>
+            <div className={`form ${isLogin ? "login" : "register"} `}>
               <div className="input-box">
                 <input
                   type="text"
@@ -133,11 +133,11 @@ const Auth: FC<AuthPageProps> = ({ onLogin }) => {
             </div>
           )}
           <button className="btn" type="submit">
-            {isLogin ? "Login" : "Register"}
+            {isLogin ? "Sign in" : "Sign up"}
           </button>
         </form>
         <button className="btn" onClick={handleToggle}>
-          Switch to {isLogin ? "Register" : "Login"}
+          {isLogin ? "Sign up" : "Go to sign in"}
         </button>
       </div>
     </div>
