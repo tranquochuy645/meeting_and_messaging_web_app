@@ -1,4 +1,4 @@
-import { FC, useEffect, useState, useRef, memo, useMemo } from 'react';
+import { FC, useEffect, useState, useRef, memo, useMemo, useCallback } from 'react';
 import { OutGoingMessage, InComingMessage } from '../ChatMessage';
 import { Message, ReadCursor } from '../MessagesContainer';
 import { useSocket } from '../SocketProvider';
@@ -14,28 +14,28 @@ interface MessagesViewProps {
 
 
 
-const getSenderAvatar = (id: string, participantLookup: { [key: string]: any }): string => {
-    const sender = participantLookup[id];
-    return sender ? sender.avatar : '';
-};
-
-
 const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roomId, userId, participants }) => {
     const [cursorsMap, setCursorsMap] = useState<{ [key: string]: number }>({});
     const lengthRef = useRef(messages.length);
     const socket = useSocket();
 
     // Create a participant lookup map for quick access
-    const participantsLookupRef = useRef<{ [key: string]: any }>({})
-    participantsLookupRef.current = useMemo(() => {
+    const participantsLookup: { [key: string]: any } = useMemo(() => {
         return Object.fromEntries(
             participants.map((participant) => [participant._id, participant])
         );
     }, [participants])
 
     // Function to get the sender's avatar based on message's sender
+    const getSenderAvatar = useMemo(
+        () => (id: string, participantLookup: { [key: string]: any }): string => {
+            const sender = participantLookup[id];
+            return sender ? sender.avatar : '';
+        },
+        []
+    );
 
-    const handleSeen = (msg: string[]) => {
+    const handleSeen = useCallback((msg: string[]) => {
         //msg: [room id, user id , date] 
         if (msg[0] !== roomId) return;
         setCursorsMap((prevCursorsMap) => {
@@ -44,7 +44,8 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
                 [msg[1]]: lengthRef.current - 1
             };
         });
-    }
+    }, [roomId])
+
     useEffect(() => {
         lengthRef.current = messages.length
     }, [messages.length])
@@ -60,17 +61,28 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
 
 
     useEffect(() => {
-        const updatedCursorsMap: { [key: string]: number } = {}
+        const updatedCursorsMap: { [key: string]: number } = {};
         readCursors
             .filter((cursor) => cursor._id !== userId)
             .forEach((cursor) => {
                 const cursorTimestamp = new Date(cursor.lastReadTimeStamp).getTime();
-                for (let i = messages.length - 1; i >= 0; i--) {
-                    const messageTimestamp = new Date(messages[i].timestamp).getTime();
+                let left = 0;
+                let right = messages.length - 1;
+                let index = -1;
+                // binary search to find the latest message that is seen
+                while (left <= right) {
+                    const mid = Math.floor((left + right) / 2);
+                    const messageTimestamp = new Date(messages[mid].timestamp).getTime();
+
                     if (messageTimestamp <= cursorTimestamp) {
-                        updatedCursorsMap[cursor._id] = i;
-                        break;
+                        index = mid;
+                        left = mid + 1;
+                    } else {
+                        right = mid - 1;
                     }
+                }
+                if (index !== -1) {
+                    updatedCursorsMap[cursor._id] = index;
                 }
             });
         setCursorsMap(updatedCursorsMap);
@@ -78,16 +90,14 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
 
 
 
+
     return (
         <>
             {
                 messages.map((message: Message, index: number) => {
-                    let seenList: string[] = []
-                    participants.forEach((p: any) => {
-                        if (cursorsMap[p._id] == index) {
-                            seenList.push(p.fullname)
-                        }
-                    });
+                    const seenList = participants
+                        .filter((p: any) => cursorsMap[p._id] === index)
+                        .map((p: any) => p.fullname);
                     if (message.sender && message.sender === userId) {
                         return (
                             <OutGoingMessage
@@ -104,7 +114,7 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
                         <InComingMessage
                             token={token}
                             key={index}
-                            avatarSRC={getSenderAvatar(message.sender, participantsLookupRef.current)}
+                            avatarSRC={getSenderAvatar(message.sender, participantsLookup)}
                             content={message.content}
                             timestamp={message.timestamp}
                             urls={message.urls}
