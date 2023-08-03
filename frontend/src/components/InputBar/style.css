@@ -30,3 +30,13 @@
 #input_message:focus {
     border-bottom: solid 1px grey;
 }
+#btn_chatbox_upload-img,
+#btn_chatbox_upload-file{
+    margin-top: 5px;
+    font-size: larger;
+    display: flex;
+    width: 30px;
+    height: 30px;
+    justify-content: center;
+    align-items: center;
+}

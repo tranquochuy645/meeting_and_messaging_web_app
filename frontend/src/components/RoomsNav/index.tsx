@@ -283,7 +283,7 @@ const RoomsNav: FC<RoomsListProps> = ({ userId, currentRoomIndex, token, onRoomC
                 return (
                     <div className={`chat-room ${index == currentRoomIndex ? 'active' : ''}`}
                         key={room._id}>
-                        <div onClick={() => handleRoomClick(index)}>
+                        <div className='chat-room_info' onClick={() => handleRoomClick(index)}>
                             <RoomProfile userId={userId} participants={room.participants} />
                             <p>{latestMessageContent}</p>
                             <p>{isUnread ? 'Unread' : 'All Read'}</p>

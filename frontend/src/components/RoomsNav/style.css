@@ -7,12 +7,15 @@
 }
 
 .chat-room {
-  padding: 0.75rem;
+  position: relative;
   transition: 0.5s;
   border-top-left-radius: 1rem;
   border-bottom-left-radius: 1rem;
   display: flex;
   justify-content: space-between;
+}
+.chat-room_info{
+  padding: 0.75rem;
 }
 
 .chat-room.active {
@@ -21,27 +24,7 @@
       var(--theme-color) 20%);
 }
 
-.opts-wrapper {
-  display: flex;
-  align-items: center;
-}
 
-.chat-room_opts {
-  display: none;
-}
-
-.checkbox_label {
-  background-color: green;
-  order: 2;
-}
-
-.checkbox:checked~.chat-room_opts {
-  display: flex;
-  flex-direction: column;
-}
-
-.checkbox:checked~.checkbox_label {
+/* .checkbox:checked~.checkbox_label { */
   /* Apply styles to the label when checkbox is checked */
-  background-color: red;
-
-}
+/* } */
