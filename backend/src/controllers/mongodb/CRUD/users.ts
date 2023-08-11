@@ -37,7 +37,7 @@ export default class UsersController extends CollectionReference {
    * @returns A Promise resolving to a boolean indicating if the username is available.
    */
   public async checkAvailableUserName(username: string): Promise<boolean> {
-    const result = await this._collection?.findOne({ username });
+    const result = await this._collection.findOne({ username });
     return !result;
   }
 
@@ -48,7 +48,7 @@ export default class UsersController extends CollectionReference {
    */
   public async createUser(username: string, password: string): Promise<ObjectId> {
     try {
-      const result = await this._collection?.insertOne(new User(username, password));
+      const result = await this._collection.insertOne(new User(username, password));
       // Return the inserted ID
       if (result && result.insertedId) {
         return result.insertedId;
@@ -65,9 +65,9 @@ export default class UsersController extends CollectionReference {
    * @returns A Promise resolving to the user's profile object.
    */
   public readProfile(id: string): Promise<any> {
-    return this._collection?.findOne(
+    return this._collection.findOne(
       { _id: new ObjectId(id) },
-      { projection: { password: 0 } }
+      { projection: { password: 0, invitations: 0 } }
     );
   }
 
@@ -77,7 +77,7 @@ export default class UsersController extends CollectionReference {
    * @returns A Promise resolving to the user's short profile object.
    */
   public readShortProfile(id: string): Promise<any> {
-    return this._collection?.findOne(
+    return this._collection.findOne(
       { _id: new ObjectId(id) },
       {
         projection: {
@@ -89,13 +89,14 @@ export default class UsersController extends CollectionReference {
     );
   }
 
+
   /**
    * Read the short profiles of multiple users matching the filter.
    * @param filter - The filter criteria to find users.
    * @returns A Promise resolving to an array of user short profile objects.
    */
   public readManyShortProfiles(filter: any): Promise<any[]> {
-    return this._collection?.find(
+    return this._collection.find(
       filter,
       {
         projection: {
@@ -117,7 +118,7 @@ export default class UsersController extends CollectionReference {
    */
   public async updateUser(id: string, data: any): Promise<any> {
     try {
-      const result = await this._collection?.updateOne({ _id: new ObjectId(id) }, { $set: data });
+      const result = await this._collection.updateOne({ _id: new ObjectId(id) }, { $set: data });
       return result.modifiedCount
     } catch (err) {
       throw err
@@ -131,7 +132,7 @@ export default class UsersController extends CollectionReference {
  */
   public async deleteUser(id: string): Promise<any> {
     try {
-      const result = await this._collection?.deleteOne({ _id: new ObjectId(id) });
+      const result = await this._collection.deleteOne({ _id: new ObjectId(id) });
       return result.deletedCount;
     } catch (err) {
       throw err;
@@ -148,13 +149,13 @@ export default class UsersController extends CollectionReference {
  */
   public getPassword(username?: string, userId?: string): Promise<any> {
     if (userId) {
-      return this._collection?.findOne(
+      return this._collection.findOne(
         { _id: new ObjectId(userId) },
         { projection: { password: 1 } }
       );
     }
     if (username) {
-      return this._collection?.findOne(
+      return this._collection.findOne(
         { username: username },
         { projection: { password: 1 } }
       );
@@ -172,7 +173,7 @@ export default class UsersController extends CollectionReference {
    * @returns A Promise resolving to the result of the update operation.
    */
   public setStatus(id: string, isOnline: boolean): Promise<any> {
-    return this._collection?.updateOne(
+    return this._collection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { isOnline: isOnline, lastUpdate: new Date() } }
     );
@@ -185,7 +186,7 @@ export default class UsersController extends CollectionReference {
    */
   public async getRoomsList(id: string): Promise<ObjectId[]> {
     try {
-      const result = await this._collection?.findOne(
+      const result = await this._collection.findOne(
         { _id: new ObjectId(id) },
         { projection: { _id: 0, rooms: 1 } }
       );
@@ -211,7 +212,7 @@ export default class UsersController extends CollectionReference {
 
       // Use Promise.all to await all updateOne calls concurrently
       const updatePromises = userIdObjects.map(async oid => {
-        const result = await this._collection?.updateOne(
+        const result = await this._collection.updateOne(
           { _id: oid },
           {
             $pull: { rooms: new ObjectId(roomId) }
@@ -242,7 +243,7 @@ export default class UsersController extends CollectionReference {
 
       // Use Promise.all to await all updateOne calls concurrently
       const updatePromises = userIdObjects.map(async oid => {
-        const result = await this._collection?.updateOne(
+        const result = await this._collection.updateOne(
           { _id: oid },
           {
             $pull: { invitations: new ObjectId(roomId) }
@@ -270,7 +271,7 @@ export default class UsersController extends CollectionReference {
    */
   public async inviteToRoom(userId: string, roomId: string): Promise<number | undefined> {
     try {
-      const result = await this._collection?.updateOne(
+      const result = await this._collection.updateOne(
         { _id: new ObjectId(userId) },
         { $addToSet: { invitations: new ObjectId(roomId) } }
       );
@@ -288,7 +289,7 @@ export default class UsersController extends CollectionReference {
    */
   public async joinRoom(userId: string, roomId: string): Promise<number | undefined> {
     try {
-      const result = await this._collection?.updateOne(
+      const result = await this._collection.updateOne(
         { _id: new ObjectId(userId) },
         {
           $addToSet: { rooms: new ObjectId(roomId) },
@@ -309,7 +310,7 @@ export default class UsersController extends CollectionReference {
    * @returns A Promise resolving to the result of the update operation.
    */
   public leaveRoom(userId: string, roomId: string): Promise<any> {
-    return this._collection?.updateOne(
+    return this._collection.updateOne(
       { _id: new ObjectId(userId) },
       { $pull: { rooms: new ObjectId(roomId) } }
     );
@@ -323,7 +324,7 @@ export default class UsersController extends CollectionReference {
    * @returns A Promise resolving to an array of matching user objects.
    */
   public search(whoSearch: string, query: string, limit: number): Promise<any[]> {
-    return this._collection?.find(
+    return this._collection.find(
       {
         fullname: new RegExp(query, "i"),
         _id: { $ne: new ObjectId(whoSearch) }
@@ -340,7 +341,7 @@ export default class UsersController extends CollectionReference {
    */
   public async updateMany(filter: any, update: any): Promise<number | undefined> {
     try {
-      const result = await this._collection?.updateMany(filter, update);
+      const result = await this._collection.updateMany(filter, update);
       return result?.modifiedCount;
     } catch (e) {
       throw e;
@@ -356,7 +357,7 @@ export default class UsersController extends CollectionReference {
    */
   public async extractRoomsList(userId: string): Promise<RoomList> {
     try {
-      const allRoomsOfUser = await this._collection?.aggregate([
+      const allRoomsOfUser = await this._collection.aggregate([
         // Match the user with the specified ObjectId
         {
           $match: { _id: new ObjectId(userId) }
@@ -452,6 +453,89 @@ export default class UsersController extends CollectionReference {
       throw errStacked;
     }
   }
+
+  /**
+   * Extracts a list of invitations for a user from the database.
+   * @param userId - The ID of the user for whom to extract invitations.
+   * @returns A Promise containing a list of invitations (rooms).
+   */
+  public async extractInvitationsList(userId: string): Promise<RoomList> {
+    try {
+      // Aggregate pipeline to extract invitations for a user
+      const allInvsOfUser = await this._collection.aggregate([
+        // Match the user with the specified ObjectId
+        {
+          $match: { _id: new ObjectId(userId) }
+        },
+        // Limit the result to one document, as we are interested in one user's data
+        {
+          $limit: 1
+        },
+        // Project to keep only the "invitations" field from the user document
+        {
+          $project: {
+            _id: 0,
+            invitations: 1
+          }
+        },
+        // Perform a lookup to get all userRooms based on the "invitations" array
+        {
+          $lookup: {
+            from: "rooms",
+            localField: "invitations",
+            foreignField: "_id",
+            as: "tmp"
+          }
+        },
+        // Unwind the array to prepare for the next stage
+        {
+          $unwind: "$tmp"
+        },
+        // Perform another lookup to get information about admin in each room
+        {
+          $lookup: {
+            from: "users",
+            localField: "tmp.admin",
+            foreignField: "_id",
+            as: "tmp.adminInfo"
+          }
+        },
+        // Project the final fields for the extracted invitations
+        {
+          $project: {
+            "tmp._id": 1,
+            "tmp.adminInfo": {
+              fullname: 1,
+              avatar: 1,
+            },
+            "tmp.type": 1,
+          }
+        },
+        // Group the documents back to the original structure using $group
+        {
+          $group: {
+            _id: "$_id",
+            invitations: {
+              $push: {
+                _id: "$tmp._id",
+                invitor: { $arrayElemAt: ["$tmp.adminInfo", 0] }, // Use $arrayElemAt to extract the single object from the array
+                type: "$tmp.type"
+              }
+            }
+          }
+        }
+      ]).toArray();
+
+      // Return the extracted invitations, or an empty array if not found
+      return allInvsOfUser[0]?.invitations || [];
+    } catch (err: any) {
+      // Handle and re-throw any errors that occur during the extraction
+      const errStacked = new Error(`Error in extractInvitations: ${err.message}`);
+      throw errStacked;
+    }
+  }
+
+
 
 }
 

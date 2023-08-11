@@ -60,6 +60,7 @@ router.get('/:id', verifyToken, async (req, res) => {
     });
   }
 
+
   // Parse the 'skip' parameter from the query string. Default to 0 if not provided or invalid.
   const skip = parseInt(req.query.skip as string, 10);
 

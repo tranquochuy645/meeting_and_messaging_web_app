@@ -24,6 +24,24 @@ router.get('/', verifyToken, async (req, res) => {
 });
 
 /**
+ * Route to retrieve a user's invitations.
+ * @route GET /invitations
+ * @middleware verifyToken - Middleware to verify the user's token.
+ */
+router.get('/invitations', verifyToken, async (req, res) => {
+  try {
+    // Extract user invitations using the data controller
+    const data = await dc.users.extractInvitationsList(req.headers.userId as string);
+
+    // Respond with the extracted invitations
+    res.status(200).json(data);
+  } catch (err: any) {
+    // Handle errors and respond with an error message
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/**
  * Route to get the short profile information of a specific user.
  * @route GET /api/v1/users/:id
  * @param {Object} req - Express request object.

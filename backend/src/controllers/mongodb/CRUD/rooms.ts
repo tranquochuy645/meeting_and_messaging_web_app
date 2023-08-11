@@ -74,7 +74,7 @@ export default class RoomsController extends CollectionReference {
     invited: string[],
     type: "global" | "default" | undefined = "default"): Promise<ObjectId> {
     try {
-      const result = await this._collection?.insertOne(new Room(creator, invited, type));
+      const result = await this._collection.insertOne(new Room(creator, invited, type));
       if (result && result.insertedId) {
         return result.insertedId;
       }
@@ -94,7 +94,7 @@ export default class RoomsController extends CollectionReference {
   public async getRoomsInfo(roomOIds: ObjectId[]): Promise<any> {
     try {
       // Use the $in operator to find rooms with matching _id in the provided array of roomIds
-      const result = await this._collection?.find(
+      const result = await this._collection.find(
         { _id: { $in: roomOIds } }, // Use $in operator to match any of the provided roomIds
         {
           projection: {
@@ -127,7 +127,7 @@ export default class RoomsController extends CollectionReference {
    */
   public async getConversationData(whoSearch: string, roomId: string, messagesLimit: number, skip?: number): Promise<ConversationData | null> {
     try {
-      const room = await this._collection?.findOne(
+      const room = await this._collection.findOne(
         {
           _id: new ObjectId(roomId),
           participants: new ObjectId(whoSearch)
@@ -161,7 +161,7 @@ export default class RoomsController extends CollectionReference {
    */
   public async addToInvitedList(userId: string, roomId: string): Promise<number | undefined> {
     try {
-      const result = await this._collection?.updateOne(
+      const result = await this._collection.updateOne(
         {
           _id: new ObjectId(roomId)
         },
@@ -187,7 +187,7 @@ export default class RoomsController extends CollectionReference {
    */
   public async pullFromInvitedList(whoAsked: string, roomId: string): Promise<number | undefined> {
     try {
-      const result = await this._collection?.updateOne(
+      const result = await this._collection.updateOne(
         {
           _id: new ObjectId(roomId)
         },
@@ -213,7 +213,7 @@ export default class RoomsController extends CollectionReference {
    */
   public async addParticipant(whoAsked: string, roomId: string): Promise<number | undefined> {
     try {
-      const result = await this._collection?.updateOne(
+      const result = await this._collection.updateOne(
         {
           _id: new ObjectId(roomId),
           invited: { $elemMatch: { $eq: new ObjectId(whoAsked) } }
@@ -255,12 +255,12 @@ export default class RoomsController extends CollectionReference {
       };
 
       // Use find to get all matching rooms
-      const rooms = await this._collection?.find(filter, { projection: { _id: 1 } }).toArray();
+      const rooms = await this._collection.find(filter, { projection: { _id: 1 } }).toArray();
       let modifiedCount = 0;
 
       // Use a for...of loop to ensure each update operation is executed sequentially
       for (const room of rooms) {
-        const result = await this._collection?.updateOne({ _id: new ObjectId(room._id) }, update);
+        const result = await this._collection.updateOne({ _id: new ObjectId(room._id) }, update);
         if (result?.modifiedCount) {
           modifiedCount += result.modifiedCount;
         }
@@ -283,11 +283,11 @@ export default class RoomsController extends CollectionReference {
   */
   public setMeeting(roomId: string, uuid?: string) {
     if (uuid)
-      return this._collection?.updateOne(
+      return this._collection.updateOne(
         { _id: new ObjectId(roomId) },
         { $set: { isMeeting: true, meeting_uuid: uuid } }
       )
-    return this._collection?.updateOne(
+    return this._collection.updateOne(
       { _id: new ObjectId(roomId) },
       { $set: { isMeeting: false, meeting_uuid: null } }
     )
@@ -302,7 +302,7 @@ export default class RoomsController extends CollectionReference {
  */
   public async checkMeeting(roomId: string): Promise<{ isMeeting: boolean; meeting_uuid: string | null } | null> {
     try {
-      const result = await this._collection?.findOne(
+      const result = await this._collection.findOne(
         { _id: new ObjectId(roomId) },
         {
           projection: {
@@ -351,7 +351,7 @@ export default class RoomsController extends CollectionReference {
         urls
       };
 
-      const result = await this._collection?.updateOne(
+      const result = await this._collection.updateOne(
         { _id: new ObjectId(roomId) },
         { $push: { messages: data } }
       );
@@ -374,7 +374,7 @@ export default class RoomsController extends CollectionReference {
    */
   public async deleteRoom(roomId: string, whoAsked: string): Promise<number> {
     try {
-      const room = await this._collection?.findOne({ _id: new ObjectId(roomId) });
+      const room = await this._collection.findOne({ _id: new ObjectId(roomId) });
 
       if (!room) {
         return 404; // Room not found
@@ -386,7 +386,7 @@ export default class RoomsController extends CollectionReference {
       }
 
       // Delete the room
-      const result = await this._collection?.deleteOne({ _id: new ObjectId(roomId) });
+      const result = await this._collection.deleteOne({ _id: new ObjectId(roomId) });
 
       // Check if the deletion was successful
       if (result?.deletedCount === 1) {
@@ -408,7 +408,7 @@ export default class RoomsController extends CollectionReference {
  */
   public async removeParticipant(participantId: string, roomId: string): Promise<number | undefined> {
     try {
-      const result = await this._collection?.updateOne(
+      const result = await this._collection.updateOne(
         {
           _id: new ObjectId(roomId),
           participants: { $elemMatch: { $eq: new ObjectId(participantId) } }
@@ -437,7 +437,7 @@ export default class RoomsController extends CollectionReference {
  */
   public async updateReadCursor(roomId: string, userId: string, lastReadTimeStamp: Date): Promise<number> {
     try {
-      const result = await this._collection?.updateOne(
+      const result = await this._collection.updateOne(
         {
           _id: new ObjectId(roomId),
           "readCursors._id": new ObjectId(userId)

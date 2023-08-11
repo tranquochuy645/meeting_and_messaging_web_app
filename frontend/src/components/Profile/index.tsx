@@ -11,22 +11,62 @@ interface ProfileProps {
   profileData: ProfileData | null;
   onRefresh: () => void;
 }
-// let socket:Socket;
+interface Invitation {
+  _id: string;
+  invitor: {
+    _id: string;
+    fullname: string;
+    avatar: string;
+    isOnline: boolean;
+  };
+  type: string;
+}
+
+const getInvitations = async (token: string) => {
+  try {
+    const res = await fetch(
+      'api/v1/users/invitations',
+      {
+        headers: {
+          "content-type": "application/json",
+          authorization: "Bearer " + token
+        }
+      }
+    )
+    const invs = await res.json()
+    return invs
+  } catch (e) {
+    console.error(e)
+  }
+}
 const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
   // const [folded, setFolded] = useState(true);
   const [showInvitation, setShowInvitation] = useState<boolean>(false);
   const [showProfileEditor, setShowProfileEditor] = useState<boolean>(false);
-  // const fileRef = useRef<any>(null);
+  const [invitations, setInvitations] = useState<Invitation[] | null>(null)
   const avatarUrlRef = useRef<any>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
   const socket = useSocket()
-
   useEffect(() => {
+    if (token) {
+      getInvitations(token).then(
+        (data) => setInvitations(data)
+      )
+    }
+  }, [token])
+  useEffect(() => {
+    const refreshInvs = () => {
+      if (token) {
+        getInvitations(token).then(
+          (data) => setInvitations(data)
+        )
+      }
+    }
     if (socket) {
-      socket.on("inv", onRefresh);
+      socket.on("inv", refreshInvs);
       return () => {
-        socket.off("inv", onRefresh);
+        socket.off("inv", refreshInvs);
       }
     }
   }, [socket]);
@@ -175,9 +215,9 @@ const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
             ) : (
               <div id="bell">
                 <i className="bx bxs-bell"></i>
-                {profileData?.invitations.length &&
-                  profileData?.invitations.length > 0 ? (
-                  <span id="nofcount">{profileData?.invitations.length}</span>
+                {invitations && invitations.length &&
+                  invitations.length > 0 ? (
+                  <span id="nofcount">{invitations.length}</span>
                 ) : null}
               </div>
             )}
@@ -188,20 +228,24 @@ const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         </div>
       </div>
       <div id="notify-container" className={`profile_dropdown ${showInvitation ? "active" : ""}`}>
-        {profileData && profileData.invitations.length > 0 ? (
-          profileData.invitations.map((invitation: string) => (
-            <div key={invitation}>
-              <p>{invitation}</p>
-              <button onClick={() => handleAcceptInvitation(invitation)}>
+        {invitations && invitations.length > 0 ? (
+          invitations.map((invitation) => (
+            <div key={invitation._id} className="flex invitation">
+              <img className='profile-picture'
+                alt="Avatar"
+                src={invitation.invitor.avatar} />
+              <p>
+                {invitation.invitor.fullname} invited you to a new conversation!</p>
+              <button className="btn_inv green" onClick={() => handleAcceptInvitation(invitation._id)}>
                 Accept
               </button>
-              <button onClick={() => handleRefuseInvitation(invitation)}>
+              <button className="btn_inv" onClick={() => handleRefuseInvitation(invitation._id)}>
                 Refuse
               </button>
             </div>
           ))
         ) : (
-          <p>No invitations</p>
+          <p>No invitation</p>
         )}
       </div>
       <div className={`profile_dropdown ${showProfileEditor ? "active" : ""}`} id="profile_editor">

@@ -15,7 +15,8 @@
   display: flex;
   justify-content: space-between;
 }
-.chat-room_info{
+
+.chat-room_info {
   width: 90%;
 
   padding: 0.75rem;
@@ -23,31 +24,20 @@
 
 .chat-room.active {
   background-color: color-mix(in srgb,
-      var(--background-color) 80%,
-      var(--theme-color) 20%);
+      var(--background-color) 60%,
+      var(--theme-color) 40%);
 }
-.last-msg{
+
+.last-msg {
+  border-radius: 5px;
   position: relative;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.last-msg.unread{
-  font-weight: bold;
-  text-decoration: underline;
-}
-.last-msg.unread::before{
-  content: '●'; /* Red dot character */
-  color: red;
-  font-size: 8px;
-  margin-right: 5px;
-  position: absolute;
-  top: 50%;
-  left: -10px;
-  transform: translateY(-50%);
-}
 
-
-/* .checkbox:checked~.checkbox_label { */
-  /* Apply styles to the label when checkbox is checked */
-/* } */
+.last-msg.unread {
+  padding-left: 20px;
+  font-weight: 900;
+  background-image: linear-gradient(90deg,var(--theme-color), transparent);
+}
