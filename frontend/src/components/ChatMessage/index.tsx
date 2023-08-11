@@ -24,9 +24,9 @@ const OutGoingMessage: FC<OutGoingMessageProps> = ({ token, content, timestamp, 
                 })}
             {
                 seenList && seenList.length > 0 && (
-                    <p>Seen by:
+                    <p className='message_seenby'>Seen by:
                         {seenList.map((e, index) =>
-                            <span key={index}>{e}</span>)
+                            <span key={index}>{" "+e}</span>)
                         }
                     </p>
                 )
@@ -54,7 +54,7 @@ const InComingMessage: FC<InComingMessageProps> = ({ token, avatarSRC, content, 
             <p className='message_timestamp'>{timestamp}</p>
             {
                 seenList && seenList.length > 0 && (
-                    <p>Seen by:
+                    <p className='message_seenby' >Seen by:
                         {seenList.map((e, index) =>
                             <span key={index}>{e}</span>)
                         }

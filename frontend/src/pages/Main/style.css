@@ -28,6 +28,7 @@
 #section-left {
   position: relative;
   flex: 30%;
+  max-width: 500px;
   display: flex;
   flex-direction: column;
   background: var(--background-color);

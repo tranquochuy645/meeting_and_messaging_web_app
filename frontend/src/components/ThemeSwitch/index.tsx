@@ -23,7 +23,7 @@ const themes: { [key: string]: Theme } = {
 
 const useTheme = () => {
   const [theme, setTheme] = useState<string>(
-    sessionStorage.getItem("theme") || "light"
+    localStorage.getItem("theme") || "light"
   );
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const useTheme = () => {
     Object.entries(selectedTheme).forEach(([key, value]) => {
       document.documentElement.style.setProperty(`--${key}-color`, value);
     });
-    sessionStorage.setItem("theme", theme);
+    localStorage.setItem("theme", theme);
   }, [theme]);
 
   return [theme, setTheme] as const;

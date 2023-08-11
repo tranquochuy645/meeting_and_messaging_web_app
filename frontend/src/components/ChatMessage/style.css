@@ -72,7 +72,15 @@
   opacity: 0;
   transition: 0.5s;
 }
+.message_seenby {
+  bottom: 0;
+  position: absolute;
+  transition: 0.5s;
+}
 
 .message:hover .message_timestamp {
   opacity: 1;
+}
+.message:hover .message_seenby{
+  opacity: 0;
 }
