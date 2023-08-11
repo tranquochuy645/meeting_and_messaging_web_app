@@ -17,7 +17,6 @@ export interface ProfileData {
   bio: string;
   isOnline: boolean;
   rooms: string[];
-  invitations: string[];
 }
 
 export const getProfile = (token: string): Promise<any> => {

@@ -14,10 +14,8 @@ interface ProfileProps {
 interface Invitation {
   _id: string;
   invitor: {
-    _id: string;
     fullname: string;
     avatar: string;
-    isOnline: boolean;
   };
   type: string;
 }
