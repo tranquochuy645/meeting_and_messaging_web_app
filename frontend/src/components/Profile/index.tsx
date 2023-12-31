@@ -229,11 +229,16 @@ const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
         {invitations && invitations.length > 0 ? (
           invitations.map((invitation) => (
             <div key={invitation._id} className="flex invitation">
-              <img className='profile-picture'
-                alt="Avatar"
-                src={invitation.invitor.avatar} />
-              <p>
-                {invitation.invitor.fullname} invited you to a new conversation!</p>
+              {invitation.invitor ?
+                <>
+                  <img className='profile-picture'
+                    alt="IMG"
+                    src={invitation.invitor.avatar} />
+                  <p>{invitation.invitor.fullname} invited you to a conversation!</p>
+                </>
+                :
+                <p>Invited by anonymous user</p>
+              }
               <button className="btn_inv green" onClick={() => handleAcceptInvitation(invitation._id)}>
                 Accept
               </button>

@@ -1,4 +1,4 @@
-import { FileWriter } from '../../../FileWriter';
+import { FileWriter } from '../FileWriter';
 
 class DefaultProfileImage {
   private initials: string;
