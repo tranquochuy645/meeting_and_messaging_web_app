@@ -1,4 +1,4 @@
-name: Release Workflow
+name: Build
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build And push to "build" branch
+    name: Build And push to the private repository
     runs-on: ubuntu-latest
 
     steps:
