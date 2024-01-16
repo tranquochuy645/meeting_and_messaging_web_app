@@ -34,4 +34,4 @@ jobs:
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET: ${{ secrets.TARGET_DIR }}
           SCRIPT_AFTER: |
-            sudo bash app/start.sh -e ${{ secrets.ENV }} -p ${{ secrets.PORT }}
+            cd app && sudo bash start.sh -e ${{ secrets.ENV }} -p ${{ secrets.PORT }}
