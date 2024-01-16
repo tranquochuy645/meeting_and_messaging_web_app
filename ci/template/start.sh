@@ -1,10 +1,14 @@
 #!/bin/bash
 
 # Parse command line arguments for environment variables
-while getopts :e: opt; do
+rm ".env"
+while getopts :d:j: opt; do
     case $opt in
-        e)
-            echo "$OPTARG" > ".env"
+        d)
+            echo "MONGO_URI=$OPTARG" >> ".env"
+            ;;
+        j)
+            echo "JWT_KEY=$OPTARG" >> ".env"
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2

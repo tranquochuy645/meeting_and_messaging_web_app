@@ -33,6 +33,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.HOST_DNS }}
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET: ${{ secrets.TARGET_DIR }}
+
       - name: Build and run Docker container
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -40,4 +41,4 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_SSH_PORT }}
-          script:  cd app && sudo bash start.sh -e ${{ secrets.ENV }}
+          script:  cd app && sudo bash start.sh -d ${{ secrets.MONGO_URI }} -j ${{ secrets.JWT_KEY }}
