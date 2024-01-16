@@ -1,13 +1,10 @@
 #!/bin/bash
 
 # Parse command line arguments for environment variables
-forward_to_port=""
-while getopts :e:p: opt; do
+while getopts :e: opt; do
     case $opt in
         e)
             echo "$OPTARG" > ".env"
-            ;;
-        p)  forward_to_port="$OPTARG"
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -16,9 +13,9 @@ while getopts :e:p: opt; do
     esac
 done
 
-# Check if required arguments are provided
-if [ -z "$forward_to_port" ]; then
-    echo "Error: Missing required argument -p PORT" >&2
+# Check if .env file exists
+if [ ! -e ".env" ]; then
+    echo "Error: .env file is missing." >&2
     exit 1
 fi
 
@@ -39,8 +36,8 @@ echo "Building Docker image..." &&
 docker build -t $image_name . &&
 
 # Start the container with port mapping and environment variables
-echo "Starting container with port mapping ($forward_to_port:8080) and environment variables..." &&
-docker run -p $forward_to_port:8080 --env-file .env $image_name &&
+echo "Starting container with port mapping (80:8080) and environment variables..." &&
+docker run -p 80:8080 --env-file .env $image_name &&
 
 echo "Process completed successfully."
 

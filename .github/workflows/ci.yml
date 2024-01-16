@@ -33,5 +33,11 @@ jobs:
           REMOTE_HOST: ${{ secrets.HOST_DNS }}
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET: ${{ secrets.TARGET_DIR }}
-          SCRIPT_AFTER: |
-            cd app && sudo bash start.sh -e ${{ secrets.ENV }} -p ${{ secrets.PORT }}
+      - name: Build and run Docker container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST_DNS }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_SSH_PORT }}
+          script:  cd app && sudo bash start.sh -e ${{ secrets.ENV }}
