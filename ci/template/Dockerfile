@@ -9,6 +9,7 @@ RUN npm install
 COPY . .
 
 ENV PORT=8080
+ENV DB_NAME=production
 EXPOSE 8080
 
 CMD ["npm","start"]
