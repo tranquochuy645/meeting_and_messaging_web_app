@@ -1,10 +1,11 @@
 #!/bin/bash
 
 # Parse command line arguments for environment variables
+forward_to_port=""
 while getopts :e:p: opt; do
     case $opt in
         e)
-            echo "$OPTARG" >> ".env"
+            echo "$OPTARG" > ".env"
             ;;
         p)  forward_to_port="$OPTARG"
             ;;
@@ -15,17 +16,23 @@ while getopts :e:p: opt; do
     esac
 done
 
+# Check if required arguments are provided
+if [ -z "$forward_to_port" ]; then
+    echo "Error: Missing required argument -p PORT" >&2
+    exit 1
+fi
+
 image_name="chat_app"
 
 echo "Stop old container: $image_name"
-docker stop $image_name
+docker stop $(docker ps -q -f ancestor=$image_name --format "{{.ID}}")
 
 echo "Remove old container: $image_name"
-docker rm $(docker container ls --all --filter=ancestor=$image_name --format "{{.ID}}") &&
+docker rm $(docker ps -a -q -f ancestor=$image_name --format "{{.ID}}")
 
 # Remove image
-echo "Remove old image: $image_name" &&
-docker rmi $image_name &&
+echo "Remove old image: $image_name"
+docker rmi $image_name
 
 # Rebuild the Docker image
 echo "Building Docker image..." &&
