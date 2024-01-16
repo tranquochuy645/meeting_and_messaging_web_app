@@ -28,9 +28,9 @@ jobs:
       - name: Push
         uses: s0/git-publish-subdir-action@develop
         env:
-          REPO: git@github.com:tranquochuy645/message_app_release.git
-          BRANCH: master
-          FOLDER: release 
+          REPO: self
+          BRANCH: release
+          FOLDER: release
           SSH_PRIVATE_KEY: ${{ secrets.SSH_GH}}
           MESSAGE: "Commit by Github Action" # The commit message
 
