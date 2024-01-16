@@ -26,16 +26,16 @@ if [ "$(docker ps -q -f name=$container_name)" ]; then
 fi
 
 # Prune images
-echo "Pruning Docker images..."
-docker image prune -a -f
+echo "Pruning Docker images..." &&
+docker image prune -a -f &&
 
 # Rebuild the Docker image
-echo "Building Docker image..."
-docker build -t $container_name .
+echo "Building Docker image..." &&
+docker build -t $container_name . &&
 
 # Start the container with port mapping and environment variables
-echo "Starting container with port mapping (80:8080) and environment variables..."
-docker run -p $forward_to_port:8080 --env-file .env $container_name
+echo "Starting container with port mapping (80:8080) and environment variables..." &&
+docker run -p $forward_to_port:8080 --env-file .env $container_name &&
 
 echo "Process completed successfully."
 
