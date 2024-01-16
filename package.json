@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "bash ./cd/build.sh",
+    "build": "bash ./ci/build.sh",
     "test": "cd tests && bash runtest.sh",
     "install": "cd frontend && npm i && cd ../backend && npm i",
     "dev": "npm-run-all --parallel dev:backend dev:frontend",
