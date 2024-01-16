@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Generate a timestamp for the log file
-timestamp=$(date +"%Y%m%d_%H%M%S")
-build_log="build_log_$timestamp.txt"
+timestamp=$(date +"%Y_%m_%d_%H_%M_%S")
+build_log="./logs/build_log_$timestamp.txt"
 
 # Parse command line arguments for environment variables and write to .env file
 rm -f ".env"
@@ -21,19 +21,19 @@ fi
 
 image_name="chat_app"
 
-echo "Stopping old containers matching image name: $image_name"
+echo "Stopping old containers matching image name: $image_name"  $>>"$build_log"
 docker stop $(docker ps -q -f ancestor=$image_name --format "{{.ID}}") $>>"$build_log"
 
 echo "Removing old containers matching image name: $image_name"
 docker rm $(docker ps -a -q -f ancestor=$image_name --format "{{.ID}}") $>>"$build_log"
 
 # Remove image
-echo "Removing old image: $image_name"
+echo "Removing old image: $image_name"  $>>"$build_log"
 docker rmi $image_name $>>"$build_log"
 
 # Rebuild the Docker image
-echo "Building Docker image..."
-if docker build -t $image_name . >> "$build_log"; then
+echo "Building Docker image..."  $>>"$build_log"
+if docker build -t $image_name . &>> "$build_log"; then
     echo "Docker image build successful."
 else
     echo "Error: Docker image build failed. Check the log at $build_log." >&2
