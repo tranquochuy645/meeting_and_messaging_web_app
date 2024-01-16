@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -o errexit
-
 # Parse command line arguments for environment variables
 while getopts :e:p: opt; do
     case $opt in
@@ -17,25 +15,25 @@ while getopts :e:p: opt; do
     esac
 done
 
-container_name="chat_app"
+image_name="chat_app"
 
-# Check if the container is running
-if [ "$(docker ps -q -f name=$container_name)" ]; then
-    echo "Stopping running container: $container_name"
-    docker stop $container_name
-fi
+echo "Stop old container: $image_name"
+docker stop $image_name
 
-# Prune images
-echo "Pruning Docker images..." &&
-docker image prune -a -f &&
+echo "Remove old container: $image_name"
+docker rm $(docker container ls --all --filter=ancestor=$image_name --format "{{.ID}}") &&
+
+# Remove image
+echo "Remove old image: $image_name" &&
+docker rmi $image_name &&
 
 # Rebuild the Docker image
 echo "Building Docker image..." &&
-docker build -t $container_name . &&
+docker build -t $image_name . &&
 
 # Start the container with port mapping and environment variables
-echo "Starting container with port mapping (80:8080) and environment variables..." &&
-docker run -p $forward_to_port:8080 --env-file .env $container_name &&
+echo "Starting container with port mapping ($forward_to_port:8080) and environment variables..." &&
+docker run -p $forward_to_port:8080 --env-file .env $image_name &&
 
 echo "Process completed successfully."
 
