@@ -33,6 +33,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.HOST_DNS }}
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET: ${{ secrets.TARGET_DIR }}
+          SCRIPT_BEFORE: sudo rm -rf app 
 
       - name: Build and run Docker container
         uses: appleboy/ssh-action@v1.0.3
