@@ -3,7 +3,7 @@
 set -o errexit
 
 # Parse command line arguments for environment variables
-while getopts ":e:p:" opt; do
+while getopts :e:p: opt; do
     case $opt in
         e)
             echo "$OPTARG" >> ".env"
