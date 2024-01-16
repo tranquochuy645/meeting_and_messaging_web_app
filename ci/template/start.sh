@@ -2,19 +2,11 @@
 
 # Parse command line arguments for environment variables
 rm ".env"
-while getopts :d:j: opt; do
-    case $opt in
-        d)
-            echo "MONGO_URI=$OPTARG" >> ".env"
-            ;;
-        j)
-            echo "JWT_KEY=$OPTARG" >> ".env"
-            ;;
-        \?)
-            echo "Invalid option: -$OPTARG" >&2
-            exit 1
-            ;;
-    esac
+i=1
+for env_var in "$@"; do
+    echo "$i" >>".env"
+    i=$((i + 1))
+    echo >>".env" # Add a newline after each value
 done
 
 # Check if .env file exists
@@ -37,12 +29,11 @@ docker rmi $image_name
 
 # Rebuild the Docker image
 echo "Building Docker image..." &&
-docker build -t $image_name . &&
+    docker build -t $image_name . &&
 
-# Start the container with port mapping and environment variables
-echo "Starting container with port mapping (80:8080) and environment variables..." &&
-docker run -p 80:8080 --env-file .env $image_name &&
-
-echo "Process completed successfully."
+    # Start the container with port mapping and environment variables
+    echo "Starting container with port mapping (80:8080) and environment variables..." &&
+    docker run -p 80:8080 --env-file .env $image_name &&
+    echo "Process completed successfully."
 
 exit
