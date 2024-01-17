@@ -6,6 +6,12 @@
   position: relative;
   z-index: 200;
 }
+#chat-box_body{
+  height: calc( 100% - 6rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+}
 
 
 #chat-box_bg {
