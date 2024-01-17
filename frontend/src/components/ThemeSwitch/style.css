@@ -1,7 +1,5 @@
 .theme-switch-container{
-    margin: 30px;
-    position: fixed;
-    right:0;
+   justify-self: left;
 }
 /*input checkbox*/
 input[type='checkbox'] {

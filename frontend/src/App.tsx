@@ -2,7 +2,6 @@ import { lazy, useState, Suspense, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import PendingFigure from './components/PendingFigure';
 import BackGround from './components/BackGround';
-import ThemeSwitch from './components/ThemeSwitch';
 const SocketProvider = lazy(() => import('./components/SocketProvider'))
 const Auth = lazy(() => import('./pages/Auth'));
 const Main = lazy(() => import('./pages/Main'));
@@ -28,7 +27,6 @@ function App() {
 
   return (<>
     <BackGround />
-    <ThemeSwitch />
     <Routes>
       <Route path="/"
         element={
