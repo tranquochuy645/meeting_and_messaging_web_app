@@ -2,6 +2,7 @@ import { FC, memo, useEffect } from "react";
 import { useSocket } from "../SocketProvider";
 import RoomProfile from "../RoomProfile";
 import { ChatRoom } from "../RoomsNav";
+import ThemeSwitch from "../ThemeSwitch";
 import './style.css'
 interface ChatBoxTopBarProps {
     token: string;
@@ -65,7 +66,6 @@ const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
         <div id="chat-box_topbar" className='flex'>
             {room && <div id="chat-box_topbar_left">
                 <RoomProfile userId={userId} participants={room.participants} />
-
                 {room.isMeeting && room.meeting_uuid ? (
                     <>
                         <p>This room is in a meeting</p>
@@ -82,6 +82,7 @@ const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
                     </button>)
                 }
             </div>}
+            <ThemeSwitch />
         </div>
     )
 }

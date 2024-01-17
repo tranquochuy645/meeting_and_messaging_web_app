@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import "./style.css";
 import { isWeakPassword } from "../../lib/e2eEncrypt/isWeakPassword";
-
+import ThemeSwitch from "../../components/ThemeSwitch";
 interface AuthPageProps {
   onLogin: (token: string) => void;
 }
@@ -71,71 +71,74 @@ const Auth: FC<AuthPageProps> = ({ onLogin }) => {
   };
 
   return (
-    <div id="auth-page">
-      <div className="wrapper">
-        <h2>{isLogin ? "Login" : "Register"}</h2>
-        <form onSubmit={handleSubmit}>
-          {/* Render login or register fields based on the current state */}
-          {isLogin ? (
-            <div className={`form ${isLogin ? "login" : "register"} `}>
-              <div className="input-box">
-                <input
-                  type="text"
-                  placeholder="Username"
-                  name="logUsername"
-                  required
-                />
-                <i className="bx bxs-user"></i>
+    <>
+      <ThemeSwitch />
+      <div id="auth-page">
+        <div className="wrapper">
+          <h2>{isLogin ? "Login" : "Register"}</h2>
+          <form onSubmit={handleSubmit}>
+            {/* Render login or register fields based on the current state */}
+            {isLogin ? (
+              <div className={`form ${isLogin ? "login" : "register"} `}>
+                <div className="input-box">
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    name="logUsername"
+                    required
+                  />
+                  <i className="bx bxs-user"></i>
+                </div>
+                <div className="input-box">
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    name="logPassword"
+                    required
+                  />
+                  <i className="bx bxs-lock-alt"></i>
+                </div>
               </div>
-              <div className="input-box">
-                <input
-                  type="password"
-                  placeholder="Password"
-                  name="logPassword"
-                  required
-                />
-                <i className="bx bxs-lock-alt"></i>
-              </div>
-            </div>
-          ) : (
-            <div className={`form ${isLogin ? "login" : "register"} `}>
-              <div className="input-box">
-                <input
-                  type="text"
-                  placeholder="Username"
-                  name="regUsername"
-                  required
-                />
-              </div>
+            ) : (
+              <div className={`form ${isLogin ? "login" : "register"} `}>
+                <div className="input-box">
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    name="regUsername"
+                    required
+                  />
+                </div>
 
-              <div className="input-box">
-                <input
-                  type="password"
-                  placeholder="Password"
-                  name="regPassword"
-                  required
-                />
-              </div>
+                <div className="input-box">
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    name="regPassword"
+                    required
+                  />
+                </div>
 
-              <div className="input-box">
-                <input
-                  type="password"
-                  placeholder="Repeat Password"
-                  name="reRegPassword"
-                  required
-                />
+                <div className="input-box">
+                  <input
+                    type="password"
+                    placeholder="Repeat Password"
+                    name="reRegPassword"
+                    required
+                  />
+                </div>
               </div>
-            </div>
-          )}
-          <button className="btn" type="submit">
-            {isLogin ? "Sign in" : "Sign up"}
+            )}
+            <button className="btn" type="submit">
+              {isLogin ? "Sign in" : "Sign up"}
+            </button>
+          </form>
+          <button className="btn" onClick={handleToggle}>
+            {isLogin ? "Sign up" : "Go to sign in"}
           </button>
-        </form>
-        <button className="btn" onClick={handleToggle}>
-          {isLogin ? "Sign up" : "Go to sign in"}
-        </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

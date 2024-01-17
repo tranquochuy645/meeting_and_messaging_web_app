@@ -5,8 +5,6 @@ import RoomsNav from "../../components/RoomsNav";
 import ChatBox from "../../components/ChatBox";
 import Profile from "../../components/Profile";
 import RoomMaker from "../../components/RoomMaker";
-// import BackGround from "../../components/BackGround";
-
 interface MainProps {
   token: string;
 }
