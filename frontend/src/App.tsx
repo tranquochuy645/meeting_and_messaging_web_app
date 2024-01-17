@@ -9,6 +9,7 @@ const Main = lazy(() => import('./pages/Main'));
 const Meet = lazy(() => import('./pages/Meet'));
 
 import '@fortawesome/fontawesome-free/css/all.css';
+import NotFound from './pages/404';
 
 function App() {
   const [token, setToken] = useState<string>(sessionStorage.getItem('token') || '');
@@ -51,6 +52,9 @@ function App() {
             <Meet />
           </Suspense>
         }
+      />
+      <Route path="/*"
+        element={<NotFound />}
       />
     </Routes>
   </>

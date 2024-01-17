@@ -29,15 +29,10 @@ const Auth: FC<AuthPageProps> = ({ onLogin }) => {
         }),
       })
         .then((response) => {
-          if (response.ok) {
-            response.json().then((data) => {
-              data.access_token && onLogin(data.access_token);
-            });
-          } else {
-            response.json().then((data) => {
-              data.message && alert(data.message);
-            });
-          }
+          response.json().then((data) => {
+            data.message && alert(data.message);
+            response.ok && data.access_token && onLogin(data.access_token);
+          });
         })
         .catch((error) => {
           alert(error);
@@ -65,6 +60,7 @@ const Auth: FC<AuthPageProps> = ({ onLogin }) => {
       })
         .then((response) => {
           response.json().then((data) => {
+            response.ok && handleToggle();
             data.message && alert(data.message);
           });
         })
