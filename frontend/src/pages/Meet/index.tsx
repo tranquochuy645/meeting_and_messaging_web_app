@@ -39,7 +39,6 @@ const Meet: FC = () => {
         }
 
     }
-    console.log('render');
 
     return (
         <div id="meeting-page">

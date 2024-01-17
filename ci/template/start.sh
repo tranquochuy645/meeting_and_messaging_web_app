@@ -43,8 +43,8 @@ else
 fi
 
 # Start the container with port mapping and environment variables
-echo "Starting container with port mapping (80:8080) and environment variables..."
-docker run -d --restart unless-stopped -p 80:8080 --env-file .env $image_name &&
+echo "Starting container with exposed port 8080 and environment variables..."
+docker run -d --restart unless-stopped --env-file .env $image_name &&
     echo "Process completed successfully" && exit
 
 echo "Error: Docker run failed check log at $build_log" >$2
