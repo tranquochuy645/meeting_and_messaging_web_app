@@ -11,7 +11,6 @@ const Auth: FC<AuthPageProps> = ({ onLogin }) => {
   const handleToggle = () => {
     setIsLogin((prevState) => !prevState);
   };
-
   const handleSubmit = (event: any) => {
     event.preventDefault();
     // Handle login or register form submission

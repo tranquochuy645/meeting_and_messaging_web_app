@@ -68,7 +68,6 @@
   padding: 0 30px 0 20px;
 }
 
-
 .input-box input::placeholder {
   color: var(--text-color);
   opacity: 0.6;
