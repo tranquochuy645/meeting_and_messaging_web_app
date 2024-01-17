@@ -17,6 +17,7 @@
   border-radius: 50%;
   border: solid var(--text-color);
   object-fit: cover;
+  min-width: 50px;
 }
 .group-pictures-container {
   width: 50px;
@@ -42,4 +43,14 @@
 
 .offline {
   color: gray;
+}
+
+.class_name {
+  display: block;
+}
+
+@media (max-width: 100px) {
+  .class_name {
+    display: none;
+  }
 }

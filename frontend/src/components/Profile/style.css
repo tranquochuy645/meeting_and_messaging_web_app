@@ -11,6 +11,7 @@
   align-items: center;
   padding: 0 15px;
   transition: 0.3s;
+  min-width: 20vw ;
 }
 
 #profile_img {
@@ -21,6 +22,7 @@
   border-radius: 50%;
   border: solid #016d62;
   cursor: pointer;
+  min-width: 40px;
 }
 
 .cover {
