@@ -26,6 +26,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
         userId={profile._id}
         room={room}
       />
+      <div id="chat-box_body">
       {room && <MessagesContainer
         justSent={justSent}
         room={room}
@@ -38,6 +39,7 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
         roomId={room._id}
         onJustSent={handleJustSent}
       />}
+      </div>
     </div>
   );
 };
