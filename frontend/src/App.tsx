@@ -30,7 +30,7 @@ function App() {
     <Routes>
       <Route path="/"
         element={
-          <Suspense fallback={<PendingFigure size={500} />}>
+          <Suspense fallback={<PendingFigure size={300} />}>
             <SocketProvider token={token}>
               <Main token={token} />
             </SocketProvider >
@@ -39,14 +39,14 @@ function App() {
       />
       <Route path="/auth"
         element={
-          <Suspense fallback={<PendingFigure size={500} />}>
+          <Suspense fallback={<PendingFigure size={300} />}>
             <Auth onLogin={loginHandler} />
           </Suspense>
         }
       />
       <Route path="/meet/:meetId"
         element={
-          <Suspense fallback={<PendingFigure size={500} />}>
+          <Suspense fallback={<PendingFigure size={300} />}>
             <Meet />
           </Suspense>
         }

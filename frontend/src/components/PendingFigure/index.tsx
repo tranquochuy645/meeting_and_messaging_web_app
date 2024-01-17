@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import "./style.css";
 
 interface PendingFigureProps {
   size: number;
@@ -6,7 +7,7 @@ interface PendingFigureProps {
 
 const PendingFigure: FC<PendingFigureProps> = ({ size }) => {
   return (
-    <div>
+    <div className='pending-figure'>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
