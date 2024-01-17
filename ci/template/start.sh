@@ -44,7 +44,12 @@ fi
 
 # Start the container with port mapping and environment variables
 echo "Starting container with port mapping (8080:8080) and environment variables..."
-docker run -d --restart unless-stopped -v /chat_app/media:/app/media --env-file .env -p 8080:8080 $image_name &&
+docker run -d --restart unless-stopped \
+    -v /chat_app/media:/app/media \
+    -v /chat_app/node_modules:/app/node_modules \
+    --env-file .env \
+    -p 8080:8080 \
+    $image_name &&
     echo "Process completed successfully" && exit
 
 echo "Error: Docker run failed check log at $build_log" >$2
