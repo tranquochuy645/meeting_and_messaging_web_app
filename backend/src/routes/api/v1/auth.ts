@@ -27,7 +27,7 @@ router.post('/register', handleRegPassword, async (req, res) => {
     if (isAvailableUserName) {
       const insertedUser = await dc.users.createUser(username, password);
       const avatar = new DefaultProfileImage(username.charAt(0)) // svg content
-      const path = `media/${insertedUser.toString()}/public/avatar.svg`
+      const path = `media/${insertedUser.toString()}/public/avatar.png`
       avatar.write('./' + path);
       await dc.users.updateUser(
         insertedUser.toString(),

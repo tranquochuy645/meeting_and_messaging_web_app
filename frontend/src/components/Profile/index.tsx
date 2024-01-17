@@ -38,7 +38,6 @@ const getInvitations = async (token: string) => {
   }
 }
 const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
-  // const [folded, setFolded] = useState(true);
   const [showInvitation, setShowInvitation] = useState<boolean>(false);
   const [showProfileEditor, setShowProfileEditor] = useState<boolean>(false);
   const [invitations, setInvitations] = useState<Invitation[] | null>(null)

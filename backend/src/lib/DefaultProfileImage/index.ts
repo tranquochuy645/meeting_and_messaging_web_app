@@ -1,5 +1,5 @@
 import { FileWriter } from '../FileWriter';
-
+import svg2img from 'svg2img';
 class DefaultProfileImage {
   private initials: string;
   private size: number;
@@ -7,7 +7,7 @@ class DefaultProfileImage {
   private fontWeight: string;
   private background: string;
   private textColor: string;
-  private resultSVG: Buffer;
+  private resultSVG: string;
 
   /**
    * Create a DefaultProfileImage instance with the specified initials.
@@ -15,7 +15,7 @@ class DefaultProfileImage {
    */
   constructor(initials: string) {
     this.initials = initials.substr(0, 1).toUpperCase();
-    this.size = 200; // Size of the SVG image in pixels
+    this.size = 48; // Size of the SVG image in pixels
     this.fontSize = Math.floor(this.size / 2); // Increased font size
     this.fontWeight = 'bold'; // Font weight set to bold
     this.background = this.getRandomColor(); // Random background color
@@ -40,24 +40,23 @@ class DefaultProfileImage {
     return luminance > 0.5 ? '#000' : '#FFF';
   }
 
-  private generateSvgContent(): Buffer {
-    const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${this.size}" height="${this.size}" viewBox="0 0 ${this.size} ${this.size}">
+  private generateSvgContent(): string {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${this.size}" height="${this.size}" viewBox="0 0 ${this.size} ${this.size}">
       <rect width="100%" height="100%" fill="${this.background}" />
       <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="${this.fontSize}px" font-weight="${this.fontWeight}" fill="${this.textColor}">
         ${this.initials}
       </text>
     </svg>`;
-
-    // Convert the SVG content to a Buffer
-    return Buffer.from(svgContent, 'utf8');
   }
-
   /**
    * Save the profile image to a file at the specified file path.
    * @param filePath - The file path to save the profile image.
    */
   public write(filePath: string): void {
-    FileWriter.write(filePath, this.resultSVG);
+    svg2img(
+      this.resultSVG,
+      (error, buffer) => FileWriter.write(filePath, buffer)
+    );
   }
 }
 export { DefaultProfileImage };
