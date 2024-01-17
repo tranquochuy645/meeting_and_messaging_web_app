@@ -18,6 +18,7 @@ tsc &&
  
 # Move contents of dist to release directory
 echo "moving to release..." 
-
+cp -r package.json ../release/ &&
 cp -r dist/* ../release/ &&
-echo "Built successfully" 
+
+echo "Built successfully"
