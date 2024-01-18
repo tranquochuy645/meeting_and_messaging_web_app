@@ -24,9 +24,11 @@ if [ ! -e ".env" ]; then
     exit 1
 fi
 
+old_container_ids=$(docker ps -a -q -f ancestor=$image_name --format "{{.ID}}")
 
 # Rebuild the Docker image
 echo "Building Docker image..."
+# It will reuse the existing tag, so old image will be untagged
 if docker build -t $image_name . &>>"$build_log"; then
     echo "Docker image build successful."
 else
@@ -35,10 +37,10 @@ else
 fi
 
 echo "Stopping old containers matching image name: $image_name"
-docker stop $(docker ps -q -f ancestor=$image_name --format "{{.ID}}") &>>"$build_log"
+docker stop $old_container_ids &>>"$build_log"
 
 echo "Removing old containers matching image name: $image_name"
-docker rm $(docker ps -a -q -f ancestor=$image_name --format "{{.ID}}") &>>"$build_log"
+docker rm $old_container_ids &>>"$build_log"
 
 # Start the container with port mapping and environment variables
 echo "Starting container with port mapping (8080:8080) and environment variables..."
