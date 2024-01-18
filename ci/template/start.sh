@@ -49,6 +49,7 @@ docker run -d --restart unless-stopped \
     --env-file .env \
     -p 8080:8080 \
     $image_name &&
+    docker rmi $(docker images -f “dangling=true” -q) && # Removing old dangling images
     echo "Process completed successfully" &&
     exit
 
