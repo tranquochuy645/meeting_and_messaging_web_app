@@ -48,10 +48,20 @@ docker run -d --restart unless-stopped \
     -v /$image_name/media:/app/media \
     --env-file .env \
     -p 8080:8080 \
-    $image_name &&
-    docker rmi $(docker images -f “dangling=true” -q) && # Removing old dangling images
-    echo "Process completed successfully" &&
-    exit
+    $image_name
 
-echo "Error: Docker run failed. Check log at $build_log" >$2
-exit 1
+# Check if there are dangling images and remove them
+if docker images -f 'dangling=true' -q | grep -q .; then
+    docker rmi $(docker images -f 'dangling=true' -q)
+    echo "Dangling images removed."
+else
+    echo "No dangling images found."
+fi
+
+# Check if the container is running
+if docker ps | grep -q $image_name; then
+    echo "Process completed successfully."
+else
+    echo "Error: Docker run failed. Check log at $build_log" >&2
+    exit 1
+fi
