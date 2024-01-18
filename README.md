@@ -6,3 +6,4 @@ To do list:
 - Finish app UI (It's terrible right now)
 - Migrate user-uploaded media storage to S3
 - End to end encrypted messaging feature
+
