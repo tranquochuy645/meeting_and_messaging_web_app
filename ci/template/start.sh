@@ -42,7 +42,7 @@ fi
 # Start the container with port mapping and environment variables
 echo "Starting container with port mapping (8080:8080) and environment variables..."
 docker run -d --restart unless-stopped \
-    -v /chat_app/media:/app/media \
+    -v /$image_name/media:/app/media \
     --env-file .env \
     -p 8080:8080 \
     $image_name &&
