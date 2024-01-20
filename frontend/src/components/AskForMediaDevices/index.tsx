@@ -17,10 +17,12 @@ const AskForMediaDevices: FC<AskForMediaDevicesProps> = ({ onReady }) => {
   };
   return (
     <>
-      <p> You need to allow access to camera and mic</p>
-      <button id="precall_btn" onClick={() => initialize()}>
-        Allow
-      </button>
+      <div className="centered-container">
+        <p>You need to allow access to camera and mic</p>
+        <button id="precall_btn" onClick={() => initialize()}>
+          Allow
+        </button>
+      </div>
     </>
   );
 };

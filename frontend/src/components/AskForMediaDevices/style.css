@@ -1,6 +1,22 @@
+.centered-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center horizontally and vertically */
+  width: 300px; /* Adjust width as needed */
+  padding: 20px; /* Add padding for better spacing */
+  border-radius: 10px; /* Rounded corners */
+  background-color: #f0f0f0; /* Optional background */
+  text-align: center; /* Align text and button */
+  color: black;
+}
+
 #precall_btn {
-  width: 200px;
-  height: 100px;
-  background-color: #ccc;
-  border-radius: 50px;
+  width: 100%; /* Make button full width */
+  padding: 10px 20px; /* Adjust padding for button size */
+  border-radius: 25px; /* Rounded corners for button */
+  background-color: #4caf50; /* Green background */
+  color: black; /* White text */
+  border: none; /* Remove default border */
+  cursor: pointer; /* Pointer cursor on hover */
 }
