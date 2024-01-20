@@ -1,10 +1,13 @@
 .message {
   display: flex;
-  justify-content:space-between;
+  justify-content: space-between;
   width: 100%;
   position: relative;
 }
 
+.message .lazyload-element {
+  width: 100%;
+}
 
 .inchat-avatar {
   width: 40px;
@@ -12,11 +15,12 @@
   border-radius: 50%;
 }
 
-.message_left{
-  width:40px;
-  display:flex;
+.message_left {
+  width: 40px;
+  display: flex;
   justify-content: right;
 }
+
 .message_right {
   display: flex;
   width: calc(100% - 40px);

@@ -1,5 +1,4 @@
 import { FC, useEffect, useState } from 'react';
-
 interface LazyLoadVideoProps {
     src: string;
     alt: string;
@@ -32,6 +31,7 @@ const LazyLoadVideo: FC<LazyLoadVideoProps> = ({ src, alt }) => {
 
     return (
         <video
+            className='lazyload-element'
             id={`lazyload-element-${src}`}
             controls={true}
             autoPlay={false}

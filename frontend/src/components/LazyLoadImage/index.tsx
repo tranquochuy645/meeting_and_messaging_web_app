@@ -1,5 +1,4 @@
 import { FC, useEffect, useState } from 'react';
-import "./style.css"
 interface LazyLoadImageProps {
     src: string;
     alt: string;
@@ -32,7 +31,7 @@ const LazyLoadImage: FC<LazyLoadImageProps> = ({ src, alt }) => {
 
     return (
         <img
-            className="image"
+            className='lazyload-element'
             id={`lazyload-element-${src}`}
             src={isIntersecting ? src : ''}
             loading='lazy'
