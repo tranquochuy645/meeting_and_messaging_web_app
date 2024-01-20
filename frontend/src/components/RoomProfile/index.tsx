@@ -50,7 +50,7 @@ const RoomProfile: FC<RoomProfileProps> = ({ participants, userId }) => {
             ) : (
                 <>
                     <img src={participants[0].avatar} alt="img" className="profile-picture" />
-                    <h3>
+                    <h3 className='chat-name'>
                         {participants[0].fullname + "  "}
                         <span className={participants[0].isOnline ? 'online' : 'offline'}>
                             &bull;
