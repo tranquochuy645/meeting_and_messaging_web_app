@@ -15,7 +15,7 @@ const themes: { [key: string]: Theme } = {
   },
   dark: {
     text: "#ffffff",
-    background: "#000",
+    background: "#242526",
     theme: "#240063",
   },
   // Add more themes here if needed
