@@ -16,27 +16,21 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
   const socket = useSocket();
   const [peersList, setPeersList] = useState<{ [key: string]: Peer }>({});
 
-  const handleToggleCamera = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (!localStream) return;
-      const videoTracks = localStream.getVideoTracks();
-      videoTracks.forEach((track) => {
-        track.enabled = !event.target.checked;
-      });
-    },
-    []
-  );
+    const handleToggleCamera = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (!localStream) return;
+        const videoTracks = localStream.getVideoTracks();
+        videoTracks.forEach((track) => {
+            track.enabled = !event.target.checked;
+        });
+    };
 
-  const handleToggleSound = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (!localStream) return;
-      const audioTracks = localStream.getAudioTracks();
-      audioTracks.forEach((track) => {
-        track.enabled = !event.target.checked;
-      });
-    },
-    []
-  );
+    const handleToggleSound = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (!localStream) return;
+        const audioTracks = localStream.getAudioTracks();
+        audioTracks.forEach((track) => {
+            track.enabled = !event.target.checked;
+        });
+    };
 
   const handleOffPeer = useCallback((peerId: string) => {
     setPeersList((prev) => {
@@ -108,89 +102,79 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
     });
   }, []);
 
-  useEffect(() => {
-    if (localVideoPlayerRef.current && localStream instanceof MediaStream) {
-      localVideoPlayerRef.current.srcObject = localStream;
-    }
-  }, [localStream]);
-  useEffect(() => {
-    if (socket && localStream) {
-      // socket.on('terminate_offer', handleTerminateOffer);
-      // socket.on('terminate_answer', handleTerminateAnswer);
-      socket.on("new_peer", handleNewPeer);
-      socket.on("off_peer", handleOffPeer);
-      socket.on("offer", handleOffer);
-      socket.on("answer", handleAnswer);
-      socket.on("ice_candidate", handleIceCandidate);
-      return () => {
-        console.log("clean up listeners");
-        // socket.off('terminate_offer', handleTerminateOffer);
-        // socket.off('terminate_answer', handleTerminateAnswer);
-        socket.off("new_peer", handleNewPeer);
-        socket.off("off_peer", handleOffPeer);
-        socket.off("offer", handleOffer);
-        socket.off("answer", handleAnswer);
-        socket.off("ice_candidate", handleIceCandidate);
-      };
-    }
-  }, [
-    socket,
-    localStream,
-    handleNewPeer,
-    handleOffPeer,
-    handleOffer,
-    handleAnswer,
-    handleIceCandidate,
-  ]);
-  return (
-    <>
-      <section
-        id="meeting-page_section_local"
-        className={`${Object.keys(peersList).length > 0 ? " aside" : ""}`}
-      >
-        <div className="flex meeting-page_ctrl nav-meeting-bar">
-          <label className="btn-toggle" htmlFor="toggle-local-cam">
-            <input
-              id="toggle-local-cam"
-              type="checkbox"
-              onChange={handleToggleCamera}
-            />
-            <div>cam</div>
-          </label>
-          <label className="btn-toggle" htmlFor="toggle-local-audio">
-            <input
-              id="toggle-local-audio"
-              type="checkbox"
-              onChange={handleToggleSound}
-            />
-            <div>audio</div>
-          </label>
-        </div>
-        <video
-          id="local-video"
-          ref={localVideoPlayerRef}
-          autoPlay
-          playsInline
-          muted
-        />
-      </section>
-      {Object.keys(peersList).length > 0 && (
-        <section
-          id="meeting-page_section_remote"
-          className={`${Object.keys(peersList).length > 1 ? "stacked" : ""}`}
-        >
-          {Object.values(peersList).map((peer: Peer) => (
-            <div key={peer.id} className={`remote-peer-container ${peer.id}`}>
-              <RemoteVideoScreen
-                peerId={peer.id}
-                remoteStream={peer.client.remoteStream}
-              />
-            </div>
-          ))}
-        </section>
-      )}
-    </>
-  );
+    useEffect(() => {
+        if (localVideoPlayerRef.current && localStream instanceof MediaStream) {
+            localVideoPlayerRef.current.srcObject = localStream
+        }
+    }, [localStream])
+
+    useEffect(() => {
+        if (socket && localStream) {
+            console.log("update socket")
+            // socket.on('terminate_offer', handleTerminateOffer);
+            // socket.on('terminate_answer', handleTerminateAnswer);
+            socket.on('new_peer', handleNewPeer);
+            socket.on('off_peer', handleOffPeer);
+            socket.on('offer', handleOffer);
+            socket.on('answer', handleAnswer);
+            socket.on('ice_candidate', handleIceCandidate);
+            return (() => {
+                // console.log('clean up listeners');
+                // socket.off('terminate_offer', handleTerminateOffer);
+                // socket.off('terminate_answer', handleTerminateAnswer);
+                socket.off('new_peer', handleNewPeer);
+                socket.off('off_peer', handleOffPeer);
+                socket.off('offer', handleOffer);
+                socket.off('answer', handleAnswer);
+                socket.off('ice_candidate', handleIceCandidate);
+            })
+        }
+    }, [socket,
+        localStream,
+        handleNewPeer,
+        handleOffPeer,
+        handleOffer,
+        handleAnswer,
+        handleIceCandidate,])
+    return (
+        <>
+            <section id="meeting-page_section_local" className={`${Object.keys(peersList).length > 0 ? " aside" : ""}`}>
+                <div className='flex meeting-page_ctrl'>
+                    <label className="btn-toggle" htmlFor='toggle-local-cam'>
+                        <input
+                            id="toggle-local-cam"
+                            type='checkbox'
+                            onChange={handleToggleCamera}
+                        />
+                        <div>cam</div>
+                    </label>
+                    <label className="btn-toggle" htmlFor='toggle-local-audio'>
+                        <input
+                            id="toggle-local-cam"
+                            type='checkbox'
+                            onChange={handleToggleSound}
+                        />
+                        <div>audio</div>
+                    </label>
+                </div>
+                <video id="local-video" ref={localVideoPlayerRef} autoPlay playsInline muted />
+            </section>
+            {
+                Object.keys(peersList).length > 0 &&
+                <section id="meeting-page_section_remote"
+                    className={`${Object.keys(peersList).length > 1 ? "stacked" : ""}`}>
+                    {Object.values(peersList).map(
+                        (peer: Peer) =>
+                            <div key={peer.id} className={`remote-peer-container ${peer.id}`}>
+                                <RemoteVideoScreen
+                                    peerId={peer.id}
+                                    remoteStream={peer.client.remoteStream}
+                                />
+                            </div>
+                    )}
+                </section>}
+        </>
+    )
 };
 
 export default MeetingWindow;
