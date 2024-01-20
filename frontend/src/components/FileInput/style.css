@@ -1,9 +1,0 @@
-.btn_fileinput:hover,
-.btn_fileinput:focus {
-    cursor: pointer;
-    box-shadow: 0 0 3px 3px var(--text-color);
-}
-
-.fileinput {
-    display: none;
-}
