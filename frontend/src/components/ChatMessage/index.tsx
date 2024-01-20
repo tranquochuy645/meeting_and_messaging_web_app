@@ -24,13 +24,13 @@ const OutGoingMessage: FC<OutGoingMessageProps> = ({ token, content, timestamp, 
                 {
                     urls &&
                     urls.length > 0 &&
-                    <div className='message_item'>
-                        {
-                            urls.map((url, index) => {
-                                return <LazyLoadMediaDetector key={timestamp + index} token={token} url={url} />
-                            })
-                        }
-                    </div>
+                    urls.map((url, index) => {
+                        return (
+                            <div className='message_item'>
+                                <LazyLoadMediaDetector key={timestamp + index} token={token} url={url} />
+                            </div>
+                        )
+                    })
                 }
                 <p className='message_timestamp'>{timestamp}</p>
                 {
@@ -62,18 +62,17 @@ const InComingMessage: FC<InComingMessageProps> = ({ token, avatarSRC, content, 
                     <div className='message_item'>
                         <p className="message_content">{content}</p>
                     </div>
-
                 }
                 {
                     urls &&
                     urls.length > 0 &&
-                    <div className='message_item'>
-                        {
-                            urls.map((url, index) => {
-                                return <LazyLoadMediaDetector key={timestamp + index} token={token} url={url} />
-                            })
-                        }
-                    </div>
+                    urls.map((url, index) => {
+                        return (
+                            <div className='message_item'>
+                                <LazyLoadMediaDetector key={timestamp + index} token={token} url={url} />
+                            </div>
+                        )
+                    })
                 }
                 <p className='message_timestamp'>{timestamp}</p>
                 {
