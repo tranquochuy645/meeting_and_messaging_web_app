@@ -69,7 +69,7 @@ const ChatBoxTopBar: FC<ChatBoxTopBarProps> = ({ token, room, userId }) => {
                 {room.isMeeting && room.meeting_uuid ? (
                     <>
                         <p>This room is in a meeting</p>
-                        <button
+                        <button className="btn_join"
                             onClick={
                                 () => handleJoinCall(token, room.meeting_uuid as string, room._id)
                             }

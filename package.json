@@ -9,7 +9,7 @@
     "dev": "npm-run-all --parallel dev:backend dev:frontend",
     "dev:backend": "cd backend && nodemon src/server.ts",
     "dev:frontend": "cd frontend && npm run dev",
-    "start": "cd release && npm run start",
+    "start": "cd release && sudo bash start.sh",
     "stop": "kill $(lsof -t -i:$1) || true", 
     "acp": "git add . && git commit -m 'acp' && git push"
   },

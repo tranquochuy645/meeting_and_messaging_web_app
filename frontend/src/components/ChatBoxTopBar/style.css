@@ -9,6 +9,19 @@
 #chat-box_topbar_left {
     width: auto;
     display: flex;
+    align-items: center;
+}
+
+.btn_join {
+    border: none;
+    outline: none;
+    color: var(--text-color);
+    background-color: var(--theme-color);
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    height: fit-content;
+    width: fit-content;
 }
 
 #chat-box_topbar_left .btn {
