@@ -9,7 +9,6 @@ interface RemoteVideoScreenProps {
 const RemoteVideoScreen: FC<RemoteVideoScreenProps> = (
     { peerId, remoteStream }
 ) => {
-    console.log("render remote video screen")
     const remoteVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
     const [muted, setMuted] = useState(false);
     const handleToggleMute = () => {

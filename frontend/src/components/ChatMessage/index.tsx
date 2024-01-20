@@ -19,7 +19,6 @@ const OutGoingMessage: FC<OutGoingMessageProps> = ({ token, content, timestamp, 
                     <div className='message_item'>
                         <p className="message_content">{content}</p>
                     </div>
-
                 }
                 {
                     urls &&

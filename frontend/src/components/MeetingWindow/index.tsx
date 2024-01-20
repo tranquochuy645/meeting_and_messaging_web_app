@@ -16,23 +16,21 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
     const socket = useSocket()
     const [peersList, setPeersList] = useState<{ [key: string]: Peer }>({});
 
-    const handleToggleCamera = useCallback(() => {
-        if (localStream) {
-            const videoTracks = localStream.getVideoTracks();
-            videoTracks.forEach((track) => {
-                track.enabled = !track.enabled;
-            });
-        }
-    }, [localStream]);
+    const handleToggleCamera = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        if (!localStream) return;
+        const videoTracks = localStream.getVideoTracks();
+        videoTracks.forEach((track) => {
+            track.enabled = !event.target.checked;
+        });
+    }, []);
 
-    const handleToggleSound = useCallback(() => {
-        if (localStream) {
-            const audioTracks = localStream.getAudioTracks();
-            audioTracks.forEach((track) => {
-                track.enabled = !track.enabled;
-            });
-        }
-    }, [localStream]);
+    const handleToggleSound = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        if (!localStream) return;
+        const audioTracks = localStream.getAudioTracks();
+        audioTracks.forEach((track) => {
+            track.enabled = !event.target.checked;
+        });
+    }, []);
 
     const handleOffPeer = useCallback((peerId: string) => {
         setPeersList((prev) => {
@@ -117,7 +115,6 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
     }, [localStream])
     useEffect(() => {
         if (socket && localStream) {
-            console.log('setup listeners')
             // socket.on('terminate_offer', handleTerminateOffer);
             // socket.on('terminate_answer', handleTerminateAnswer);
             socket.on('new_peer', handleNewPeer);
@@ -147,8 +144,14 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
         <>
             <section id="meeting-page_section_local" className={`${Object.keys(peersList).length > 0 ? " aside" : ""}`}>
                 <div className='flex meeting-page_ctrl'>
-                    <button className='calling_btn'id='btn_camera'  onClick={handleToggleCamera}></button>
-                    <button onClick={handleToggleSound}>Toggle sound</button>
+                    <input
+                        type='checkbox'
+                        onChange={handleToggleCamera}
+                    />
+                    <input
+                        type='checkbox'
+                        onChange={handleToggleSound}
+                    />
                 </div>
                 <video id="local-video" ref={localVideoPlayerRef} autoPlay playsInline muted />
             </section>
