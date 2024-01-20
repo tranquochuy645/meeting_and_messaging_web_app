@@ -36,6 +36,7 @@
 
 #section-right {
   position: relative;
+  max-width: 70%;
   flex: 70%;
   z-index: 100;
   background: var(--background-color);

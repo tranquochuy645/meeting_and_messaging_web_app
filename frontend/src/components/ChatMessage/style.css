@@ -1,26 +1,84 @@
+.message {
+  display: flex;
+  justify-content:space-between;
+  width: 100%;
+  position: relative;
+}
+
+
 .inchat-avatar {
-  margin-right: 30px;
-  height: 30px;
-  width: 30px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
 }
 
-.message {
+.message_left{
+  width:40px;
+  display:flex;
+  justify-content: right;
+}
+.message_right {
   display: flex;
-  width: 100%;
+  width: calc(100% - 40px);
+  flex-direction: column;
   position: relative;
-  padding-right: 0.5rem;
-  padding-left: 0.5rem;
-  padding-bottom: 1.5rem;
+  padding: 0 4% 4% 4%;
 }
 
-.message p {
+.message_item {
+  display: flex;
+  background: color-mix(in srgb,
+      var(--background-color) 60%,
+      var(--theme-color) 40%);
+  width: max-content;
+  border-radius: 10px;
+  max-width: 80%;
+  padding: 0.5rem;
+  position: relative;
+}
+
+.message_right.out {
+  align-items: end;
+}
+
+.message_right.out .message_item {
+  background-color: var(--theme-color);
+}
+
+.message_right.in .message_item {
+  background: color-mix(in srgb,
+      var(--background-color) 60%,
+      var(--theme-color) 40%);
+}
+
+.message_content {
   word-wrap: break-word;
   white-space: pre-line;
-  max-width: 300px;
+  width: 100%;
 }
 
-.message.in::before {
+.message_timestamp {
+  bottom: 0;
+  position: absolute;
+  opacity: 0;
+  transition: 0.5s;
+}
+
+.message_seenby {
+  bottom: 0;
+  position: absolute;
+  transition: 0.5s;
+}
+
+.message:hover .message_timestamp {
+  opacity: 1;
+}
+
+.message:hover .message_seenby {
+  opacity: 0;
+}
+
+.message_right.in .message_content::before {
   content: "";
   position: absolute;
   top: 0;
@@ -34,11 +92,7 @@
       transparent);
 }
 
-.message.out {
-  justify-content: flex-end;
-}
-
-.message.out::before {
+.message_right.out .message_content::after {
   content: "";
   position: absolute;
   top: 0;
@@ -50,37 +104,4 @@
       var(--theme-color) 50%,
       transparent 50%,
       transparent);
-}
-
-.message_wrapper {
-  display: flex;
-  background: color-mix(in srgb,
-      var(--background-color) 60%,
-      var(--theme-color) 40%);
-  width: fit-content;
-  border-radius: 0px 0 10px 10px;
-  padding: 0.5rem;
-}
-
-.message.out .message_wrapper {
-  background-color: var(--theme-color);
-}
-
-.message_timestamp {
-  bottom: 0;
-  position: absolute;
-  opacity: 0;
-  transition: 0.5s;
-}
-.message_seenby {
-  bottom: 0;
-  position: absolute;
-  transition: 0.5s;
-}
-
-.message:hover .message_timestamp {
-  opacity: 1;
-}
-.message:hover .message_seenby{
-  opacity: 0;
 }

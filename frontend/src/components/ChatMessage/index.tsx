@@ -11,26 +11,38 @@ interface OutGoingMessageProps {
 
 const OutGoingMessage: FC<OutGoingMessageProps> = ({ token, content, timestamp, urls, seenList }) => {
     return (
-        <div className='message out'>
-            <div className='message_wrapper'>
-                <p>{content}</p>
-            </div>
-            <p className='message_timestamp'>{timestamp}</p>
-            {
-                urls &&
-                urls.length > 0 &&
-                urls.map((url, index) => {
-                    return <LazyLoadMediaDetector key={timestamp + index} token={token} url={url} />
-                })}
-            {
-                seenList && seenList.length > 0 && (
-                    <p className='message_seenby'>Seen by:
-                        {seenList.map((e, index) =>
-                            <span key={index}>{" "+e}</span>)
+        <div className="message">
+            <div className="message_left"></div>
+            <div className='message_right out'>
+                {
+                    content &&
+                    <div className='message_item'>
+                        <p className="message_content">{content}</p>
+                    </div>
+
+                }
+                {
+                    urls &&
+                    urls.length > 0 &&
+                    <div className='message_item'>
+                        {
+                            urls.map((url, index) => {
+                                return <LazyLoadMediaDetector key={timestamp + index} token={token} url={url} />
+                            })
                         }
-                    </p>
-                )
-            }
+                    </div>
+                }
+                <p className='message_timestamp'>{timestamp}</p>
+                {
+                    seenList && seenList.length > 0 && (
+                        <p className='message_seenby'>Seen by:
+                            {seenList.map((e, index) =>
+                                <span key={index}>{" " + e}</span>)
+                            }
+                        </p>
+                    )
+                }
+            </div>
         </div>
     );
 };
@@ -41,26 +53,39 @@ interface InComingMessageProps extends OutGoingMessageProps {
 
 const InComingMessage: FC<InComingMessageProps> = ({ token, avatarSRC, content, timestamp, urls, seenList }) => {
     return (
-        <div className='message in'>
-            <div className='message_wrapper'>
+        <div className="message">
+            <div className="message_left">
                 <img className="inchat-avatar" src={avatarSRC} alt="Sender Avatar" />
-                <p>{content}</p>
-                {urls &&
-                    urls.length > 0 &&
-                    urls.map((url, index) => {
-                        return <LazyLoadMediaDetector key={timestamp + index} token={token} url={url} />
-                    })}
             </div>
-            <p className='message_timestamp'>{timestamp}</p>
-            {
-                seenList && seenList.length > 0 && (
-                    <p className='message_seenby' >Seen by:
-                        {seenList.map((e, index) =>
-                            <span key={index}>{e}</span>)
+            <div className='message_right in'>
+                {content &&
+                    <div className='message_item'>
+                        <p className="message_content">{content}</p>
+                    </div>
+
+                }
+                {
+                    urls &&
+                    urls.length > 0 &&
+                    <div className='message_item'>
+                        {
+                            urls.map((url, index) => {
+                                return <LazyLoadMediaDetector key={timestamp + index} token={token} url={url} />
+                            })
                         }
-                    </p>
-                )
-            }
+                    </div>
+                }
+                <p className='message_timestamp'>{timestamp}</p>
+                {
+                    seenList && seenList.length > 0 && (
+                        <p className='message_seenby' >Seen by:
+                            {seenList.map((e, index) =>
+                                <span key={index}>{e}</span>)
+                            }
+                        </p>
+                    )
+                }
+            </div>
         </div>
     );
 };
