@@ -1,8 +1,9 @@
-/* #meeting-page {
-    width: 100%;
-    height: 100%;
+#meeting-page {
+    width: 100vw;
+    height: 100vh;
 }
 
+/*
 .meeting-page_ctrl {
     position: absolute;
     z-index: 100;

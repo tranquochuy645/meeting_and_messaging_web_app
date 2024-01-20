@@ -18,11 +18,11 @@
   display: none;
 }
 
-#toggle-local-cam + div {
+#toggle-local-cam+div {
   color: red;
 }
 
-#toggle-local-cam:checked + div {
+#toggle-local-cam:checked+div {
   color: rgb(1, 250, 63);
 }
 
@@ -30,11 +30,11 @@
   display: none;
 }
 
-#toggle-local-audio + div {
+#toggle-local-audio+div {
   color: red;
 }
 
-#toggle-local-audio:checked + div {
+#toggle-local-audio:checked+div {
   color: rgb(1, 250, 63);
 }
 
@@ -44,7 +44,7 @@
   height: 30px;
 }
 
-.nav-meeting-bar {
+#ctrl_local {
   width: 50vw;
   position: fixed;
   bottom: 0;
@@ -61,19 +61,31 @@
 }
 
 #local-video {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  width: 200px;
-  height: 150px;
+  height: 70%;
   border-radius: 10px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* =========Gridview======= */
-#meeting-page {
-  height: 100vh;
+#meeting-page_section_local {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+#meeting-page_section_local.aside {
+  padding: 0;
+  position: fixed;
+  bottom: 20px;
+  left: 0px;
+  width: auto;
+  height: 200px;
+}
+
+#meeting-page_section_local.aside #local-video {
+  height: 100%;
+}
+
 #meeting-page_section_remote {
   display: flex;
   flex-direction: column;
@@ -83,26 +95,24 @@
 }
 
 .remote-peer-container {
-  margin: auto;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  min-width: 10%;
+  justify-content: center;
   flex-basis: 20%;
+  width: 20%;
 }
+
+.remote-video-ctrl {
+  position: absolute;
+}
+
 .remote-peer-container:first-of-type {
   flex-basis: 100%;
+  width: 80%;
 }
 
 .remote-peer-container video {
-  height: 100%;
-  width: auto;
+  height: 90%;
   max-width: 100%;
-  max-height: 100%;
-}
-#meeting-page_section_remote {
-  /* grid-template-columns: 1fr 1fr; */
+  width: auto;
+  border-radius: 10px;
 }

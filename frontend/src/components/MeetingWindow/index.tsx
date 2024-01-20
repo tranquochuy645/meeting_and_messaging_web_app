@@ -139,7 +139,7 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
     return (
         <>
             <section id="meeting-page_section_local" className={`${Object.keys(peersList).length > 0 ? " aside" : ""}`}>
-                <div className='flex meeting-page_ctrl'>
+                <div id="ctrl_local" className='flex'>
                     <label className="btn-toggle" htmlFor='toggle-local-cam'>
                         <input
                             id="toggle-local-cam"

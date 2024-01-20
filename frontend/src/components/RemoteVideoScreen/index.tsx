@@ -1,5 +1,4 @@
 import { FC, useEffect, useRef, useState, memo } from 'react';
-import './style.css';
 
 
 interface RemoteVideoScreenProps {
@@ -24,16 +23,18 @@ const RemoteVideoScreen: FC<RemoteVideoScreenProps> = (
     }, [remoteStream, remoteVideoPlayerRef])
     return (
         <>
-            <p>Peer ID: {peerId}</p>
-            <div className='flex meeting-page_ctrl'>
-                <button onClick={handleToggleMute}>
-                    {
-                        muted ?
-                            "Unmute"
-                            :
-                            "Mute"
-                    }
-                </button>
+            <div className='remote-video-ctrl'>
+                <p>Peer ID: {peerId}</p>
+                <div className='flex'>
+                    <button onClick={handleToggleMute}>
+                        {
+                            muted ?
+                                "Unmute"
+                                :
+                                "Mute"
+                        }
+                    </button>
+                </div>
             </div>
             <video className="remote-video" ref={remoteVideoPlayerRef} autoPlay playsInline />
         </>
