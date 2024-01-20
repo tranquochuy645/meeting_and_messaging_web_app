@@ -1,15 +1,7 @@
 .theme-switch-container{
    margin: 1%;
 }
-/*input checkbox*/
-.theme-switch-container input[type='checkbox'] {
-    opacity: 0;
-    display: none;
-    visibility: hidden;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
+
 
 /*move toggler when input is checked*/
 /* input[type='checkbox']:checked ~ .switcher-label .switcher-toggler {

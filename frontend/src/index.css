@@ -41,7 +41,9 @@ input[type="password"] {
   outline: none;
 }
 
-
+.checkbox {
+  display: none;
+}
 .flex {
   display: flex;
 }

@@ -48,6 +48,7 @@ const ThemeSwitch = () => {
   return (
     <div className="theme-switch-container">
       <input
+        className="checkbox"
         type="checkbox"
         id="switcher-input"
         checked={isLightMode}
