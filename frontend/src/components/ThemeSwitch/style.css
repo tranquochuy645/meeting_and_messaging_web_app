@@ -2,7 +2,7 @@
    margin: 1%;
 }
 /*input checkbox*/
-input[type='checkbox'] {
+.theme-switch-container input[type='checkbox'] {
     opacity: 0;
     display: none;
     visibility: hidden;

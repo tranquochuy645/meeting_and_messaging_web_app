@@ -1,7 +1,7 @@
 /* =======btn======= */
 
-.calling_btn{
-    background-repeat: no-repeat;
+.calling_btn {
+  background-repeat: no-repeat;
   background-size: 24px;
   border: none;
   height: 48px;
@@ -14,7 +14,32 @@
   background-color: var(--button-bg);
 }
 
-#toggle-camera{
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%232c303a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-camera-off' viewBox='0 0 24 24'%3E%3Cpath d='M1 1l22 22M21 21H3a2 2 0 01-2-2V8a2 2 0 012-2h3m3-3h6l2 3h4a2 2 0 012 2v9.34m-7.72-2.06a4 4 0 11-5.56-5.56'/%3E%3C/svg%3E%0A");
-    background-position: center;
+#toggle-local-cam {
+  display: none;
+}
+
+#toggle-local-cam+div {
+  color: red;
+}
+
+#toggle-local-cam:checked+div {
+  color: rgb(1, 250, 63);
+}
+
+#toggle-local-audio {
+  display: none;
+}
+
+#toggle-local-audio+div {
+  color: red;
+}
+
+#toggle-local-audio:checked+div {
+  color: rgb(1, 250, 63);
+}
+
+.btn-toggle {
+  margin: 20px;
+  width: 30px;
+  height: 30px;
 }

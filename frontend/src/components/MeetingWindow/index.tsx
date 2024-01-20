@@ -144,14 +144,22 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
         <>
             <section id="meeting-page_section_local" className={`${Object.keys(peersList).length > 0 ? " aside" : ""}`}>
                 <div className='flex meeting-page_ctrl'>
-                    <input
-                        type='checkbox'
-                        onChange={handleToggleCamera}
-                    />
-                    <input
-                        type='checkbox'
-                        onChange={handleToggleSound}
-                    />
+                    <label className="btn-toggle" htmlFor='toggle-local-cam'>
+                        <input
+                            id="toggle-local-cam"
+                            type='checkbox'
+                            onChange={handleToggleCamera}
+                        />
+                        <div>cam</div>
+                    </label>
+                    <label className="btn-toggle" htmlFor='toggle-local-audio'>
+                        <input
+                            id="toggle-local-audio"
+                            type='checkbox'
+                            onChange={handleToggleSound}
+                        />
+                        <div>audio</div>
+                    </label>
                 </div>
                 <video id="local-video" ref={localVideoPlayerRef} autoPlay playsInline muted />
             </section>
