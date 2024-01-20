@@ -1,0 +1,42 @@
+#rooms-nav {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  padding: 0.5rem;
+  overflow-y: auto;
+  transition: 0.5s;
+}
+
+.chat-room {
+  position: relative;
+  transition: 0.5s;
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.chat-room_info {
+  width: 100%;
+  padding: 0.75rem;
+}
+
+.chat-room.active {
+  background-color: color-mix(in srgb,
+      var(--background-color) 60%,
+      var(--theme-color) 40%);
+}
+
+.last-msg {
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.last-msg.unread {
+  padding-left: 20px;
+  font-weight: 900;
+  background-image: linear-gradient(90deg,var(--theme-color), transparent);
+}

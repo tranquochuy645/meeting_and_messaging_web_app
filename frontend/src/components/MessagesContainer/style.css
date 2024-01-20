@@ -1,0 +1,18 @@
+#topRef {
+    display: none;
+    justify-content: center;
+}
+
+#btn_scroll {
+    display: none;
+    justify-self: center;
+    align-self: center;
+}
+
+#messages-container {
+    position: relative;
+    display: flex;
+    height: auto;
+    flex-direction: column;
+    overflow-y: scroll;
+}

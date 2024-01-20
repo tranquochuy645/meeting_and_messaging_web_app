@@ -1,0 +1,57 @@
+:root {
+  /* Light Mode Colors default*/
+  --text-color: #ffffff;
+  --background-color: #000;
+  --theme-color: #240063;
+  /* Common Styles */ 
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: var(--text-color);
+  background-color: var(--background-color);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+input[type="text"],
+input[type="password"] {
+  border: none;
+  outline: none;
+}
+
+
+.flex {
+  display: flex;
+}
+
+h3 {
+  padding: 0;
+  margin: 0;
+}
+
+p {
+  padding: 0;
+  margin: 0;
+}

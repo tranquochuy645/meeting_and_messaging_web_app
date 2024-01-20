@@ -1,0 +1,88 @@
+#room-maker {
+  position: relative;
+  width: 100%;
+  height: auto;
+  justify-content: center;
+  align-items: center;
+  padding: 0 15px;
+}
+
+#search-bar-wrapper {
+  height: auto;
+  width: 100%;
+}
+
+#search-bar {
+  width: 100%;
+  z-index: 100;
+}
+
+
+#search-bar input {
+  border: solid var(--theme-color);
+  background-color: transparent;
+  color: var(--text-color);
+  border-radius: 50px;
+  width: 100%;
+  padding: 6px 20px;
+  height: 38px;
+  border-radius: 30px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.bx-x-circle {
+  margin-left: 0%;
+  color: var(--text-color);
+  cursor: pointer;
+  list-style: none;
+  background-color: transparent;
+  border: none;
+  font-size: 1rem;
+}
+
+.chosenUser {
+  border: var(--text-color);
+  border-radius: 10px;
+  padding: 5px;
+  background-color: var(--theme-color);
+  margin: 5px;
+}
+
+.chosenUser i {
+  padding: 3px 0 4px 4px;
+  font-size: larger;
+}
+
+.chosenUser i:hover {
+  color: red;
+}
+
+#search_dropdown {
+  padding: 5px;
+  /* border: solid var(--theme-color); */
+  margin-top: 10px;
+  background-color: var(--theme-color);
+  width: 92%;
+}
+
+.search_dropdown_opts {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.search_dropdown_opts:hover h3{
+  /* background-color: var(--theme-color); */
+  text-decoration: underline;
+}
+.search_dropdown_opts img{
+  border: transparent;
+}
+.search_dropdown_opts:hover img{
+  box-shadow: 0 0px 2px 2px var(--text-color);
+}
+
+#room-maker.focus~#rooms-nav {
+  opacity: 0.2;
+}

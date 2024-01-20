@@ -1,0 +1,78 @@
+Error in ./chat-app.postman_collection.json:
+newman
+
+chat-app
+
+→ Register
+  POST http://localhost:3000/api/v1/auth/register [409 Conflict, 361B, 179ms]
+  1. Status code is 200
+  ✓  Response time is less than 500ms
+  2. Response body contains expected data
+
+→ Login
+  POST http://localhost:3000/api/v1/auth/login [200 OK, 514B, 147ms]
+  ✓  Status code is 200
+  ✓  Response time is less than 500ms
+  3. Response body contains expected data
+
+→ Get user info
+  GET http://localhost:3000/api/v1/users [200 OK, 321B, 85ms]
+
+→ Get card info
+  GET http://localhost:3000/api/v1/users/64b0eafadc4f4ac7ef0482ed [404 Not Found, 354B, 84ms]
+
+→ Get one room
+  GET http://localhost:3000/api/v1/rooms/64c64fb4957d0159f3b7f14d [404 Not Found, 354B, 85ms]
+
+→ Get rooms
+  GET http://localhost:3000/api/v1/rooms [404 Not Found, 357B, 85ms]
+
+→ Search
+  GET http://localhost:3000/api/v1/search/he [200 OK, 319B, 91ms]
+
+→ Create room
+  POST http://localhost:3000/api/v1/rooms/ [400 Bad Request, 353B, 174ms]
+
+→ Response invitation
+  PUT http://localhost:3000/api/v1/rooms/64c4bd21966073b9dd1d7908 [403 Forbidden, 351B, 87ms]
+
+→ Get media
+  GET http://localhost:3000/media/64beb7b4da9e21e10ed7ab51/public/avatar.svg [404 Not Found, 255B, 6ms]
+
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                10 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                 2 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │                 6 │                 3 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 1169ms                                      │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 395B (approx)                              │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 102ms [min: 6ms, max: 179ms, s.d.: 48ms] │
+└─────────────────────────────────────────────────────────────────┘
+
+  #  failure         detail                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                               
+ 1.  AssertionError  Status code is 200                                                                                                                                                                                                                        
+                     expected response to have status code 200 but got 409                                                                                                                                                                                     
+                     at assertion:0 in test-script                                                                                                                                                                                                             
+                     inside "Register"                                                                                                                                                                                                                         
+                                                                                                                                                                                                                                                               
+ 2.  AssertionError  Response body contains expected data                                                                                                                                                                                                      
+                     expected '{"message":"Username already exists"}' to include 'Hello, World!'                                                                                                                                                               
+                     at assertion:2 in test-script                                                                                                                                                                                                             
+                     inside "Register"                                                                                                                                                                                                                         
+                                                                                                                                                                                                                                                               
+ 3.  AssertionError  Response body contains expected data                                                                                                                                                                                                      
+                     expected '{"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NGNhYTNmOWM5OWU4NjIzYmE1YWJhOGEiLCJpYXQiOjE2OTEwMDM1MDIsImV4cCI6MTY5MTAxMDcwMn0.CMxhLaM_88BEuv8HHHekgBaL1Lng_ny1rK37TY6f454"}' to include 'Hello, World!' 
+                     at assertion:2 in test-script                                                                                                                                                                                                             
+                     inside "Login"                                                                                                                                                                                                                            
+

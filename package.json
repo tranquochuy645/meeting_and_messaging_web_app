@@ -1,0 +1,22 @@
+{
+  "name": "chadtalks",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "bash ./ci/build.sh",
+    "test": "cd tests && bash runtest.sh",
+    "install": "cd frontend && npm i && cd ../backend && npm i",
+    "dev": "npm-run-all --parallel dev:backend dev:frontend",
+    "dev:backend": "cd backend && nodemon src/server.ts",
+    "dev:frontend": "cd frontend && npm run dev",
+    "start": "cd release && sudo bash start.sh",
+    "stop": "kill $(lsof -t -i:$1) || true", 
+    "acp": "git add . && git commit -m 'acp' && git push"
+  },
+  "author": "Huy Tran",
+  "license": "ISC",
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "wait-on": "^7.0.1"
+  }
+}
