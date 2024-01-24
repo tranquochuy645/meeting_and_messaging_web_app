@@ -12,10 +12,8 @@ touch "../logs/${image_name}_build_log_$timestamp.txt"
 
 # Parse command line arguments for environment variables and write to .env file
 rm -f ".env"
-i=1
 for env_var in "$@"; do
     echo "$env_var" >>".env"
-    i=$((i + 1))
 done
 
 # Check if .env file exists
