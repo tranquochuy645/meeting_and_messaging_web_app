@@ -380,8 +380,9 @@ export default class RoomsController extends CollectionReference {
         return 404; // Room not found
       }
 
+
       // Check if the user requesting deletion is the admin of the room
-      if (!room.admin?.equals(new ObjectId(whoAsked))) {
+      if (room.type == "global" || !room.admin?.equals(new ObjectId(whoAsked))) {
         return 403; // User is not the admin of the room
       }
 
