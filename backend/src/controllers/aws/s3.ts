@@ -22,9 +22,15 @@ const s3Init = async (region: string | null = null) => {
     }
     loadSharedConfigFiles()
         .then(r => {
-            console.log("Loaded default aws config: ")
-            console.log(r.configFile?.["default"]);
-            s3Client = new S3Client({ region: r.configFile?.["default"]?.region });
+            if (r.configFile?.["default"]) {
+                console.log("Loaded default aws config: ")
+                console.log(r.configFile?.["default"]);
+                s3Client = new S3Client({ region: r.configFile?.["default"]?.region });
+            } else {
+                console.log("Unable to load default aws config, falling back to hardcoded default: " + conf.default_region)
+                console.log(r);
+                s3Client = new S3Client({ region: conf.default_region });
+            }
         })
 }
 export { s3Client, s3Init, writeToS3Bucket };
