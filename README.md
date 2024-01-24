@@ -16,6 +16,5 @@ To-do list:
 - Everything else that was here before this list ✅ - Yep, that's sorted!
 - Move user-uploaded stuff to AWS S3 ✅ - Done
 - Polish up the app UI ❌ - Still in the design studio
-- Deleting to messages/content feature ❌ - Not there yet
 - End-to-end encrypted messaging feature ❌ - Nope
 - Server-side caching magic ❌ - Far away
