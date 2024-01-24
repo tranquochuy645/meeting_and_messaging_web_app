@@ -249,15 +249,14 @@ router.put('/:id', verifyToken, async (req, res) => {
         }
 
         // Remove the room ID from the user's rooms list using the 'dc.users.leaveRoom' method.
-        dc.users.leaveRoom(req.headers.userId as string, req.params.id as string);
-
+        await dc.users.leaveRoom(req.headers.userId as string, req.params.id as string);
+        // Respond with a 200 status and a success message after successfully leaving the room.
+        res.status(200).json({ message: "ok" });
+        // Signal to refresh
+        ic.io.to(req.params.id as string).emit('room');
         // Remove the user from the socket.io room for the room.
         ic.removeFromRoom(req.headers.userId as string, req.params.id as string);
-        // Signal to refresh
-        ic.io.to(req.headers.userId).emit('room')
-
-        // Respond with a 200 status and a success message after successfully leaving the room.
-        return res.status(200).json({ message: "ok" });
+        return
 
       default:
         // If the requested action is not recognized, respond with a 500 status and an error message.
