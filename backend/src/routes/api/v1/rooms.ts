@@ -302,15 +302,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
     // Get room information using the provided room ID.
     const roomInfo = await dc.rooms.getRoomsInfo([new ObjectId(req.params.id as string)]);
 
-    // Perform clean-up tasks for participants of the room.
-    if (roomInfo && roomInfo.length > 0) {
-      const participants = roomInfo[0].participants?.map((oid: ObjectId) => oid.toString());
-      participants.forEach((id: string) => {
-        dc.users.leaveRoom(id, req.params.id as string);
-        ic.io.to(id).emit('room');
-        ic.removeFromRoom(id, req.params.id as string);
-      });
-    }
+
 
     // Delete the room using the 'dc.rooms.deleteRoom' method.
     const deleted = await dc.rooms.deleteRoom(req.params.id as string, req.headers.userId as string);
@@ -318,6 +310,15 @@ router.delete('/:id', verifyToken, async (req, res) => {
     switch (deleted) {
       case 200:
         // Respond with a 200 status and a success message after successfully deleting the room.
+        // Perform clean-up tasks for participants of the room.
+        if (roomInfo && roomInfo.length > 0) {
+          const participants = roomInfo[0].participants?.map((oid: ObjectId) => oid.toString());
+          participants.forEach((id: string) => {
+            dc.users.leaveRoom(id, req.params.id as string);
+            ic.io.to(id).emit('room');
+            ic.removeFromRoom(id, req.params.id as string);
+          });
+        }
         return res.status(deleted).json({ message: "Deleted room successfully" });
       case 404:
         // If the room is not found, respond with a 404 status and an error message.
