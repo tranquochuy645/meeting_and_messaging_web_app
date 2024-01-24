@@ -43,4 +43,4 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_SSH_PORT }}
-          script:  cd app && sudo bash start.sh "MONGO_URI=${{ secrets.MONGO_URI }}" "JWT_KEY=${{ secrets.JWT_KEY }}"
+          script:  cd app && sudo bash start.sh "MONGO_URI=${{ secrets.MONGO_URI }}" "JWT_KEY=${{ secrets.JWT_KEY }} "MEDIA_BUCKET=${{ secrets.MEDIA_BUCKET }}"
