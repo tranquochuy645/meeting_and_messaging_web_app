@@ -2,18 +2,13 @@ import { filterMediaAccess } from '../../middlewares/express/filterMediaAccess';
 import { filterMediaAdmin } from '../../middlewares/express/filterMediaAdmin';
 import { Router } from 'express';
 import { GetObjectCommand, S3ClientConfig } from '@aws-sdk/client-s3';
-import { S3Client } from '@aws-sdk/client-s3';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { s3Client } from '../../controllers/aws/s3';
 import rateLimit from 'express-rate-limit';
 import conf from '../../config';
 
-
-const s3Client = new S3Client();
-
-
 const router = Router();
-
 
 const getLimiter = rateLimit({
     windowMs: 60 * 5000, // 5 minutes
@@ -26,19 +21,27 @@ router.get('/:userId/:roomId/:filename',
     getLimiter,
     filterMediaAccess, // Middleware to check access to the media
     async (req, res) => {
-        console.log(req.headers);
-        // Ensure that the filename is properly sanitized to prevent directory traversal attacks
-        // Remove any ".." to prevent traversal
-        const filename = req.params.filename.replace(/\.\.\//g, '');
-        const filePath = `media/${req.params.userId}/${req.params.roomId}/${filename}`;
-        const getObjectParams = {
-            "Bucket": conf.media_bucket,
-            "Key": filePath,
-        }
+        try {
+            if (!s3Client) {
+                throw new Error("S3Client is not available");
+            }
+            // console.log(req.headers);
+            // Ensure that the filename is properly sanitized to prevent directory traversal attacks
+            // Remove any ".." to prevent traversal
+            const filename = req.params.filename.replace(/\.\.\//g, '');
+            const filePath = `media/${req.params.userId}/${req.params.roomId}/${filename}`;
+            const getObjectParams = {
+                "Bucket": conf.media_bucket,
+                "Key": filePath,
+            }
 
-        const command = new GetObjectCommand(getObjectParams);
-        const url = await getSignedUrl(s3Client, command, { expiresIn: 60 });
-        res.redirect(url);
+            const command = new GetObjectCommand(getObjectParams);
+            const url = await getSignedUrl(s3Client, command, { expiresIn: 60 });
+            res.redirect(url);
+        } catch (e) {
+            console.error(e);
+            res.status(500).json({ message: "Something went wrong" });
+        }
     }
 );
 
@@ -55,6 +58,9 @@ router.post(
     filterMediaAdmin, // Middleware to check if the user has admin access
     async (req, res) => {
         try {
+            if (!s3Client) {
+                throw new Error("S3Client is not available");
+            }
             // Handle single file upload
             const presignedPost = await createPresignedPost(
                 s3Client,

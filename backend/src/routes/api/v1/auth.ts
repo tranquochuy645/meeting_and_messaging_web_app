@@ -1,10 +1,14 @@
 import { Router } from 'express';
 import { generateAuthToken } from '../../../lib/generateAuthToken';
-import { DefaultProfileImage } from '../../../lib/DefaultProfileImage';
+import { DefaultProfileImageGenerator } from '../../../lib/DefaultProfileImageGenerator';
 import { handleRegPassword } from '../../../middlewares/express/handleRegPassword';
 import { chatAppDbController as dc } from '../../../controllers/mongodb';
+import { writeToS3Bucket } from '../../../controllers/aws/s3';
+
 import bcrypt from 'bcrypt';
+
 const router = Router();
+
 
 /**
  * Route for user registration.
@@ -24,22 +28,46 @@ router.post('/register', handleRegPassword, async (req, res) => {
       return res.status(400).json({ message: 'Credentials Missing' });
     }
     const isAvailableUserName = await dc.users.checkAvailableUserName(username);
-    if (isAvailableUserName) {
-      const insertedUser = await dc.users.createUser(username, password);
-      const avatar = new DefaultProfileImage(username.charAt(0)) // svg content
-      const path = `media/${insertedUser.toString()}/public/avatar.png`
-      avatar.write('./' + path);
-      await dc.users.updateUser(
-        insertedUser.toString(),
-        {
-          invitations: [dc.globalChatId],
-          avatar: path
+    if (!isAvailableUserName) {
+      return res.status(409).json({ message: 'Username already exists' });
+    }
+
+    const insertedUser = await dc.users.createUser(username, password);
+    if (!insertedUser) {
+      throw new Error("Error adding user to database");
+    }
+    
+    res.status(200).json({ message: 'Created account successfully' });
+
+    dc.users.updateUser(
+      insertedUser.toString(),
+      {
+        invitations: [dc.globalChatId],
+      }
+    )
+
+    dc.rooms.addToInvitedList(insertedUser.toString(), dc.globalChatId.toString());
+
+    const path = `media/${insertedUser.toString()}/public/avatar.png`
+
+    DefaultProfileImageGenerator
+      .create(
+        username.charAt(0),
+        async (error: Error, buffer: string | ArrayBuffer) => {
+          try {
+            if (error) throw error;
+            await writeToS3Bucket(path, buffer);
+            dc.users.updateUser(
+              insertedUser.toString(),
+              {
+                avatar: path
+              }
+            )
+          } catch (e) {
+            console.error(e);
+          }
         }
       )
-      await dc.rooms.addToInvitedList(insertedUser.toString(), dc.globalChatId.toString());
-      return res.status(200).json({ message: 'Created account successfully' });
-    }
-    return res.status(409).json({ message: 'Username already exists' });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: 'Internal server error' });
