@@ -1,5 +1,6 @@
 import { FileWriter } from '../FileWriter';
 import svg2img from 'svg2img';
+import { S3Client } from '@aws-sdk/client-s3';
 class DefaultProfileImage {
   private initials: string;
   private size: number;
@@ -55,7 +56,7 @@ class DefaultProfileImage {
   public write(filePath: string): void {
     svg2img(
       this.resultSVG,
-      (error, buffer) => FileWriter.write(filePath, buffer)
+      (error, buffer) => FileWriter.writeToS3Bucket(filePath, buffer)
     );
   }
 }

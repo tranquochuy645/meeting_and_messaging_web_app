@@ -19,7 +19,7 @@ const generalLimiter = RateLimit({
 // Create a rate limiter middleware specifically for the /auth route
 const authLimiter = RateLimit({
     windowMs: 60 * 5000, // 5 minutes
-    max: 500, // maximum number of requests allowed in the window for /auth route
+    max: 10, // maximum number of requests allowed in the window for /auth route
     message: 'Too many requests for authentication from this IP, please try again later.',
 });
 

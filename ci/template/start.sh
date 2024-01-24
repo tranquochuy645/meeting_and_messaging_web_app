@@ -45,7 +45,7 @@ docker rm $old_container_ids &>>"$build_log"
 # Start the container with port mapping and environment variables
 echo "Starting container with port mapping (8080:8080) and environment variables..."
 docker run -d --restart unless-stopped \
-    -v /$image_name/media:/app/media \
+# -v /$image_name/media:/app/media \ #No need to mount this volume anymore because I migrated media storage to S3
     --env-file .env \
     -p 8080:8080 \
     $image_name

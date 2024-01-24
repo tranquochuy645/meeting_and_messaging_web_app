@@ -9,7 +9,7 @@ interface LazyLoadMediaDetectorProps {
 const LazyLoadMediaDetector: FC<LazyLoadMediaDetectorProps> = ({ url, token }) => {
   const [isImage, setIsImage] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
-  const alt = url.split('/').pop()?.substring(23) || 'File'; // Extract the last part after the last slash as the alt  
+  const alt = url.split('/').pop()?.substring(23) || 'Content no longer exists'; // Extract the last part after the last slash as the alt  
   useEffect(() => {
     // Extract the file extension from the URL
     const fileExtension = url.split('.').pop()?.toLowerCase();

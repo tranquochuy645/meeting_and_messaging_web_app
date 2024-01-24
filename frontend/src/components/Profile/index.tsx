@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useSocket } from "../SocketProvider";
 import { deleteAccount } from "../../lib/deleteAccount";
 import FileInput from "../FileInput";
+import { getPresignedPost, postFile } from "../../lib/uploadFile";
 import "./style.css";
 
 interface ProfileProps {
@@ -142,21 +143,14 @@ const Profile: FC<ProfileProps> = ({ token, profileData, onRefresh }) => {
     alert("Error updating profile");
   };
 
-  const handleUploadImage = async (file: any) => {
-    const formData = new FormData();
-    formData.append('file', file)
-    const res = await fetch(
-      `/media/${profileData?._id}/public?token=${token}&count=1`,
-      {
-        method: 'POST',
-        body: formData
-      }
-    )
-    const data = await res.json();
-    !res.ok && data.message && alert(data.message);
-    if (data.urls) {
-      avatarUrlRef.current = data.urls[0];
+  const handleUploadImage = async (file: File) => {
+    const url = `media/${profileData?._id}/public/${file.name}`;
+    const presignedPost = await getPresignedPost(url, token);
+    if (presignedPost && (await postFile(presignedPost, file))) {
+      avatarUrlRef.current = url;
       handleSubmit();
+    } else {
+      alert("Failed to upload image")
     }
   }
   const handleDeleteAccount = async () => {

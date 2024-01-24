@@ -2,6 +2,8 @@ import { FC, useState, memo } from "react"
 import { useSocket } from "../SocketProvider"
 import { ChangeEvent } from "react";
 import FileInput from "../FileInput";
+import { getPresignedPost, postFile } from "../../lib/uploadFile";
+
 import './style.css'
 interface InputBarProps {
     token: string;
@@ -12,60 +14,48 @@ interface InputBarProps {
 
 const InputBar: FC<InputBarProps> = ({ token, userId, roomId, onJustSent }) => {
     const [textInputValue, setTextInputValue] = useState("");
-    const [filesInput, setFilesInput] = useState<any[]>([]);
-    const [mediaInput, setMediaInput] = useState<any[]>([]);
+    const [filesInput, setFilesInput] = useState<File[]>([]);
+    const [mediaInput, setMediaInput] = useState<File[]>([]);
     const socket = useSocket();
-    const Upload = async (files: any[]) => {
-        try {
-            const formData = new FormData();
-            files.forEach(file => { formData.append(`file${files.length > 1 ? "s" : ""}`, file) })
-            const response = await fetch(
-                `/media/${userId}/${roomId}?token=${token}&count=${files.length}`,
-                {
-                    method: 'POST',
-                    body: formData
-                }
-            )
-            const data = await response.json();
-            return data
-        } catch (error) {
-            throw error
-        }
-    }
+
 
     const handleTextInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         setTextInputValue(event.target.value);
         console.log('typing ...');
+        //TODO: Send typing signal to other users 
     };
 
     const handleSendMessage = async () => {
-        let files = []
-        let urls: string[] = [];
+        if (textInputValue.trim() !== '') {
+            // Just send the text msg first
+            socket?.emit("msg", [roomId, textInputValue, new Date(), []]);
+            onJustSent(); // Signal for parent
+            setTextInputValue(''); // Clear input
+        }
+        let files: File[] = [];
         if (filesInput.length > 0) {
-            console.log(filesInput.length)
-            files = filesInput
+            files = [...files, ...mediaInput];
             setFilesInput([])
         }
         if (mediaInput.length > 0) {
-            console.log(mediaInput.length)
             files = [...files, ...mediaInput]
             setMediaInput([])
         }
         if (files.length > 0) {
-            try {
-                const data = await Upload(files);
-                if (data.urls) {
-                    urls = data.urls
+            files.forEach(async file => {
+                const url = `/media/${userId}/${roomId}/${file.name}`
+                const post = await getPresignedPost(url, token);
+                if (!post) {
+                    alert("Error uploading files: " + file.name);
+                    return;
                 }
-            } catch (e: any) {
-                return alert("error uploading files: " + e.message)
-            }
-        }
-        if (textInputValue.trim() !== '' || urls.length !== 0) {
-            console.log(urls)
-            socket?.emit("msg", [roomId, textInputValue, new Date(), urls]);
-            onJustSent();
-            setTextInputValue('');
+                if (await postFile(post, file)) {
+                    socket?.emit("msg", [roomId, null, new Date(), [url]]);
+                    onJustSent(); // Signal for parent
+                    return;
+                }
+                alert("Error uploading files: " + file.name);
+            })
         }
     };
     const handleUploadMedia = (file: any) => {

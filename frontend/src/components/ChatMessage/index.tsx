@@ -25,8 +25,8 @@ const OutGoingMessage: FC<OutGoingMessageProps> = ({ token, content, timestamp, 
                     urls.length > 0 &&
                     urls.map((url, index) => {
                         return (
-                            <div className='message_item'>
-                                <LazyLoadMediaDetector key={timestamp + index} token={token} url={url} />
+                            <div className='message_item'  key={timestamp + index}>
+                                <LazyLoadMediaDetector token={token} url={url} />
                             </div>
                         )
                     })
@@ -67,8 +67,8 @@ const InComingMessage: FC<InComingMessageProps> = ({ token, avatarSRC, content, 
                     urls.length > 0 &&
                     urls.map((url, index) => {
                         return (
-                            <div className='message_item'>
-                                <LazyLoadMediaDetector key={timestamp + index} token={token} url={url} />
+                            <div key={timestamp + index} className='message_item'>
+                                <LazyLoadMediaDetector  token={token} url={url} />
                             </div>
                         )
                     })

@@ -63,7 +63,7 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
     useEffect(() => {
         const updatedCursorsMap: { [key: string]: number } = {};
         readCursors
-            .filter((cursor) => cursor._id !== userId)
+            .filter((cursor) => cursor._id != userId)
             .forEach((cursor) => {
                 const cursorTimestamp = new Date(cursor.lastReadTimeStamp).getTime();
                 let left = 0;
@@ -96,7 +96,7 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
             {
                 messages.map((message: Message, index: number) => {
                     const seenList = participants
-                        .filter((p: any) => cursorsMap[p._id] === index)
+                        .filter((p: any) =>( cursorsMap[p._id] == index))
                         .map((p: any) => p.fullname);
                     if (message.sender && message.sender === userId) {
                         return (
