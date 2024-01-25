@@ -5,11 +5,10 @@ import conf from "../../config";
 let s3Client: S3Client | undefined;
 
 const getBucketRegion = async (bucketName: string) => {
-    if (!s3Client) throw new Error("S3 client not available");
     try {
         // Use the GetBucketLocationCommand to get the region of the specified bucket
         const command = new GetBucketLocationCommand({ Bucket: bucketName });
-        const response = await s3Client.send(command);
+        const response = await new S3Client().send(command);
         console.log("Get region of " + conf.media_bucket + " returned: ");
         console.log(response);
 
