@@ -16,8 +16,8 @@ const writeToS3Bucket = async (path: string, data: string | ArrayBuffer) => {
     console.log(`File written successfully to S3 bucket. ETag: ${response.ETag}`);
 }
 const s3Init = async (region: string | null = null) => {
-    s3Client = new S3Client({ region: conf.aws_region });
+    s3Client = new S3Client();
     console.log("initialized s3Client as region: ");
-    console.log(conf.aws_region);
+    console.log(s3Client.config.region);
 }
 export { s3Client, s3Init, writeToS3Bucket };
