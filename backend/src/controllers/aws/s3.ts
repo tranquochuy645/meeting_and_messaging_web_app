@@ -7,15 +7,15 @@ let s3Client: S3Client | undefined;
 const getBucketRegion = async (bucketName: string) => {
     try {
         // Use the GetBucketLocationCommand to get the region of the specified bucket
-        const command = new GetBucketLocationCommand({ Bucket: bucketName });
-        const response = await new S3Client().send(command);
-        console.log("Get region of " + conf.media_bucket + " returned: ");
-        console.log(response);
+        // const command = new GetBucketLocationCommand({ Bucket: bucketName });
+        // const response = await new S3Client().send(command);
+        // console.log("Get region of " + conf.media_bucket + " returned: ");
+        // console.log(response);
 
-        // Extract the region from the response
-        const region = response.LocationConstraint || conf.default_region;
+        // // Extract the region from the response
+        // const region = response.LocationConstraint || conf.default_region;
 
-        return region;
+        return conf.default_region;
     } catch (error) {
         console.error('Error getting bucket region:', error);
         throw error;
