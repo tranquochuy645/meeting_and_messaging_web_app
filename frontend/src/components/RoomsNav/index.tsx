@@ -48,6 +48,9 @@ const getRoomsInfo = (token: string): Promise<any> => {
                     sessionStorage.removeItem('token');
                     throw new Error()
                 }
+                if (response.status == 404) {
+                    resolve([]); // No room available
+                }
             })
             .catch((error) => {
                 reject(error);
