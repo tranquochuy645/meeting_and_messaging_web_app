@@ -4,23 +4,6 @@ import conf from "../../config";
 
 let s3Client: S3Client | undefined;
 
-const getBucketRegion = async (bucketName: string) => {
-    try {
-        // Use the GetBucketLocationCommand to get the region of the specified bucket
-        // const command = new GetBucketLocationCommand({ Bucket: bucketName });
-        // const response = await new S3Client().send(command);
-        // console.log("Get region of " + conf.media_bucket + " returned: ");
-        // console.log(response);
-
-        // // Extract the region from the response
-        // const region = response.LocationConstraint || conf.default_region;
-
-        return conf.default_region;
-    } catch (error) {
-        console.error('Error getting bucket region:', error);
-        throw error;
-    }
-}
 const writeToS3Bucket = async (path: string, data: string | ArrayBuffer) => {
     if (!s3Client) throw new Error("S3 client not available");
     const body = typeof data === 'string' ? data : Buffer.from(data);
@@ -33,12 +16,8 @@ const writeToS3Bucket = async (path: string, data: string | ArrayBuffer) => {
     console.log(`File written successfully to S3 bucket. ETag: ${response.ETag}`);
 }
 const s3Init = async (region: string | null = null) => {
-    if (region) {
-        s3Client = new S3Client({ region });
-        return;
-    }
-    const s3region = await getBucketRegion(conf.media_bucket);
-    s3Client = new S3Client({ region: s3region });
-    console.log("initialized s3Client as region: " + s3region);
+    s3Client = new S3Client({ region: conf.aws_region });
+    console.log("initialized s3Client as region: ");
+    console.log(conf.aws_region);
 }
 export { s3Client, s3Init, writeToS3Bucket };

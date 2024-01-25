@@ -8,7 +8,7 @@ interface EnvProps {
     db_name: string;
     port: string;
     media_bucket: string;
-    default_region: string;
+    aws_region: string;
 }
 
 // Create a configuration object using environment variables.
@@ -18,7 +18,7 @@ const conf: EnvProps = {
     db_name: process.env.DB_NAME || "",
     port: process.env.PORT || "",
     media_bucket: process.env.MEDIA_BUCKET || "",
-    default_region: "ap-southeast-1"
+    aws_region: process.env.AWS_REGION || "",
 };
 
 // Validate if any child property is null or undefined
