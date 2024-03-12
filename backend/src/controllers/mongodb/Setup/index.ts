@@ -7,6 +7,7 @@ import mediaSchema from '../Schema/media.json';
  * DatabaseSetup class for setting up the database collections and initializing global chat room.
  */
 class DatabaseSetup {
+  public static readonly TAG:String="DB-SETUP";
   // Define the global chat room object
   private globalChat = {
     type: "global",
@@ -28,12 +29,12 @@ class DatabaseSetup {
   private async createCollection(db: Db, collectionName: string, validator: object) {
     try {
       const collection = await db.createCollection(collectionName, { validator });
-      console.log('Collection created successfully:', collection.collectionName);
+      console.log(DatabaseSetup.TAG,'Collection created successfully:', collection.collectionName);
 
       if (collectionName === 'rooms') {
         const insertedData = await collection.insertOne(this.globalChat);
         this._globalChatId = insertedData.insertedId;
-        console.log('Created global chat room successfully');
+        console.log(DatabaseSetup.TAG,'Created global chat room successfully');
       }
     } catch (err) {
       console.error('Failed to create collection:', collectionName, err);
@@ -54,7 +55,7 @@ class DatabaseSetup {
       } else {
         const insertedData = await db.collection(collectionName).insertOne(this.globalChat);
         this._globalChatId = insertedData.insertedId;
-        console.log('Created global chat room successfully');
+        console.log(DatabaseSetup.TAG,'Created global chat room successfully');
       }
     } catch (err) {
       console.error('Failed to fetch data from collection:', collectionName, err);
@@ -68,7 +69,7 @@ class DatabaseSetup {
   private resetOnlineState(db: Db) {
     db.collection("users").updateMany({}, { $set: { isOnline: false } })
       .then(result => {
-        console.log("Reset online state: ", result.modifiedCount);
+        console.log(DatabaseSetup.TAG,"Reset online state: ", result.modifiedCount);
       })
       .catch(err => {
         console.error('Failed to reset online state:', err);
@@ -81,7 +82,7 @@ class DatabaseSetup {
   private resetMeetingState(db: Db) {
     db.collection("rooms").updateMany({}, { $set: { isMeeting: false, meeting_uuid: null } })
       .then(result => {
-        console.log("Reset meeting state: ", result.modifiedCount);
+        console.log(DatabaseSetup.TAG,"Reset meeting state: ", result.modifiedCount);
       })
       .catch(err => {
         console.error('Failed to reset meeting state:', err);
@@ -108,7 +109,7 @@ class DatabaseSetup {
               validationAction: "error"
             }
           );
-          console.log("Collmod successfully")
+          console.log(DatabaseSetup.TAG,"Collmod successfully")
           if (collectionName === 'rooms') {
             // Use collMod to update the collection with the new validator
 

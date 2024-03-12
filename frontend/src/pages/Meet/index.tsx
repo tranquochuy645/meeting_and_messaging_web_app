@@ -9,7 +9,7 @@ const Meet: FC = () => {
     const { meetId } = useParams();
     const [localStream, setLocalStream] = useState<MediaStream | null>(null)
     const navigate = useNavigate();
-    console.log("meet page render")
+    // console.log("meet page render")
     // Try to find token & roomId in session storage first
     let token = sessionStorage.getItem('token');
     let originalRoomId = sessionStorage.getItem('room');

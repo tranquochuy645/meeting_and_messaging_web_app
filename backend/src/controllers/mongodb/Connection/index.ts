@@ -1,6 +1,6 @@
 import { MongoClient, Db, DbOptions } from 'mongodb';
-
 export default class DBConnection {
+    public static readonly TAG:String="MONGODB-CONNECTION";
     private db: Db | null = null;
     private initPromise: Promise<void> | null = null;
     public constructor(
@@ -22,7 +22,7 @@ export default class DBConnection {
             if (!this.db) {
                 throw new Error("Connection failed");
             }
-            console.log("Connected to database");
+            console.log(DBConnection.TAG,"Connected to database");
             return
         } catch (e) {
             throw e

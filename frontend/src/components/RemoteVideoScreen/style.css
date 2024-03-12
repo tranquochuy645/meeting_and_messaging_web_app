@@ -1,0 +1,60 @@
+.remote-video-wrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1%;
+    height: 98%;
+    width: 98%;
+    border-radius: 15px;
+    position: relative;
+    z-index: 0;
+    background-color: black;
+}
+
+.remote-video-ctrl{
+    background-color: rgb(48, 0, 93);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 15%;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    z-index: 5;
+}
+
+.remote-video-ctrl button{
+    z-index: 10;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    width: min-content;
+    height: min-content;
+}
+
+.remote-video-ctrl .flex{
+    max-width: 20%;
+    align-items: center;
+    justify-content: space-evenly;
+}
+.remote-video-ctrl p{
+    font-size: large;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.remote-video-ctrl i{
+    font-size: xx-large;
+}
+.remote-video-wrapper video{
+    position: absolute;
+    overflow: hidden;
+    object-fit: contain;
+    width: 100%;
+    height: 85%;
+}

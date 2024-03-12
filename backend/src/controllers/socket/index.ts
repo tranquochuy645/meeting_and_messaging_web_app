@@ -4,8 +4,8 @@ import { verifyTokenViaSocketIO } from "../../middlewares/socketIO/jwt";
 import DatabaseController from "../mongodb";
 import { ChangeStreamDocument, ObjectId } from "mongodb";
 import { v4 as uuidv4 } from 'uuid';
-
 export default class SocketIOController {
+  public static readonly TAG:String = "SOCKET-IO";
   private _io: any = null;
   public init(server: HTTPServer, dc: DatabaseController) {
     const io = new socketIO.Server(server);
@@ -32,7 +32,7 @@ export default class SocketIOController {
       socket.join(userId);
       dc.users.setStatus(userId, true);
       socket.emit("ok");
-      console.log("A user connected");
+      console.log(SocketIOController.TAG,"A user connected");
       // Handle join meeting event
       socket.on("join_meet", async (initData: string[]) => {
 
@@ -44,22 +44,22 @@ export default class SocketIOController {
           return socket.disconnect()
         }
         socket.join(initData[1]);
-        console.log("A user has joined meeting");
+        console.log(SocketIOController.TAG,"A user has joined meeting");
 
         socket.on('terminate_offer', () => {
           socket.to(initData[1]).emit('terminate_offer', socket.id);
-          console.log("terminate offer");
+          console.log(SocketIOController.TAG,"terminate offer");
         })
         socket.on('terminate_answer', () => {
           socket.to(initData[1]).emit('terminate_answer', socket.id);
-          console.log("terminate answer");
+          console.log(SocketIOController.TAG,"terminate answer");
         })
 
         socket.on("disconnect", () => {
           io.to(initData[1]).emit('off_peer', socket.id);
-          console.log("A user has left meeting");
+          console.log(SocketIOController.TAG,"A user has left meeting");
           //if there is still user in this meeting, return
-          console.log(io.sockets.adapter.rooms.get(initData[1])?.size)
+          console.log(SocketIOController.TAG,io.sockets.adapter.rooms.get(initData[1])?.size)
           if (io.sockets.adapter.rooms.get(initData[1])?.size) return
           //else if all users has left the meeting
           io.to(initData[0]).emit("end_meet", initData);
@@ -67,23 +67,23 @@ export default class SocketIOController {
         })
         socket.on('offer', (msg: any[]) => {
           //msg: [ target socket id, offer data]
-          console.log("offer");
+          console.log(SocketIOController.TAG,"offer");
           socket.to(msg[0]).emit('offer', [socket.id, msg[1]]);
         })
         socket.on('answer', (msg: any[]) => {
           //msg: [ target socket id, answer data]
-          console.log("answer")
+          console.log(SocketIOController.TAG,"answer")
           socket.to(msg[0]).emit('answer', [socket.id, msg[1]]);
         })
         socket.on('ice_candidate', (msg: any[]) => {
           //msg: [ target socket id, ice data]
-          console.log("ice")
+          // console.log(SocketIOController.TAG,"ice")
           socket.to(msg[0]).emit('ice_candidate', [socket.id, msg[1]]);
         })
         // When a user completed setup camera, they send "ok"
         // Announce that they have joined
         socket.to(initData[1]).emit('new_peer', socket.id);
-        console.log("new_peer:", socket.id, initData)
+        console.log(SocketIOController.TAG,"new_peer:", socket.id, initData)
         // Check if this is the first user in the meeting
         if (io.sockets.adapter.rooms.get(initData[1])?.size === 1) {
           const meetingState = await dc.rooms.checkMeeting(initData[0]);
@@ -98,7 +98,7 @@ export default class SocketIOController {
       });
       // Handle join chat event
       socket.on('join_chat', async () => {
-        console.log("A user has joined chat");
+        console.log(SocketIOController.TAG,"A user has joined chat");
         rooms.length > 0 && rooms.forEach(
           (room: string) => {
             socket.join(room)
@@ -116,14 +116,14 @@ export default class SocketIOController {
           // Handle message event
           socket.on("msg", (msg) => {
             //msg: [room id, content, date, [urls] ]
-            console.log("msg:", msg);
+            console.log(SocketIOController.TAG,"msg:", msg);
             io.to(msg[0]).emit("msg", [userId, msg[0], msg[1], msg[2], msg[3]]);
             dc.rooms.saveMessage(userId, msg[0], msg[1], msg[2], msg[3]);
           });
 
           socket.on("seen", (msg) => {
             //msg: [room id, date]
-            console.log("Seen", msg)
+            console.log(SocketIOController.TAG,"Seen", msg)
             socket.to(msg[0]).emit("seen", [msg[0], userId, msg[1]]);
             dc.rooms.updateReadCursor(msg[0], userId, msg[1])
           })
@@ -131,7 +131,7 @@ export default class SocketIOController {
           // Handle call event
           socket.on("meet", async (msg) => {
             //msg: [room id, date]
-            console.log("meet:", msg);
+            console.log(SocketIOController.TAG,"meet:", msg);
             const meetingState = await dc.rooms.checkMeeting(msg[0])
             if (meetingState?.isMeeting && meetingState.meeting_uuid) {
               //Just tell the client to refresh because something went wrong
@@ -146,7 +146,7 @@ export default class SocketIOController {
           });
 
           socket.on("disconnect", async () => {
-            console.log("A user has left chat");
+            console.log(SocketIOController.TAG,"A user has left chat");
             // If the user has other socket connected,return
             if (io.sockets.adapter.rooms.get(userId)?.size) return
             // All sockets of the user have been disconnected
@@ -170,7 +170,7 @@ export default class SocketIOController {
         }
       })
       socket.on("disconnect", () => {
-        console.log("A user disconnected");
+        console.log(SocketIOController.TAG,"A user disconnected");
       })
     });
     const invitations_update_pipeline = [

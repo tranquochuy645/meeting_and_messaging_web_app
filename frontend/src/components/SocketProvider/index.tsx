@@ -15,9 +15,9 @@ const SocketContext = createContext<Socket | undefined>(undefined);
 
 const SocketProvider: FC<SocketProviderProps> = ({ token, joinMeet, children }) => {
     const [connected, setConnected] = useState<boolean>(false);
-    console.log("provider exec")
+    // console.log("provider exec")
     useEffect(() => {
-        console.log("socket effect")
+        // console.log("socket effect")
         if (token) {
             if (joinMeet) {
                 SocketController.connect(token, joinMeet)
@@ -30,7 +30,7 @@ const SocketProvider: FC<SocketProviderProps> = ({ token, joinMeet, children }) 
             setConnected(false)
         }
         return (() => {
-            console.log("unmounted socket provider")
+            // console.log("unmounted socket provider")
             SocketController.disconnect()
             setConnected(false)
         })
