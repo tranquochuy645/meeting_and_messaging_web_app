@@ -1,32 +1,8 @@
-/* =======btn======= */
-
-.calling_btn {
-  background-repeat: no-repeat;
-  background-size: 24px;
-  border: none;
-  height: 48px;
-  margin: 0 8px;
-  box-shadow: var(--navigation-box-shadow);
-  border-radius: 8px;
-  width: 48px;
-  cursor: pointer;
-  outline: none;
-  background-color: var(--button-bg);
-}
-#ctrl_local {
+#local_ctrl {
+  width: 100%;
   position: fixed;
-  bottom: 15%;
-  left: 47%;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-#meeting-page_section_local.aside #ctrl_local {
-  position: fixed;
-  bottom: 10px;
-  left: 60px;
+  bottom: 0;
+  left: 0;
   background: transparent;
   display: flex;
   align-items: center;
@@ -34,24 +10,53 @@
   z-index: 100;
 }
 
+#meeting-page_section_local {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-#ctrl_local i {
+#meeting-page_section_local.aside {
+  padding: 0;
+  position: fixed;
+  bottom: 20px;
+  left: 0px;
+  width: auto;
+  height: 200px;
+  z-index: 1;
+}
+#local_video {
+  height: 70%;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+}
+
+#meeting-page_section_local.aside #local_video {
+  height: 100%;
+  margin-left: 10px;
+}
+
+#local_ctrl i {
   text-shadow: 0px 0px 3px #ffffff;
+  font-size: xx-large;
+  color: black;
 }
 
 #toggle-local-cam,
 #toggle-local-audio {
   display: none;
 }
-
-.btn-toggle {
+.local_ctrl_btn:hover{
+  cursor: pointer;
+}
+.local_ctrl_btn {
+  outline: none;
+  background: none;
+  border: none;
   margin: 20px;
 }
 
-.btn-toggle i {
-  font-size: x-large;
-  color: black;
-}
 
 #toggle-local-cam+div .bxs-video-off {
   display: none;
@@ -85,32 +90,7 @@
   display: none;
 }
 
-#local-video {
-  height: 70%;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-}
 
-#meeting-page_section_local {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#meeting-page_section_local.aside {
-  padding: 0;
-  position: fixed;
-  bottom: 20px;
-  left: 0px;
-  width: auto;
-  height: 200px;
-  z-index: 1;
-}
-
-#meeting-page_section_local.aside #local-video {
-  height: 100%;
-}
 
 #meeting-page_section_remote {
   display: flex;
@@ -150,7 +130,7 @@
   flex-basis: 40%;
   max-width: 100%;
   max-height: 40%;
-  margin:auto;
+  margin: auto;
 }
 
 .col .remote-peer-container {
@@ -159,7 +139,8 @@
   height: 30%;
   max-height: 30%;
 }
-.remote-peer-container.others{
+
+.remote-peer-container.others {
   max-height: 10%;
   height: max-content;
 }

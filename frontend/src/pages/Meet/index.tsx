@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { FC,  useState } from 'react';
+import { FC, useState } from 'react';
 import SocketProvider from '../../components/SocketProvider';
 import AskForMediaDevices from '../../components/AskForMediaDevices';
 import MeetingWindow from '../../components/MeetingWindow';
 import './style.css';
+import AskForScreenCapturing from '../../components/AskForScreenCapturing';
 
 const Meet: FC = () => {
     const { meetId } = useParams();
@@ -13,6 +14,7 @@ const Meet: FC = () => {
     // Try to find token & roomId in session storage first
     let token = sessionStorage.getItem('token');
     let originalRoomId = sessionStorage.getItem('room');
+    let isScreenSharingTab = new URLSearchParams(window.location.search).get('share')=="true";
     if (!meetId) {
         navigate('/auth');
     } else if (!token || !originalRoomId) {
@@ -30,7 +32,7 @@ const Meet: FC = () => {
             // Remove the 'token' parameter from the URL
             urlParams.delete('token');
             urlParams.delete('room');
-            const newURL = `${window.location.pathname}?${urlParams.toString()}`;
+            const newURL = `${window.location.pathname}`;
             window.history.replaceState({}, '', newURL);
             token = pr_1;
             originalRoomId = pr_2;
@@ -49,7 +51,11 @@ const Meet: FC = () => {
                     <MeetingWindow localStream={localStream} />
                 </SocketProvider>
                 :
-                <AskForMediaDevices onReady={(stream) => { setLocalStream(stream) }} />
+                (isScreenSharingTab ?
+                    <AskForScreenCapturing onReady={(stream) => { setLocalStream(stream) }} />
+                    :
+                    <AskForMediaDevices onReady={(stream) => { setLocalStream(stream) }} />
+                )
             }
         </div>
     );

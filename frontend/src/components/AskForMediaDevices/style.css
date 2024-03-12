@@ -6,7 +6,7 @@
   width: 60vw; /* Adjust width as needed */
   padding: 20px; /* Add padding for better spacing */
   border-radius: 10px; /* Rounded corners */
-  background-color: #f0f0f0; /* Optional background */
+  background-color: #f0f0f063; /* Optional background */
   text-align: center; /* Align text and button */
   color: black;
   font-size: 30px;
@@ -17,7 +17,7 @@
   width: 50%; /* Make button full width */
   padding: 20px 40px; /* Adjust padding for button size */
   border-radius: 25px; /* Rounded corners for button */
-  background-color: #1a73e8; /* Green background */
+  background-color: #29006b; /* Green background */
   color: white; /* White text */
   border: none; /* Remove default border */
   cursor: pointer; /* Pointer cursor on hover */

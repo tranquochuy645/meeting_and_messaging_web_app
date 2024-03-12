@@ -14,6 +14,12 @@ interface Peer {
   id: string;
   client: RTCClient;
 }
+
+const handleShareScreen = () => {
+  const url = window.location + `?share=true`;
+  window.open(url)
+}
+
 const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
   const localVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
   const socket = useSocket();
@@ -162,8 +168,8 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
   return (
     <>
       <section id="meeting-page_section_local" className={`${Object.keys(peersList).length > 0 ? " aside" : ""}`}>
-        <div id="ctrl_local" className='flex'>
-          <label className="btn-toggle" htmlFor='toggle-local-cam'>
+        <div id="local_ctrl" className='flex'>
+          <label className="local_ctrl_btn" htmlFor='toggle-local-cam'>
             <input
               id="toggle-local-cam"
               type='checkbox'
@@ -174,7 +180,7 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
               <i className='bx bxs-video'></i>
             </div>
           </label>
-          <label className="btn-toggle" htmlFor='toggle-local-audio'>
+          <label className="local_ctrl_btn" htmlFor='toggle-local-audio'>
             <input
               id="toggle-local-audio"
               type='checkbox'
@@ -185,8 +191,11 @@ const MeetingWindow: FC<MeetingWindowProps> = ({ localStream }) => {
               <i className='bx bxs-microphone'></i>
             </div>
           </label>
+          <button className="local_ctrl_btn" onClick={handleShareScreen}>
+            <i className='bx bx-upload'></i>
+          </button>
         </div>
-        <video id="local-video" ref={localVideoPlayerRef} autoPlay playsInline muted />
+        <video id="local_video" ref={localVideoPlayerRef} autoPlay playsInline muted />
       </section>
       {
         Object.keys(peersList).length > 0 &&
