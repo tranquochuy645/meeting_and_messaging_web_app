@@ -5,6 +5,7 @@ import { useSocket } from '../SocketProvider';
 
 interface MessagesViewProps {
     readCursors: ReadCursor[];
+    conversationLength: number;
     token: string;
     roomId: string;
     messages: Message[];
@@ -14,7 +15,7 @@ interface MessagesViewProps {
 
 
 
-const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roomId, userId, participants }) => {
+const MessagesView: FC<MessagesViewProps> = ({ conversationLength, readCursors, token, messages, roomId, userId, participants }) => {
     const [cursorsMap, setCursorsMap] = useState<{ [key: string]: number }>({});
     const lengthRef = useRef(messages.length);
     const socket = useSocket();
@@ -96,13 +97,14 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
             {
                 messages.map((message: Message, index: number) => {
                     const seenList = participants
-                        .filter((p: any) =>( cursorsMap[p._id] == index))
+                        .filter((p: any) => (cursorsMap[p._id] == index))
                         .map((p: any) => p.fullname);
                     if (message.sender && message.sender === userId) {
                         return (
                             <OutGoingMessage
                                 token={token}
                                 key={index}
+                                index={conversationLength+index-messages.length}
                                 content={message.content}
                                 timestamp={message.timestamp}
                                 urls={message.urls}
@@ -114,6 +116,7 @@ const MessagesView: FC<MessagesViewProps> = ({ readCursors, token, messages, roo
                         <InComingMessage
                             token={token}
                             key={index}
+                            index={conversationLength+index-messages.length}
                             avatarSRC={getSenderAvatar(message.sender, participantsLookup)}
                             content={message.content}
                             timestamp={message.timestamp}

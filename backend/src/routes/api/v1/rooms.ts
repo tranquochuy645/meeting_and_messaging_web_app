@@ -45,7 +45,7 @@ router.get('/', verifyToken, async (req, res) => {
 // GET /api/v1/rooms/:id
 // Description: This endpoint returns the messages of a specific room that the authenticated user has access to.
 // Access: Requires a valid access token. The user must be authenticated.
-
+// Queries: ["regex","skip","limit"]
 /**
  * Get messages of a specific room for the authenticated user.
  * @param {Object} req - Express request object.
@@ -60,12 +60,30 @@ router.get('/:id', verifyToken, async (req, res) => {
     });
   }
 
+  const regex = req.query.regex as string;
 
-  // Parse the 'skip' parameter from the query string. Default to 0 if not provided or invalid.
-  const skip = parseInt(req.query.skip as string, 10);
+  if (regex) {
+    try {
+      const data = await dc.rooms.findMessages(req.headers.userId as string, req.params.id as string, regex);
+      if (data[0] === 0) {
+        res.status(200).json(data[1]);
+        return;
+      }
+      res.status(403).json({ message: "Access denied" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" })
+    }
+    return;
+  }
+
+  const timestamp = req.query.timestamp as string;
 
   // Parse the 'limit' parameter from the query string. Default to 30 if not provided or invalid.
   const limit = parseInt(req.query.limit as string, 10) || 30;
+
+  // Parse the 'skip' parameter from the query string. Default to 0 if not provided or invalid.
+  const skip = parseInt(req.query.skip as string, 10);
 
   try {
     // Retrieve the messages for the specified room, limited by 'limit' and skipped by 'skip', using the data controller.
@@ -73,7 +91,8 @@ router.get('/:id', verifyToken, async (req, res) => {
 
     // If the user is not a member of this room or the room is not found, respond with a 404 status and a corresponding message.
     if (!data) {
-      throw new Error('Room not found or not a member of this room');
+      res.status(404).json({ message: 'Room not found' });
+      return;
     }
     // Respond with a 200 status and the retrieved room messages.
     res.status(200).json(data);
@@ -83,7 +102,7 @@ router.get('/:id', verifyToken, async (req, res) => {
   } catch (err) {
     console.error(err);
     // If an error occurs during the process, respond with a 404 status and an error message.
-    res.status(404).json({ message: 'Room not found' });
+    res.status(500).json({ message: 'Idk' });
   }
 });
 

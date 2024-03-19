@@ -15,7 +15,6 @@ interface ChatBoxProps {
 
 const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
   const [justSent, setJustSent] = useState<boolean>(false);
-
   const handleJustSent = useCallback(() => {
     setJustSent(true);
   }, []);
@@ -27,18 +26,18 @@ const ChatBox: FC<ChatBoxProps> = ({ room, token, profile }) => {
         room={room}
       />
       <div id="chat-box_body">
-      {room && <MessagesContainer
-        justSent={justSent}
-        room={room}
-        token={token}
-        userId={profile._id}
-      />}
-      {room && <InputBar
-        token={token}
-        userId={profile._id}
-        roomId={room._id}
-        onJustSent={handleJustSent}
-      />}
+        {room && <MessagesContainer
+          justSent={justSent}
+          room={room}
+          token={token}
+          userId={profile._id}
+        />}
+        {room && <InputBar
+          token={token}
+          userId={profile._id}
+          roomId={room._id}
+          onJustSent={handleJustSent}
+        />}
       </div>
     </div>
   );

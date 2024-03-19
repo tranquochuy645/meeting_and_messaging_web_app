@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../SocketProvider';
 import { ChatRoom } from '../RoomsNav';
 import PendingFigure from '../PendingFigure';
+import FindMessage from '../FindMessage';
 import './style.css'
 
 export interface Message {
@@ -22,9 +23,10 @@ export interface ReadCursor {
 interface ChatRoomData {
     messages: Message[];
     conversationLength: number;
-    readCursors: ReadCursor[]
+    readCursors: ReadCursor[];
     isMeeting?: boolean;
     meeting_uuid?: string | null;
+    index?: number;
 }
 interface MessagesContainerProps {
     token: string;
@@ -33,12 +35,11 @@ interface MessagesContainerProps {
     justSent: boolean;
 }
 
-
 const getMessages = (
     roomId: string,
     token: string,
-    limit?: string,
-    skip?: string): Promise<any> => {
+    limit?: number,
+    skip?: number): Promise<any> => {
     return fetch(`/api/v1/rooms/${roomId}?limit=${limit}&skip=${skip}`, {
         method: 'GET',
         headers: {
@@ -61,7 +62,7 @@ const getMessages = (
         });
 };
 const DEFAULT_MESSAGES_LIMIT: number = 30; // limit on how many messages fetched in one request
-
+let wantToSee = -1;
 const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, justSent }) => {
     const [messages, setMessages] = useState<Message[]>([])
     const [conversationLength, setConversationLength] = useState(0)
@@ -72,7 +73,6 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
     const messagesContainerRef = useRef<HTMLDivElement>(null)
     const socket = useSocket();
     const navigate = useNavigate();
-    // console.log("Render container")
 
     const handleReceiveMessage = (msg: any[]) => {
         //msg: [sender,  room id,content, date, [urls]]
@@ -102,6 +102,32 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
             });
         }
     }
+    const handleJumpToMessage = (index: number) => {
+        const msg = document.getElementById("msg-" + index)
+        if (msg) {
+            msg.scrollIntoView();
+        } else {
+            const end = conversationLength - messages.length;
+            let start = index - 10;
+            if (start < 0) {
+                start = 0;
+            }
+            getMessages(room._id, token, end, start)
+                .then((data: ChatRoomData) => {
+                    wantToSee = index - 1;
+                    if (wantToSee < 0) wantToSee = 0;
+                    setMessages((prev) => {
+                        if (prev)
+                            return data.messages.concat(prev)
+                        return data.messages
+                    });
+                })
+                .catch(
+                    () => {
+                        navigate("/auth");
+                    });
+        }
+    }
 
     const scrollBottom = () => {
         if (!bottomRef.current) return
@@ -119,14 +145,14 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
             if (topRef.current) topRef.current.style.display = "none"
             return
         }
-        let skip;
-        let messagesLimit = DEFAULT_MESSAGES_LIMIT;
-        skip = conversationLength - messages.length - messagesLimit
-        if (skip < 0) {
-            messagesLimit += skip;
-            skip = 0;
+        let end = DEFAULT_MESSAGES_LIMIT;
+        let start = 0;
+        start = conversationLength - messages.length - end;
+        if (start < 0) {
+            end += start;
+            start = 0;
         }
-        getMessages(room._id, token, `${messagesLimit}`, `${skip}`)
+        getMessages(room._id, token, end, start)
             .then((data: ChatRoomData) => {
                 if (messagesContainerRef.current) {
                     messagesContainerRef.current.scrollTop = 300;
@@ -198,6 +224,15 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
 
     useEffect(() => {
         if (!messagesContainerRef.current || !messages) return
+        if (wantToSee > -1) {
+            const msg = document.getElementById("msg-" + wantToSee)
+            if (msg) {
+                msg.scrollIntoView();
+                console.log(wantToSee);
+                wantToSee = -1;
+            }
+            return;
+        }
         if (messages.length <= DEFAULT_MESSAGES_LIMIT) {
             // if this is the first load 
             return scrollBottom()
@@ -216,6 +251,8 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
 
     return (
         <>
+            {room && <FindMessage roomId={room._id} token={token} onJumpToMessage={handleJumpToMessage} />}
+
             <div ref={messagesContainerRef} id="messages-container">
                 <VisibilitySensor onChange={handleGetMoreMessages} >
                     <div ref={topRef} id="topRef">
@@ -224,6 +261,7 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
                 </VisibilitySensor>
                 {messages &&
                     <MessagesView
+                        conversationLength={conversationLength}
                         readCursors={readCursors}
                         token={token}
                         messages={messages}

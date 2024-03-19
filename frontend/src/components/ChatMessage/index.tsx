@@ -2,6 +2,7 @@ import { FC } from "react";
 import './style.css';
 import LazyLoadMediaDetector from "../LazyLoadMediaDetector";
 interface OutGoingMessageProps {
+    index: number
     token: string;
     content: string;
     timestamp: string;
@@ -9,9 +10,9 @@ interface OutGoingMessageProps {
     seenList?: string[];
 }
 
-const OutGoingMessage: FC<OutGoingMessageProps> = ({ token, content, timestamp, urls, seenList }) => {
+const OutGoingMessage: FC<OutGoingMessageProps> = ({ token, content, index, timestamp, urls, seenList }) => {
     return (
-        <div className="message">
+        <div className="message" id={"msg-" + index}>
             <div className="message_left"></div>
             <div className='message_right out'>
                 {
@@ -25,7 +26,7 @@ const OutGoingMessage: FC<OutGoingMessageProps> = ({ token, content, timestamp, 
                     urls.length > 0 &&
                     urls.map((url, index) => {
                         return (
-                            <div className='message_item'  key={timestamp + index}>
+                            <div className='message_item' key={timestamp + index}>
                                 <LazyLoadMediaDetector token={token} url={url} />
                             </div>
                         )
@@ -50,9 +51,9 @@ interface InComingMessageProps extends OutGoingMessageProps {
     avatarSRC: string;
 }
 
-const InComingMessage: FC<InComingMessageProps> = ({ token, avatarSRC, content, timestamp, urls, seenList }) => {
+const InComingMessage: FC<InComingMessageProps> = ({ token, avatarSRC, content, index, timestamp, urls, seenList }) => {
     return (
-        <div className="message">
+        <div className="message" id={"msg-" + index}>
             <div className="message_left">
                 <img className="inchat-avatar" src={avatarSRC} alt="Sender Avatar" />
             </div>
@@ -68,7 +69,7 @@ const InComingMessage: FC<InComingMessageProps> = ({ token, avatarSRC, content, 
                     urls.map((url, index) => {
                         return (
                             <div key={timestamp + index} className='message_item'>
-                                <LazyLoadMediaDetector  token={token} url={url} />
+                                <LazyLoadMediaDetector token={token} url={url} />
                             </div>
                         )
                     })

@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { CollectionReference } from "./generic";
 import { ConversationData } from "../interfaces";
+import { timeStamp } from "console";
 
 
 /**
@@ -151,6 +152,66 @@ export default class RoomsController extends CollectionReference {
     }
   }
 
+  /**
+   * findMessages() method for searching messages in a room.
+   * @param whoSearch - The ID of the user searching for messages.
+   * @param roomId - The ID of the room to search for messages.
+   * @param regex - The string to match against message content.
+   * @returns A Promise resolving to an array of Message objects
+   * @throws Error if the room is not found or the user is not a member of the room.
+   */
+
+  public async findMessages(whoSearch: string, roomId: string, regex: string) {
+    try {
+      const room = await this._collection.aggregate([
+        {
+          $match: {
+            _id: new ObjectId(roomId), // room id
+            participants: new ObjectId(whoSearch) // user id must be in room's participants list
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            filtered: {
+              $map: {
+                input: {
+                  $filter: {
+                    input: { $range: [0, { $size: "$messages" }] }, // Generate an array of indices
+                    as: "index",
+                    cond: {
+                      $regexMatch: {
+                        input: { $arrayElemAt: ["$messages.content", "$$index"] }, // Get the content of the message at the corresponding index
+                        regex: regex // The regular expression to match against message content
+                      }
+                    }
+                  }
+                },
+                as: "index",
+                in: {
+                  $mergeObjects: [
+                    { $arrayElemAt: ["$messages", "$$index"] }, // Get the message object at the corresponding index
+                    { index: "$$index" } // Insert the index field with its value
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]).toArray();
+      
+      if (!room) {
+        throw new Error("Something is wrong with the query");
+      }
+      if (!room[0]) {
+        return [1, null]; // Access denied or not found
+      }
+      return [0, room[0].filtered];
+    } catch (err: any) {
+      const errStacked = new Error(`Error in findMessages: ${err.message}`);
+      throw errStacked;
+    }
+  }
 
 
   /**

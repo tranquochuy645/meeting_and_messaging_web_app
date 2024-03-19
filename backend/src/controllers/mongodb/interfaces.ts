@@ -35,6 +35,7 @@ export interface Room {
     latestMessage: {} | null;
 }
 
+
 // Define the array of Room objects
 export interface RoomList extends Array<Room> { }
 
