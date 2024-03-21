@@ -103,7 +103,7 @@ const MessagesView: FC<MessagesViewProps> = ({ conversationLength, readCursors, 
                         return (
                             <OutGoingMessage
                                 token={token}
-                                key={index}
+                                key={conversationLength+index-messages.length}
                                 index={conversationLength+index-messages.length}
                                 content={message.content}
                                 timestamp={message.timestamp}
@@ -115,7 +115,7 @@ const MessagesView: FC<MessagesViewProps> = ({ conversationLength, readCursors, 
                     return (
                         <InComingMessage
                             token={token}
-                            key={index}
+                            key={conversationLength+index-messages.length}
                             index={conversationLength+index-messages.length}
                             avatarSRC={getSenderAvatar(message.sender, participantsLookup)}
                             content={message.content}

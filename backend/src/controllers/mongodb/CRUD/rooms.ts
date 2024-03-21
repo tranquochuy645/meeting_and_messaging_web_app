@@ -121,12 +121,13 @@ export default class RoomsController extends CollectionReference {
    * Retrieve the room details for the given room ID and user.
    * @param whoSearch - The user searching for the room.
    * @param roomId - The ID of the room to retrieve.
-   * @param messagesLimit - The limit of messages to retrieve.
-   * @param skip - Optional. The number of messages to skip from the beginning.
+   * @param skip - Optional. Real index of the first message to retrieve ( number to skip from beginning )
+   * if "skip" is undefined, return the last block of messages, with the messages count by "count"
+   * @param count - Optional. How many message to retrieve. Default by 30.
    * @returns A Promise resolving to the room details object.
-   * @throws Error if the room is not found or the user is not a member of the room.
+   * @throws Error if the room is not found or the user is not a member of the room
    */
-  public async getConversationData(whoSearch: string, roomId: string, messagesLimit: number, skip?: number): Promise<ConversationData | null> {
+  public async getConversationData(whoSearch: string, roomId: string, skip?: number, count: number = 30): Promise<ConversationData | null> {
     try {
       const room = await this._collection.findOne(
         {
@@ -137,7 +138,7 @@ export default class RoomsController extends CollectionReference {
           projection: {
             _id: 0,
             messages: {
-              $slice: Number.isInteger(skip) ? [skip, messagesLimit] : -messagesLimit
+              $slice: Number.isInteger(skip) ? [skip, count] : -count
             },
             conversationLength: { $cond: { if: { $isArray: "$messages" }, then: { $size: "$messages" }, else: "NA" } },
             readCursors: 1
@@ -199,7 +200,7 @@ export default class RoomsController extends CollectionReference {
           }
         }
       ]).toArray();
-      
+
       if (!room) {
         throw new Error("Something is wrong with the query");
       }

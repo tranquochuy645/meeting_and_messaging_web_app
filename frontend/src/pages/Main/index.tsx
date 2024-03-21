@@ -41,7 +41,6 @@ const Main: FC<MainProps> = ({ token }) => {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [roomsInfo, setRoomsInfo] = useState<any[]>([]);
   const [currentRoomIndex, setCurrentRoomIndex] = useState<number>(0);
-  console.log("render main")
   const navigate = useNavigate();
   const handleReFreshProfile = async () => {
     try {

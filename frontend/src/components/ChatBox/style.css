@@ -10,7 +10,7 @@
   height: calc( 100% - 6rem);
   display: flex;
   flex-direction: column;
-  justify-content: end;
+  justify-content: space-between;
 }
 
 

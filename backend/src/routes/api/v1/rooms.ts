@@ -45,7 +45,7 @@ router.get('/', verifyToken, async (req, res) => {
 // GET /api/v1/rooms/:id
 // Description: This endpoint returns the messages of a specific room that the authenticated user has access to.
 // Access: Requires a valid access token. The user must be authenticated.
-// Queries: ["regex","skip","limit"]
+// Queries: ["regex","skip","count"]
 /**
  * Get messages of a specific room for the authenticated user.
  * @param {Object} req - Express request object.
@@ -77,18 +77,22 @@ router.get('/:id', verifyToken, async (req, res) => {
     return;
   }
 
-  const timestamp = req.query.timestamp as string;
-
-  // Parse the 'limit' parameter from the query string. Default to 30 if not provided or invalid.
-  const limit = parseInt(req.query.limit as string, 10) || 30;
-
-  // Parse the 'skip' parameter from the query string. Default to 0 if not provided or invalid.
+  const count = parseInt(req.query.count as string, 10);
   const skip = parseInt(req.query.skip as string, 10);
-
   try {
-    // Retrieve the messages for the specified room, limited by 'limit' and skipped by 'skip', using the data controller.
-    const data = await dc.rooms.getConversationData(req.headers.userId as string, req.params.id as string, limit, skip);
-
+    let data;
+    if (Number.isNaN(skip) || Number.isNaN(count)) {
+      if (Number.isInteger(count) && count > 0) {
+        data = await dc.rooms.getConversationData(req.headers.userId as string, req.params.id as string, undefined, count)
+      } else {
+        data = await dc.rooms.getConversationData(req.headers.userId as string, req.params.id as string)
+      }
+    } else if (count < 0 || skip < 0) {
+      res.status(400).json({ message: 'Invalid arguments' });
+      return;
+    } else {
+      data = await dc.rooms.getConversationData(req.headers.userId as string, req.params.id as string, skip, count)
+    }
     // If the user is not a member of this room or the room is not found, respond with a 404 status and a corresponding message.
     if (!data) {
       res.status(404).json({ message: 'Room not found' });

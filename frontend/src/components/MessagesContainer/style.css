@@ -16,3 +16,7 @@
     flex-direction: column;
     overflow-y: scroll;
 }
+.highlight .message_content{
+    background-color: rgb(255, 221, 0);
+    color: black;
+}

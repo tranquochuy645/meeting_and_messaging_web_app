@@ -53,7 +53,7 @@ export default class SocketController {
     // Method to disconnect the socket and clear extraHeaders
     public static disconnect() {
         // Remove any existing event listeners before connecting
-        console.log("rm all listeners");
+        // console.log("rm all listeners");
         SocketController._instance.removeAllListeners();
         SocketController._instance.disconnect();
         SocketController._instance.io.opts.extraHeaders = {};

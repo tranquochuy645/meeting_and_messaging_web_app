@@ -1,6 +1,6 @@
 import VisibilitySensor from 'react-visibility-sensor';
 import MessagesView from "../MessagesView"
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../SocketProvider';
 import { ChatRoom } from '../RoomsNav';
@@ -38,9 +38,10 @@ interface MessagesContainerProps {
 const getMessages = (
     roomId: string,
     token: string,
-    limit?: number,
-    skip?: number): Promise<any> => {
-    return fetch(`/api/v1/rooms/${roomId}?limit=${limit}&skip=${skip}`, {
+    skip?: number,
+    count?: number
+): Promise<any> => {
+    return fetch(`/api/v1/rooms/${roomId}?skip=${skip}&count=${count}`, {
         method: 'GET',
         headers: {
             'content-type': 'application/json',
@@ -70,7 +71,7 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
     const topRef = useRef<HTMLDivElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
     const btnScrollRef = useRef<HTMLButtonElement>(null);
-    const messagesContainerRef = useRef<HTMLDivElement>(null)
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
     const socket = useSocket();
     const navigate = useNavigate();
 
@@ -102,19 +103,20 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
             });
         }
     }
-    const handleJumpToMessage = (index: number) => {
+    const handleJumpToMessage = useCallback((index: number) => {
         const msg = document.getElementById("msg-" + index)
         if (msg) {
             msg.scrollIntoView();
+            msg.classList.add("highlight");
         } else {
-            const end = conversationLength - messages.length;
-            let start = index - 10;
-            if (start < 0) {
-                start = 0;
+            let skip = index - 10;
+            if (skip < 0) {
+                skip = 0;
             }
-            getMessages(room._id, token, end, start)
+            const count = conversationLength - messages.length - skip;
+            getMessages(room._id, token, skip, count)
                 .then((data: ChatRoomData) => {
-                    wantToSee = index - 1;
+                    wantToSee = index;
                     if (wantToSee < 0) wantToSee = 0;
                     setMessages((prev) => {
                         if (prev)
@@ -127,7 +129,7 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
                         navigate("/auth");
                     });
         }
-    }
+    }, [messages.length]);
 
     const scrollBottom = () => {
         if (!bottomRef.current) return
@@ -145,14 +147,14 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
             if (topRef.current) topRef.current.style.display = "none"
             return
         }
-        let end = DEFAULT_MESSAGES_LIMIT;
-        let start = 0;
-        start = conversationLength - messages.length - end;
-        if (start < 0) {
-            end += start;
-            start = 0;
+        let count = DEFAULT_MESSAGES_LIMIT;
+        let skip = 0;
+        skip = conversationLength - messages.length - count;
+        if (skip < 0) {
+            count += skip;
+            skip = 0;
         }
-        getMessages(room._id, token, end, start)
+        getMessages(room._id, token, skip, count)
             .then((data: ChatRoomData) => {
                 if (messagesContainerRef.current) {
                     messagesContainerRef.current.scrollTop = 300;
@@ -224,14 +226,15 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
 
     useEffect(() => {
         if (!messagesContainerRef.current || !messages) return
+
         if (wantToSee > -1) {
             const msg = document.getElementById("msg-" + wantToSee)
             if (msg) {
                 msg.scrollIntoView();
-                console.log(wantToSee);
+                msg.classList.add("highlight");
                 wantToSee = -1;
+                return;
             }
-            return;
         }
         if (messages.length <= DEFAULT_MESSAGES_LIMIT) {
             // if this is the first load 
@@ -251,8 +254,12 @@ const MessagesContainer: FC<MessagesContainerProps> = ({ token, room, userId, ju
 
     return (
         <>
-            {room && <FindMessage roomId={room._id} token={token} onJumpToMessage={handleJumpToMessage} />}
-
+            {room &&
+                <FindMessage
+                    roomId={room._id}
+                    token={token}
+                    onJumpToMessage={handleJumpToMessage}
+                />}
             <div ref={messagesContainerRef} id="messages-container">
                 <VisibilitySensor onChange={handleGetMoreMessages} >
                     <div ref={topRef} id="topRef">
