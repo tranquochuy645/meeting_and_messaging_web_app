@@ -6,24 +6,14 @@ export default class RTCClient {
     // Default configuration for the RTCPeerConnection.
     public static _CONFIG: RTCConfiguration = {
         iceServers: [
-            {
-                urls: ["turn:turn.anyfirewall.com:443?transport=tcp"],
-                credential: "webrtc",
-                username: "webrtc"
+            { 
+                urls: ["stun:stun.l.google.com:19302"] 
             },
             {
-                urls: ["turn:192.158.29.39:3478?transport=tcp"],
-                credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
-                username: "28224511:1379330808"
-            },
-            {
-                urls: [
-                    "stun:stun.l.google.com:19302",
-                ]
-            },
-            {
-                urls: "stun:stun.relay.metered.ca:80",
-            },
+                urls: ["turn:"+window.location.hostname+":3478"],
+                username: 'test',
+                credential: 'test123'
+            }
         ],
         iceCandidatePoolSize: 10,
     };
