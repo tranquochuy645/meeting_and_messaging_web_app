@@ -7,7 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "start": "concurrently 'node src/server.js' 'node src/turn.js'"
+    "start": "node src/server"
   },
   "author": "",
   "license": "ISC",
