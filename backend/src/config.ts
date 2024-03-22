@@ -9,8 +9,6 @@ interface EnvProps {
     port: string;
     media_bucket: string;
     aws_region: string;
-    metered_domain: string;
-    metered_key: string;
 }
 
 // Create a configuration object using environment variables.
@@ -21,8 +19,6 @@ const conf: EnvProps = {
     port: process.env.PORT || "",
     media_bucket: process.env.MEDIA_BUCKET || "",
     aws_region: process.env.AWS_REGION || "",
-    metered_domain: process.env.METERED_DOMAIN || "",
-    metered_key: process.env.METERED_KEY || ""
 };
 
 // Validate if any child property is null or undefined
